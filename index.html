@@ -3,105 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Checklist 5S & Gestão de Frotas | JPatrício</title>
+    <title>Checklist 5S & Gestão Industrial | JPatrício</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase JS v2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Google Fonts: Inter -->
+    <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
     
     <style>
         * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        body { touch-action: manipulation; -webkit-user-select: none; user-select: none; background-color: #0f172a; color: #1e293b; }
-        .btn-giant { transition: transform 0.1s, box-shadow 0.15s, background-color 0.2s; }
-        .btn-giant:active { transform: scale(0.96); box-shadow: inset 0 4px 6px rgba(0,0,0,0.25); }
-        .mic-recording { animation: pulse-red 1.2s infinite; background-color: #dc2626 !important; color: white !important; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 22px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
-        .pulse-sos { animation: pulse-sos-anim 2s infinite; }
-        @keyframes pulse-sos-anim { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); } 50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .font-mono-num { font-family: 'JetBrains Mono', monospace; }
+        body { 
+            touch-action: manipulation; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            background-color: #0b1120; 
+            color: #0f172a; 
+        }
+        
+        /* Botões Tácteis Industriais */
+        .btn-industrial {
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .btn-industrial:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.3) !important;
+        }
+
+        /* Efeito de gravação ativa */
+        .mic-recording {
+            animation: pulse-recording 1.2s infinite;
+            background-color: #dc2626 !important;
+            color: white !important;
+            border-color: #f87171 !important;
+        }
+        @keyframes pulse-recording {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        .pulse-sos {
+            animation: pulse-sos-anim 2s infinite;
+        }
+        @keyframes pulse-sos-anim {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
     </style>
 </head>
-<body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-100 text-slate-800">
+<body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-950 text-slate-100">
 
-    <!-- CABEÇALHO PRINCIPAL -->
-    <header class="bg-gradient-to-r from-orange-600 to-amber-600 text-white px-4 py-3 shadow-lg flex justify-between items-center z-20 shrink-0">
+    <!-- CABEÇALHO INDUSTRIAL DE OPERAÇÕES -->
+    <header class="bg-slate-900 border-b border-slate-800 text-white px-4 py-2.5 shadow-md flex justify-between items-center z-20 shrink-0">
         <div class="flex items-center gap-3">
-            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="Logo JP" class="h-8 object-contain">
-            <span id="badge-modo" class="text-xs uppercase tracking-wider font-bold bg-black/25 px-2.5 py-0.5 rounded-full backdrop-blur-sm border border-white/20">Operador</span>
+            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="Logo JP" class="h-7 object-contain">
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-mono-num font-bold text-orange-400 bg-orange-950/60 border border-orange-800/80 px-2 py-0.5 rounded">5S-OPS</span>
+                <span id="badge-modo" class="text-[11px] uppercase tracking-wider font-extrabold bg-slate-800 text-slate-200 px-2.5 py-0.5 rounded border border-slate-700">Operador</span>
+            </div>
         </div>
 
         <div class="flex items-center gap-2">
-            <!-- Ponto de status de sincronização / rede -->
-            <div id="status-rede" class="flex items-center gap-1.5 bg-black/20 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+            <!-- Ponto de status de rede -->
+            <div id="status-rede" class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-full text-xs font-semibold">
                 <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="status-text">Online</span>
+                <span id="status-text" class="text-slate-300 text-[11px]">Online</span>
             </div>
 
-            <!-- Botão de SOS / Conserto Imediato (Visível na tela do operador) -->
-            <button id="btn-sos-header" onclick="abrirModalSOS()" class="pulse-sos bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 border border-red-400 active:scale-95 transition-all">
-                <i class="fa-solid fa-triangle-exclamation text-amber-300 text-sm"></i>
-                <span>SOS Conserto</span>
+            <!-- Botão de SOS Conserto Imediato -->
+            <button id="btn-sos-header" onclick="abrirModalSOS()" class="pulse-sos bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 border border-red-500 active:scale-95 transition-all">
+                <i class="fa-solid fa-triangle-exclamation text-amber-300 text-xs"></i>
+                <span class="tracking-wide">SOS</span>
             </button>
 
-            <!-- Alternar Modo Gestor (Abre Modal de Senha PIN) -->
-            <button onclick="abrirModalPinGestor()" class="bg-white/15 hover:bg-white/25 text-white p-2 rounded-lg text-sm font-semibold transition flex items-center gap-1">
-                <i class="fa-solid fa-sliders"></i>
-                <span class="hidden sm:inline text-xs font-bold">Gestão</span>
+            <!-- Acesso do Gestor (PIN 1234) -->
+            <button onclick="abrirModalPinGestor()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-lg text-xs font-bold border border-slate-700 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders text-orange-400"></i>
+                <span class="hidden sm:inline">Gestão</span>
             </button>
         </div>
     </header>
 
-    <!-- BARRA DE PROGRESSO DO OPERADOR -->
-    <div id="progress-wrapper" class="w-full bg-slate-200 h-2 shrink-0 relative overflow-hidden">
-        <div id="progress-bar" class="bg-gradient-to-r from-orange-500 to-emerald-500 h-full transition-all duration-300 rounded-r-full" style="width: 0%"></div>
+    <!-- BARRA DE PROGRESSO DINÂMICA -->
+    <div id="progress-wrapper" class="w-full bg-slate-900 h-1.5 shrink-0 relative overflow-hidden border-b border-slate-800">
+        <div id="progress-bar" class="bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-500 h-full transition-all duration-300" style="width: 5%"></div>
     </div>
 
     <!-- ==================== CONTAINER PRINCIPAL: MODO OPERADOR ==================== -->
-    <main id="app-operador" class="flex-1 flex flex-col items-center justify-between p-4 overflow-y-auto w-full max-w-md mx-auto relative pb-6">
+    <main id="app-operador" class="flex-1 flex flex-col items-center justify-between p-3.5 sm:p-4 overflow-y-auto w-full max-w-md mx-auto relative pb-4 text-slate-900 bg-slate-100 rounded-t-2xl sm:my-2 sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-800">
         <!-- Renderizado dinamicamente pelo JavaScript -->
     </main>
 
     <!-- ==================== CONTAINER PRINCIPAL: MODO GESTOR ==================== -->
-    <main id="app-gestor" class="flex-1 hidden flex-col w-full h-full overflow-hidden bg-slate-900 text-slate-100">
+    <main id="app-gestor" class="flex-1 hidden flex-col w-full h-full overflow-hidden bg-slate-950 text-slate-100">
         <!-- Sub-header do Gestor -->
-        <div class="bg-slate-800/80 border-b border-slate-700 p-3 px-6 flex flex-wrap justify-between items-center gap-4 shrink-0">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-chart-line text-orange-400 text-xl"></i>
-                <h1 class="text-lg font-bold text-white tracking-wide">Painel de Gestão e Manutenção 5S</h1>
+        <div class="bg-slate-900 border-b border-slate-800 p-3 px-6 flex flex-wrap justify-between items-center gap-3 shrink-0">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-black text-white tracking-wide">Centro de Gestão & Manutenção 5S</h1>
+                    <span class="text-[10px] text-slate-400 font-mono-num">SISTEMA INTEGRADO MATRIZ & FILIAL</span>
+                </div>
             </div>
             
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5 flex-wrap">
                 <button onclick="mudarAbaGestor('dashboard')" id="tab-btn-dashboard" class="tab-gestor-btn bg-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-chart-pie"></i> Indicadores & KPIs
+                    <i class="fa-solid fa-chart-pie"></i> Indicadores
                 </button>
-                <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-700 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-600 transition flex items-center gap-1.5">
+                <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-clipboard-list"></i> Checklists (<span id="count-checklists">0</span>)
                 </button>
-                <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-slate-700 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-600 transition flex items-center gap-1.5">
+                <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-wrench"></i> Kanban O.S. (<span id="count-os">0</span>)
                 </button>
-                <button onclick="mudarAbaGestor('maquinas')" id="tab-btn-maquinas" class="tab-gestor-btn bg-slate-700 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-600 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-truck-ramp-box"></i> Máquinas & Peças
+                <button onclick="mudarAbaGestor('maquinas')" id="tab-btn-maquinas" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Frotas (<span id="count-maquinas">13</span>)
                 </button>
-                <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-700 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-600 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bell text-red-400"></i> Alertas SOS (<span id="count-sos">0</span>)
+                <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bell text-red-400"></i> SOS (<span id="count-sos">0</span>)
                 </button>
-                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 ml-2 transition flex items-center gap-1">
+                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/40 ml-2 transition flex items-center gap-1">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
                 </button>
             </div>
         </div>
 
         <!-- Conteúdo das Abas do Gestor -->
-        <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-4 md:p-6">
+        <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-950">
             <!-- Preenchido via JavaScript -->
         </div>
     </main>
@@ -109,29 +150,29 @@
     <!-- ==================== MODAL DE PIN DO GESTOR ==================== -->
     <div id="modal-pin-gestor" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center text-white">
-            <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+            <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-orange-500/30">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <h3 class="text-xl font-bold mb-1">Acesso do Gestor</h3>
-            <p class="text-xs text-slate-400 mb-4">Digite o código PIN para acessar o painel</p>
+            <p class="text-xs text-slate-400 mb-4">Digite o código PIN (Padrão: 1234)</p>
             
-            <div id="pin-display" class="bg-slate-800 border-2 border-orange-500 h-12 rounded-xl flex items-center justify-center text-2xl tracking-[0.5em] font-mono font-bold mb-4 shadow-inner">
+            <div id="pin-display" class="bg-slate-950 border-2 border-orange-500 h-12 rounded-xl flex items-center justify-center text-2xl tracking-[0.5em] font-mono-num font-bold mb-4 shadow-inner">
                 ----
             </div>
 
             <div class="grid grid-cols-3 gap-2 max-w-[240px] mx-auto mb-4">
-                <button onclick="digitarPin('1')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">1</button>
-                <button onclick="digitarPin('2')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">2</button>
-                <button onclick="digitarPin('3')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">3</button>
-                <button onclick="digitarPin('4')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">4</button>
-                <button onclick="digitarPin('5')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">5</button>
-                <button onclick="digitarPin('6')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">6</button>
-                <button onclick="digitarPin('7')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">7</button>
-                <button onclick="digitarPin('8')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">8</button>
-                <button onclick="digitarPin('9')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">9</button>
-                <button onclick="limparPin()" class="btn-giant bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-delete-left"></i></button>
-                <button onclick="digitarPin('0')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">0</button>
-                <button onclick="confirmarPin()" class="btn-giant bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-check"></i></button>
+                <button onclick="digitarPin('1')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">1</button>
+                <button onclick="digitarPin('2')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">2</button>
+                <button onclick="digitarPin('3')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">3</button>
+                <button onclick="digitarPin('4')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">4</button>
+                <button onclick="digitarPin('5')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">5</button>
+                <button onclick="digitarPin('6')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">6</button>
+                <button onclick="digitarPin('7')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">7</button>
+                <button onclick="digitarPin('8')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">8</button>
+                <button onclick="digitarPin('9')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">9</button>
+                <button onclick="limparPin()" class="btn-industrial bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-delete-left"></i></button>
+                <button onclick="digitarPin('0')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">0</button>
+                <button onclick="confirmarPin()" class="btn-industrial bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-check"></i></button>
             </div>
 
             <button onclick="fecharModalPinGestor()" class="text-xs text-slate-400 hover:text-white font-medium py-1">
@@ -140,63 +181,111 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL DE CADASTRO / NOME DE OUTRO OPERADOR ==================== -->
+    <div id="modal-operador-outro" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border-2 border-slate-300 text-slate-800 text-center">
+            <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-orange-200">
+                <i class="fa-solid fa-user-pen"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 mb-1">Identificação do Operador</h3>
+            <p class="text-xs text-slate-500 mb-4">Digite o seu nome completo para assinar o checklist:</p>
+            
+            <input type="text" id="input-operador-outro" placeholder="Ex: Carlos Roberto Silva" class="w-full bg-slate-100 border-2 border-slate-300 focus:border-orange-500 rounded-xl p-3.5 text-base font-bold text-slate-800 mb-4 focus:outline-none focus:ring-4 focus:ring-orange-100">
+            
+            <div class="flex gap-2">
+                <button onclick="fecharModalOperadorOutro()" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold active:bg-slate-300">
+                    Cancelar
+                </button>
+                <button onclick="confirmarOperadorOutro()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold shadow-md active:scale-95">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== MODAL DE SOS / CONSERTO IMEDIATO ==================== -->
     <div id="modal-sos" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border-4 border-red-600 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
-            <div class="text-center mb-4">
+            <div class="text-center mb-3">
                 <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-2 text-3xl shadow-inner">
                     <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
                 </div>
                 <h3 class="text-2xl font-black text-red-600">PEDIDO DE CONSERTO IMEDIATO</h3>
-                <p class="text-xs text-slate-500 font-medium">A equipe de manutenção e os gestores serão avisados imediatamente.</p>
+                <p class="text-xs text-slate-500 font-medium">A equipe de mecânica e gestão será notificada com urgência.</p>
             </div>
 
             <!-- Escolha da Máquina com Defeito -->
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Qual máquina quebrou?</label>
-                <select id="sos-select-maquina" class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl p-3 font-bold text-slate-800 text-base focus:border-red-500 focus:outline-none">
-                    <!-- Preenchido dinamicamente -->
+            <div class="mb-3">
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Qual equipamento parou?</label>
+                <select id="sos-select-maquina" class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl p-3 font-bold text-slate-800 text-sm focus:border-red-500 focus:outline-none">
+                    <!-- Preenchido dinamicamente com todas as máquinas de Filial e Matriz -->
                 </select>
             </div>
 
-            <!-- Gravação do Áudio do Problema -->
-            <div class="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col items-center mb-4">
-                <p class="text-xs font-bold text-red-700 mb-3 text-center">Aperte o microfone e fale o que aconteceu:</p>
-                <button id="sos-btn-mic" onclick="toggleGravarAudioSOS()" class="btn-giant bg-white text-red-600 w-20 h-20 rounded-full shadow-lg flex items-center justify-center border-4 border-red-300 mb-2">
-                    <i id="sos-mic-icon" class="fa-solid fa-microphone text-3xl"></i>
+            <!-- Gravação de Áudio do Problema -->
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col items-center mb-3">
+                <p class="text-xs font-bold text-red-700 mb-2 text-center">Aperte e relate o que quebrou:</p>
+                <button id="sos-btn-mic" onclick="toggleGravarAudioSOS()" class="btn-industrial bg-white text-red-600 w-16 h-16 rounded-full shadow-md flex items-center justify-center border-4 border-red-300 mb-2">
+                    <i id="sos-mic-icon" class="fa-solid fa-microphone text-2xl"></i>
                 </button>
                 <span id="sos-mic-status" class="text-xs font-bold text-slate-600">Toque para gravar</span>
-                <audio id="sos-audio-preview" controls class="w-full mt-3 h-8 hidden rounded-lg"></audio>
+                <audio id="sos-audio-preview" controls class="w-full mt-2 h-8 hidden rounded-lg"></audio>
             </div>
 
-            <div class="flex gap-3 mt-2">
-                <button onclick="fecharModalSOS()" class="flex-1 bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl active:bg-slate-300">
+            <div class="flex gap-2.5">
+                <button onclick="fecharModalSOS()" class="flex-1 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl active:bg-slate-300">
                     Cancelar
                 </button>
-                <button id="sos-btn-enviar" onclick="enviarChamadoSOS()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-black py-3.5 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                <button id="sos-btn-enviar" onclick="enviarChamadoSOS()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-paper-plane"></i> Enviar Alerta
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ==================== SCRIPT PRINCIPAL & INTEGRAÇÃO SUPABASE ==================== -->
+    <!-- ==================== SCRIPT PRINCIPAL & REGRAS DE NEGÓCIO ==================== -->
     <script>
         // CONFIGURAÇÕES DO SUPABASE
         const SUPABASE_URL = "https://ibggvcjhzitrxiedzris.supabase.co";
         const SUPABASE_KEY = "sb_publishable_Myl_3AP0JE8TepHtQtDxGA_iLuznKjF";
-        const GEMINI_API_KEY = "AIzaSyAjDSyP2hB9bftfH8TNQbVF9e97s64UwsQ";
 
-        // Inicializar cliente do Supabase de forma segura
+        // Inicializar cliente do Supabase
         let db = null;
         try {
             if (window.supabase && typeof window.supabase.createClient === 'function') {
                 db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                console.log("Supabase client inicializado com sucesso!");
+                console.log("Supabase client conectado com sucesso!");
             }
         } catch (e) {
             console.error("Erro ao instanciar Supabase:", e);
         }
+
+        // ==================== LISTA OFICIAL DE MÁQUINAS (FILIAL & MATRIZ) ====================
+        const maquinasFilial = [
+            { codigo: 'CLA-RCK1', nome: 'CLA-RCK1', modelo: 'Clark Retrátil RCK1', unidade: 'FILIAL', horimetro_atual: 1450 },
+            { codigo: 'EMP-FD70', nome: 'EMP-FD70 (ZOOMLION FD70)', modelo: 'ZOOMLION FD70 Diesel', unidade: 'FILIAL', horimetro_atual: 13339 },
+            { codigo: 'JHC-01',   nome: 'JHC-01',   modelo: 'Jungheinrich JHC-01', unidade: 'FILIAL', horimetro_atual: 3200 },
+            { codigo: 'CHL-7T01', nome: 'CHL-7T01 (CHLCPCD 70)', modelo: 'CHL CPCD 70 Diesel', unidade: 'FILIAL', horimetro_atual: 12004 },
+            { codigo: 'EMP-EL20', nome: 'EMP-EL20', modelo: 'Empilhadeira Elétrica 2.0T', unidade: 'FILIAL', horimetro_atual: 890 },
+            { codigo: 'EMP-FD35', nome: 'EMP-FD35 (ZOOMLION FD35)', modelo: 'ZOOMLION FD35 Diesel', unidade: 'FILIAL', horimetro_atual: 7955 },
+            { codigo: 'EMP-T50A', nome: 'EMP-T50A (CHINESA T50A)', modelo: 'Chinesa T50A GLP', unidade: 'FILIAL', horimetro_atual: 1200 }
+        ];
+
+        const maquinasMatriz = [
+            { codigo: 'EMP-0402', nome: 'EMP-0402', modelo: 'Empilhadeira 0402', unidade: 'MATRIZ', horimetro_atual: 4120 },
+            { codigo: 'HYS-TER1', nome: 'HYS-TER1', modelo: 'Hyster Fortis 1', unidade: 'MATRIZ', horimetro_atual: 6540 },
+            { codigo: 'TOY-OT01', nome: 'TOY-OT01', modelo: 'Toyota 8FG01', unidade: 'MATRIZ', horimetro_atual: 5210 },
+            { codigo: 'EMP-EL21', nome: 'EMP-EL21', modelo: 'Empilhadeira Elétrica 2.1T', unidade: 'MATRIZ', horimetro_atual: 1100 },
+            { codigo: 'EMP-FD36', nome: 'EMP-FD36', modelo: 'Empilhadeira FD36 Diesel', unidade: 'MATRIZ', horimetro_atual: 3890 },
+            { codigo: 'EMP-FD72', nome: 'EMP-FD72', modelo: 'Empilhadeira FD72 Diesel', unidade: 'MATRIZ', horimetro_atual: 2450 }
+        ];
+
+        // Lista de operadores padrão
+        let listaOperadores = [
+            { nome: 'Damião Candido da Silva' },
+            { nome: 'Lázaro Antonio de Almeida' },
+            { nome: 'Ivanaldo Alves Ferreira Filho' }
+        ];
 
         // 16 Itens de Verificação 5S
         const checklistItems = [
@@ -219,21 +308,19 @@
         ];
 
         // Estado do Formulário do Operador
-        let currentStepIndex = -1;
-        let formData = { empilhadeira: '', maquina_id: null, operador: '', horimetro: '' };
+        let currentStepIndex = -5;
+        let formData = {
+            categoria: 'maquinas',
+            tipo_maquina: 'empilhadeiras',
+            unidade: 'FILIAL',
+            empilhadeira: '',
+            maquina_id: null,
+            operador: '',
+            horimetro: '',
+            observacao_texto: ''
+        };
         let observacoesList = [];
         let synth = window.speechSynthesis;
-
-        // Dados padrão imediatos (sem depender de delay de rede)
-        let listaMaquinas = [
-            { codigo: 'EMP-01', nome: 'ZOOMLION - FD70', horimetro_atual: 13339 },
-            { codigo: 'EMP-02', nome: 'ZOOMLION - FD35', horimetro_atual: 9999 },
-            { codigo: 'EMP-03', nome: 'CHLCPCD 70', horimetro_atual: 986 },
-            { codigo: 'EMP-04', nome: 'CHINESA-T50A', horimetro_atual: 1200 }
-        ];
-        let listaOperadores = [
-            { nome: 'Lázaro' }, { nome: 'Damião' }, { nome: 'João' }, { nome: 'Antônio' }
-        ];
 
         // Elementos DOM
         const appOperador = document.getElementById('app-operador');
@@ -242,39 +329,33 @@
         const progressWrapper = document.getElementById('progress-wrapper');
         const badgeModo = document.getElementById('badge-modo');
 
-        // ==================== INICIALIZAÇÃO IMEDIATA & CARGA DO SUPABASE ====================
+        // ==================== CARGA DE DADOS DO SUPABASE ====================
         async function carregarDadosDoBanco() {
             if (!db) return;
             try {
-                // Carregar Máquinas reais
-                const { data: maquinas, error: errMaq } = await db
-                    .from('maquinas')
-                    .select('*')
-                    .order('nome');
-                
-                if (!errMaq && maquinas && maquinas.length > 0) {
-                    listaMaquinas = maquinas;
-                    atualizarSelectSOS();
-                    if (currentStepIndex === -1) renderCurrentStep();
+                const { data: maquinas } = await db.from('maquinas').select('*');
+                if (maquinas && maquinas.length > 0) {
+                    maquinas.forEach(m => {
+                        const lista = (m.unidade === 'MATRIZ') ? maquinasMatriz : maquinasFilial;
+                        const idx = lista.findIndex(item => item.codigo === m.codigo);
+                        if (idx >= 0) {
+                            lista[idx].id = m.id;
+                            lista[idx].horimetro_atual = Number(m.horimetro_atual);
+                        }
+                    });
                 }
 
-                // Carregar Operadores reais
-                const { data: operadores, error: errOp } = await db
-                    .from('operadores')
-                    .select('*')
-                    .eq('ativo', true)
-                    .order('nome');
-                
-                if (!errOp && operadores && operadores.length > 0) {
-                    listaOperadores = operadores;
-                    if (currentStepIndex === -2) renderCurrentStep();
+                const { data: ops } = await db.from('operadores').select('*').eq('ativo', true);
+                if (ops && ops.length > 0) {
+                    listaOperadores = ops;
                 }
+                atualizarSelectSOS();
             } catch (e) {
-                console.warn("Aviso na sincronização de dados:", e);
+                console.warn("Aviso na sincronização do Supabase:", e);
             }
         }
 
-        // ==================== CONTROLE DE REDE E OFFLINE ====================
+        // ==================== REDE & STATUS ====================
         function atualizarStatusRede() {
             const isOnline = navigator.onLine;
             const dot = document.getElementById('status-dot');
@@ -291,7 +372,7 @@
         window.addEventListener('online', atualizarStatusRede);
         window.addEventListener('offline', atualizarStatusRede);
 
-        // ==================== VOZ (TEXT-TO-SPEECH) ====================
+        // ==================== TEXT-TO-SPEECH ====================
         function speakText(text) {
             try {
                 if (!synth) synth = window.speechSynthesis;
@@ -304,13 +385,16 @@
             } catch (e) {}
         }
 
-        // ==================== NAVEGAÇÃO OPERADOR ====================
+        // ==================== NAVEGAÇÃO E PROGRESSO ====================
         function updateProgress() {
-            let totalSteps = checklistItems.length + 3;
-            let current = 0;
-            if (currentStepIndex === -2) current = 1;
-            else if (currentStepIndex === -3) current = 2;
-            else if (currentStepIndex >= 0) current = currentStepIndex + 3;
+            let totalSteps = checklistItems.length + 5; // -5, -4, -1, -2, -3 + 16 itens + 99
+            let current = 1;
+            if (currentStepIndex === -5) current = 1;
+            else if (currentStepIndex === -4) current = 2;
+            else if (currentStepIndex === -1) current = 3;
+            else if (currentStepIndex === -2) current = 4;
+            else if (currentStepIndex === -3) current = 5;
+            else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length) current = currentStepIndex + 6;
             else if (currentStepIndex === 99) current = totalSteps;
 
             let percentage = (current / totalSteps) * 100;
@@ -324,8 +408,10 @@
         }
 
         function goBack() {
-            if (currentStepIndex === -1) return;
-            if (currentStepIndex === -2) goToStep(-1);
+            if (currentStepIndex === -5) return;
+            if (currentStepIndex === -4) goToStep(-5);
+            else if (currentStepIndex === -1) goToStep(-4);
+            else if (currentStepIndex === -2) goToStep(-1);
             else if (currentStepIndex === -3) goToStep(-2);
             else if (currentStepIndex === 0) goToStep(-3);
             else if (currentStepIndex > 0 && currentStepIndex < checklistItems.length) goToStep(currentStepIndex - 1);
@@ -333,7 +419,17 @@
         }
 
         function goNext() {
-            if (currentStepIndex === -1 && formData.empilhadeira) goToStep(-2);
+            if (currentStepIndex === -5) {
+                if (formData.categoria === 'veiculos') {
+                    alert("O módulo de Veículos (Caminhões e Utilitários) está em parametrização. Selecione 'Máquinas' para continuar.");
+                    return;
+                }
+                goToStep(-4);
+            }
+            else if (currentStepIndex === -4) {
+                goToStep(-1);
+            }
+            else if (currentStepIndex === -1 && formData.empilhadeira) goToStep(-2);
             else if (currentStepIndex === -2 && formData.operador) goToStep(-3);
             else if (currentStepIndex === -3) {
                 if (!formData.horimetro) formData.horimetro = '0';
@@ -350,35 +446,60 @@
         function renderNavButtons() {
             if (currentStepIndex === 99) {
                 return `
-                <div class="w-full flex justify-start mt-4 shrink-0">
-                    <button onclick="goBack()" class="bg-slate-200 text-slate-700 py-3.5 px-6 rounded-xl font-bold shadow-sm active:bg-slate-300 flex items-center gap-2">
+                <div class="w-full flex justify-start mt-3 shrink-0">
+                    <button onclick="goBack()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 px-5 rounded-xl font-bold active:bg-slate-400 flex items-center gap-2">
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </button>
                 </div>`;
             }
 
-            let backDisabled = currentStepIndex === -1 ? 'opacity-50 cursor-not-allowed' : '';
-            let backAction = currentStepIndex === -1 ? '' : 'onclick="goBack()"';
+            let backDisabled = currentStepIndex === -5 ? 'opacity-40 cursor-not-allowed' : '';
+            let backAction = currentStepIndex === -5 ? '' : 'onclick="goBack()"';
 
             let canAdvance = false;
+            if (currentStepIndex === -5 && formData.categoria) canAdvance = true;
+            if (currentStepIndex === -4 && formData.tipo_maquina) canAdvance = true;
             if (currentStepIndex === -1 && formData.empilhadeira) canAdvance = true;
             if (currentStepIndex === -2 && formData.operador) canAdvance = true;
             if (currentStepIndex === -3 && formData.horimetro) canAdvance = true;
             if (currentStepIndex >= 0 && formData[checklistItems[currentStepIndex].id]) canAdvance = true;
 
-            let nextDisabled = !canAdvance ? 'opacity-50 cursor-not-allowed' : '';
+            let nextDisabled = !canAdvance ? 'opacity-40 cursor-not-allowed' : '';
             let nextAction = canAdvance ? 'onclick="goNext()"' : '';
 
             return `
-                <div class="w-full flex justify-between gap-4 mt-4 shrink-0 border-t border-slate-200 pt-4">
-                    <button ${backAction} class="flex-1 bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold shadow-sm active:bg-slate-300 transition-all flex items-center justify-center gap-2 ${backDisabled}">
+                <div class="w-full flex justify-between gap-3 mt-3 shrink-0 border-t border-slate-200 pt-3">
+                    <button ${backAction} class="flex-1 btn-industrial bg-slate-200 hover:bg-slate-300 text-slate-800 py-3.5 rounded-xl font-extrabold shadow-sm flex items-center justify-center gap-2 ${backDisabled}">
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </button>
-                    <button ${nextAction} class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 ${nextDisabled}">
+                    <button ${nextAction} class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-black shadow-md flex items-center justify-center gap-2 ${nextDisabled}">
                         Avançar <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             `;
+        }
+
+        // ==================== SELEÇÃO DE OPÇÕES ====================
+        function selectCategoria(cat) {
+            formData.categoria = cat;
+            if (cat === 'veiculos') {
+                speakText('Módulo de veículos em breve.');
+                alert('Módulo de Veículos (Caminhões e Utilitários) em implantação técnica. Selecione Máquinas para realizar o checklist.');
+            } else {
+                renderCurrentStep();
+            }
+        }
+
+        function selectTipoMaquina(tipo) {
+            formData.tipo_maquina = tipo;
+            renderCurrentStep();
+        }
+
+        function toggleUnidade(unidade) {
+            formData.unidade = unidade;
+            formData.empilhadeira = '';
+            formData.maquina_id = null;
+            renderCurrentStep();
         }
 
         function selectEmpilhadeira(maqNome, maqId, horimetroAtual) {
@@ -395,123 +516,283 @@
             renderCurrentStep();
         }
 
+        function abrirModalOperadorOutro() {
+            document.getElementById('modal-operador-outro').classList.remove('hidden');
+            const inp = document.getElementById('input-operador-outro');
+            inp.value = '';
+            setTimeout(() => inp.focus(), 200);
+        }
+
+        function fecharModalOperadorOutro() {
+            document.getElementById('modal-operador-outro').classList.add('hidden');
+        }
+
+        function confirmarOperadorOutro() {
+            const val = document.getElementById('input-operador-outro').value.trim();
+            if (!val) {
+                alert("Por favor, digite o nome do operador.");
+                return;
+            }
+            formData.operador = val;
+            fecharModalOperadorOutro();
+            renderCurrentStep();
+        }
+
         function selectQuestion(id, val) {
             formData[id] = val;
             renderCurrentStep();
         }
 
-        // ==================== RENDERIZAÇÃO DO PASSO ATUAL (OPERADOR) ====================
+        // ==================== RENDERIZADOR PRINCIPAL ====================
         function renderCurrentStep() {
             appOperador.innerHTML = '';
 
-            // PASSO -1: SELECIONAR EMPILHADEIRA
-            if (currentStepIndex === -1) {
+            // PASSO -5: MÁQUINAS OU VEÍCULOS
+            if (currentStepIndex === -5) {
+                const isMaq = formData.categoria === 'maquinas';
+                const isVeic = formData.categoria === 'veiculos';
+
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col h-full items-center justify-between">
-                        <div class="w-full text-center mt-2 shrink-0">
-                            <button onclick="speakText('Qual empilhadeira você vai usar agora?')" class="bg-orange-100 text-orange-700 p-4 rounded-full shadow-md active:bg-orange-200">
-                                <i class="fa-solid fa-volume-high text-3xl"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="text-center my-2 shrink-0">
-                            <h2 class="text-2xl font-black text-slate-800">Qual Empilhadeira?</h2>
-                            <p class="text-xs text-slate-500 font-medium">Selecione para vincular seu relatório</p>
-                        </div>
-                        
-                        <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2">
-                            ${listaMaquinas.map(maq => {
-                                const selecionado = formData.empilhadeira === maq.nome;
-                                return `
-                                <button onclick="selectEmpilhadeira('${maq.nome}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-giant bg-white border-2 ${selecionado ? 'border-orange-500 bg-orange-50 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300'} rounded-2xl p-4 text-lg font-bold text-slate-800 flex items-center justify-between shadow-sm transition-all">
-                                    <div class="flex flex-col items-start">
-                                        <span class="${selecionado ? 'text-orange-700' : ''}">${maq.nome}</span>
-                                        <span class="text-xs text-slate-400 font-normal">Horímetro: ${maq.horimetro_atual || 0} h</span>
-                                    </div>
-                                    <i class="fa-solid fa-truck-ramp-box text-2xl ${selecionado ? 'text-orange-600' : 'text-slate-400'}"></i>
-                                </button>`;
-                            }).join('')}
-                        </div>
-                        
-                        ${renderNavButtons()}
-                    </div>
-                `;
-                if (!formData.empilhadeira) speakText('Qual empilhadeira você vai usar agora?');
-            }
-            // PASSO -2: SELECIONAR OPERADOR
-            else if (currentStepIndex === -2) {
-                appOperador.innerHTML = `
-                    <div class="w-full flex flex-col h-full items-center justify-between">
-                        <div class="w-full text-center mt-2 shrink-0">
-                            <button onclick="speakText('Quem é você? Aperte no seu nome.')" class="bg-orange-100 text-orange-700 p-4 rounded-full shadow-md active:bg-orange-200">
-                                <i class="fa-solid fa-volume-high text-3xl"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="text-center my-2 shrink-0">
-                            <h2 class="text-2xl font-black text-slate-800">Quem é você?</h2>
-                            <p class="text-xs text-slate-500 font-medium">Toque no seu nome para continuar</p>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3 w-full flex-1 content-center py-2">
-                            ${listaOperadores.map(op => {
-                                const selecionado = formData.operador === op.nome;
-                                return `
-                                <button onclick="selectOperador('${op.nome}')" class="btn-giant bg-white border-2 ${selecionado ? 'border-orange-500 bg-orange-50 ring-4 ring-orange-200 scale-[1.04]' : 'border-slate-300'} rounded-2xl p-4 flex flex-col items-center justify-center shadow-sm gap-2 transition-all">
-                                    <div class="${selecionado ? 'bg-orange-200 text-orange-700' : 'bg-slate-200 text-slate-500'} rounded-full w-14 h-14 flex items-center justify-center text-2xl">
-                                        <i class="fa-solid fa-user"></i>
-                                    </div>
-                                    <span class="text-base font-bold ${selecionado ? 'text-orange-700' : 'text-slate-700'}">${op.nome}</span>
-                                </button>`;
-                            }).join('')}
-                        </div>
-                        
-                        ${renderNavButtons()}
-                    </div>
-                `;
-                if (!formData.operador) speakText('Quem é você? Aperte no seu nome.');
-            }
-            // PASSO -3: HORÍMETRO COM TECLADO EMBUTIDO
-            else if (currentStepIndex === -3) {
-                appOperador.innerHTML = `
-                    <div class="w-full flex flex-col items-center h-full justify-between">
-                        <div class="w-full text-center mt-2 shrink-0">
-                            <button onclick="speakText('Digite o número do horímetro que está no painel da máquina.')" class="bg-orange-100 text-orange-700 p-3.5 rounded-full shadow-md active:bg-orange-200">
+                        <div class="w-full text-center mt-1 shrink-0">
+                            <button onclick="speakText('Selecione se o checklist é para Máquinas ou Veículos')" class="bg-orange-100 text-orange-700 p-3.5 rounded-full shadow-sm active:bg-orange-200">
                                 <i class="fa-solid fa-volume-high text-2xl"></i>
                             </button>
                         </div>
                         
                         <div class="text-center my-1 shrink-0">
-                            <h2 class="text-xl font-black text-slate-800">Horímetro da Máquina</h2>
-                            <p class="text-xs text-slate-500">Veja o número no painel</p>
+                            <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 1/5</span>
+                            <h2 class="text-2xl font-black text-slate-900 mt-1">O que vai inspecionar?</h2>
+                            <p class="text-xs text-slate-500 font-medium">Selecione a categoria de equipamento</p>
+                        </div>
+
+                        <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2 max-w-sm">
+                            <button onclick="selectCategoria('maquinas')" class="btn-industrial bg-white border-2 ${isMaq ? 'border-orange-600 bg-orange-50/60 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300'} rounded-2xl p-5 shadow-sm flex items-center justify-between text-left">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-xl ${isMaq ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-2xl shadow-inner">
+                                        <i class="fa-solid fa-truck-ramp-box"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-black text-slate-900">MÁQUINAS</h3>
+                                        <p class="text-xs text-slate-500 font-medium">Empilhadeiras, DOOSAN, HYUNDAI</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                            </button>
+
+                            <button onclick="selectCategoria('veiculos')" class="btn-industrial bg-white border-2 ${isVeic ? 'border-orange-600 bg-orange-50/60 ring-4 ring-orange-200' : 'border-slate-300'} rounded-2xl p-5 shadow-sm flex items-center justify-between text-left opacity-90">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-xl ${isVeic ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-2xl shadow-inner">
+                                        <i class="fa-solid fa-truck"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h3 class="text-lg font-black text-slate-900">VEÍCULOS</h3>
+                                            <span class="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold">Em breve</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500 font-medium">Caminhões, Utilitários, Frotas leves</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-lock text-slate-400"></i>
+                            </button>
+                        </div>
+
+                        ${renderNavButtons()}
+                    </div>
+                `;
+            }
+            // PASSO -4: ESCOLHER TIPO DE MÁQUINA
+            else if (currentStepIndex === -4) {
+                const tipos = [
+                    { id: 'empilhadeiras', nome: 'Empilhadeiras', desc: 'Frota Matriz & Filial', icon: 'fa-truck-ramp-box' },
+                    { id: 'doosan', nome: 'DOOSAN', desc: 'Pá Carregadeira / Escavadeira', icon: 'fa-cubes-stacked' },
+                    { id: 'hyundai', nome: 'HYUNDAI', desc: 'Pá Carregadeira / Trator', icon: 'fa-tractor' },
+                    { id: 'motocana', nome: 'MOTOCANA', desc: 'Carregadeira de Cana', icon: 'fa-wheat-awn' }
+                ];
+
+                appOperador.innerHTML = `
+                    <div class="w-full flex flex-col h-full items-center justify-between">
+                        <div class="w-full text-center mt-1 shrink-0">
+                            <button onclick="speakText('Qual o tipo de máquina? Selecione Empilhadeiras, Doosan, Hyundai ou Motocana')" class="bg-orange-100 text-orange-700 p-3.5 rounded-full shadow-sm active:bg-orange-200">
+                                <i class="fa-solid fa-volume-high text-2xl"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center my-1 shrink-0">
+                            <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 2/5</span>
+                            <h2 class="text-2xl font-black text-slate-900 mt-1">Tipo de Máquina</h2>
+                            <p class="text-xs text-slate-500 font-medium">Selecione para listar os equipamentos</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5 w-full flex-1 content-center py-2 max-w-sm">
+                            ${tipos.map(t => {
+                                const sel = formData.tipo_maquina === t.id;
+                                return `
+                                <button onclick="selectTipoMaquina('${t.id}')" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200 scale-[1.03]' : 'border-slate-300'} rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-sm transition-all">
+                                    <div class="w-12 h-12 rounded-xl ${sel ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-xl mb-1.5 shadow-inner">
+                                        <i class="fa-solid ${t.icon}"></i>
+                                    </div>
+                                    <span class="font-black text-sm text-slate-900">${t.nome}</span>
+                                    <span class="text-[10px] text-slate-500 font-medium leading-tight mt-0.5">${t.desc}</span>
+                                </button>`;
+                            }).join('')}
+                        </div>
+
+                        ${renderNavButtons()}
+                    </div>
+                `;
+            }
+            // PASSO -1: ESCOLHER EMPILHADEIRA (FILIAL OU MATRIZ)
+            else if (currentStepIndex === -1) {
+                const maquinasDaUnidade = (formData.unidade === 'MATRIZ') ? maquinasMatriz : maquinasFilial;
+
+                appOperador.innerHTML = `
+                    <div class="w-full flex flex-col h-full items-center justify-between">
+                        <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                            <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 3/5</span>
+                            <button onclick="speakText('Escolha se a máquina é da Filial ou da Matriz e toque nela.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                <i class="fa-solid fa-volume-high text-base"></i>
+                            </button>
                         </div>
                         
-                        <div class="flex-1 w-full flex flex-col items-center justify-center">
-                            <div class="w-full bg-white border-2 border-orange-500 h-14 rounded-2xl flex items-center justify-center text-3xl font-black text-slate-900 tracking-widest mb-3 shadow-inner" id="display-horimetro">
-                                ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-400 ml-2">Horas</span>
+                        <div class="text-center my-1 shrink-0">
+                            <h2 class="text-2xl font-black text-slate-900">Qual Empilhadeira?</h2>
+                            <p class="text-xs text-slate-500">Escolha a Unidade e toque no código da máquina</p>
+                        </div>
+
+                        <!-- ABAS: FILIAL vs MATRIZ -->
+                        <div class="w-full grid grid-cols-2 gap-2 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
+                            <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-black text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                <i class="fa-solid fa-building"></i> FILIAL (${maquinasFilial.length})
+                            </button>
+                            <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-black text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                <i class="fa-solid fa-industry"></i> MATRIZ (${maquinasMatriz.length})
+                            </button>
+                        </div>
+
+                        <!-- LISTA DE MÁQUINAS -->
+                        <div class="flex flex-col gap-2 w-full flex-1 overflow-y-auto pr-0.5 py-1">
+                            ${maquinasDaUnidade.map(maq => {
+                                const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
+                                return `
+                                <button onclick="selectEmpilhadeira('${maq.codigo}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50/70 ring-4 ring-orange-200 scale-[1.01]' : 'border-slate-300 hover:border-slate-400'} rounded-xl p-3 text-left shadow-sm flex items-center justify-between transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg ${sel ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-lg font-bold">
+                                            <i class="fa-solid fa-truck-ramp-box"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-mono-num font-black text-base text-slate-900">${maq.codigo}</span>
+                                                <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono-num font-semibold">${formData.unidade}</span>
+                                            </div>
+                                            <span class="text-xs text-slate-500 font-medium block truncate max-w-[200px]">${maq.modelo || maq.nome}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-400 block font-bold uppercase">Horímetro</span>
+                                        <span class="font-mono-num text-xs font-black text-slate-800">${maq.horimetro_atual || 0} h</span>
+                                    </div>
+                                </button>`;
+                            }).join('')}
+                        </div>
+
+                        ${renderNavButtons()}
+                    </div>
+                `;
+            }
+            // PASSO -2: ESCOLHER OPERADOR (+ OUTRO)
+            else if (currentStepIndex === -2) {
+                const nomesPadrao = listaOperadores.map(o => o.nome);
+                const isOutro = formData.operador && !nomesPadrao.includes(formData.operador);
+
+                appOperador.innerHTML = `
+                    <div class="w-full flex flex-col h-full items-center justify-between">
+                        <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                            <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 4/5</span>
+                            <button onclick="speakText('Quem é você? Toque no seu nome ou em Outro para digitar.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                <i class="fa-solid fa-volume-high text-base"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="text-center my-1 shrink-0">
+                            <h2 class="text-2xl font-black text-slate-900">Quem é o Operador?</h2>
+                            <p class="text-xs text-slate-500">Toque no seu nome para assinar o checklist</p>
+                        </div>
+
+                        <div class="flex flex-col gap-2.5 w-full flex-1 justify-center py-2 max-w-sm">
+                            ${listaOperadores.map(op => {
+                                const sel = formData.operador === op.nome;
+                                return `
+                                <button onclick="selectOperador('${op.nome}')" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300'} rounded-2xl p-4 flex items-center gap-3.5 shadow-sm text-left transition-all">
+                                    <div class="w-12 h-12 rounded-xl ${sel ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-xl font-bold shadow-inner">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <span class="text-base font-black text-slate-900 block">${op.nome}</span>
+                                        <span class="text-[11px] text-slate-500">Operador Autorizado</span>
+                                    </div>
+                                    ${sel ? '<i class="fa-solid fa-circle-check text-xl text-orange-600"></i>' : ''}
+                                </button>`;
+                            }).join('')}
+
+                            <!-- OPÇÃO "OUTRO" (DIGITAR NOME) -->
+                            <button onclick="abrirModalOperadorOutro()" class="btn-industrial bg-slate-50 border-2 border-dashed ${isOutro ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200' : 'border-slate-400 hover:border-slate-600'} rounded-2xl p-4 flex items-center gap-3.5 shadow-sm text-left transition-all">
+                                <div class="w-12 h-12 rounded-xl ${isOutro ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-pen-nib"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-base font-black text-slate-900 block">${isOutro ? formData.operador : 'OUTRO (DIGITAR NOME)'}</span>
+                                    <span class="text-[11px] text-slate-500">${isOutro ? 'Nome personalizado gravado' : 'Toque para digitar o nome da pessoa'}</span>
+                                </div>
+                                <i class="fa-solid fa-keyboard text-slate-400 text-lg"></i>
+                            </button>
+                        </div>
+
+                        ${renderNavButtons()}
+                    </div>
+                `;
+            }
+            // PASSO -3: HORÍMETRO
+            else if (currentStepIndex === -3) {
+                appOperador.innerHTML = `
+                    <div class="w-full flex flex-col items-center h-full justify-between">
+                        <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                            <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 5/5</span>
+                            <button onclick="speakText('Digite o número do horímetro que está no painel da máquina.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                <i class="fa-solid fa-volume-high text-base"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="text-center my-1 shrink-0">
+                            <h2 class="text-2xl font-black text-slate-900">Horímetro Atual</h2>
+                            <p class="text-xs text-slate-500">Veja o número no painel da empilhadeira</p>
+                        </div>
+                        
+                        <div class="flex-1 w-full flex flex-col items-center justify-center max-w-[300px]">
+                            <div class="w-full bg-slate-900 border-2 border-orange-500 h-14 rounded-2xl flex items-center justify-center text-3xl font-mono-num font-black text-orange-400 tracking-widest mb-3 shadow-inner">
+                                ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-400 ml-2">h</span>
                             </div>
                             
-                            <div class="grid grid-cols-3 gap-2 w-full max-w-[300px]">
-                                <button onclick="typeNum(1)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">1</button>
-                                <button onclick="typeNum(2)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">2</button>
-                                <button onclick="typeNum(3)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">3</button>
-                                <button onclick="typeNum(4)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">4</button>
-                                <button onclick="typeNum(5)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">5</button>
-                                <button onclick="typeNum(6)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">6</button>
-                                <button onclick="typeNum(7)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">7</button>
-                                <button onclick="typeNum(8)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">8</button>
-                                <button onclick="typeNum(9)" class="btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">9</button>
-                                <button onclick="clearNum()" class="btn-giant bg-red-100 text-red-600 border border-red-300 rounded-xl py-3 text-xl font-bold shadow-sm active:bg-red-200">
+                            <div class="grid grid-cols-3 gap-2 w-full">
+                                <button onclick="typeNum(1)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">1</button>
+                                <button onclick="typeNum(2)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">2</button>
+                                <button onclick="typeNum(3)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">3</button>
+                                <button onclick="typeNum(4)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">4</button>
+                                <button onclick="typeNum(5)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">5</button>
+                                <button onclick="typeNum(6)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">6</button>
+                                <button onclick="typeNum(7)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">7</button>
+                                <button onclick="typeNum(8)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">8</button>
+                                <button onclick="typeNum(9)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">9</button>
+                                <button onclick="clearNum()" class="btn-industrial bg-red-100 text-red-600 border border-red-300 rounded-xl py-3 text-xl font-bold shadow-sm active:bg-red-200">
                                     <i class="fa-solid fa-delete-left"></i>
                                 </button>
-                                <button onclick="typeNum(0)" class="col-span-2 btn-giant bg-white border border-slate-300 rounded-xl py-3 text-2xl font-bold shadow-sm active:bg-slate-100">0</button>
+                                <button onclick="typeNum(0)" class="col-span-2 btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-black shadow-sm active:bg-slate-100">0</button>
                             </div>
                         </div>
                         
                         ${renderNavButtons()}
                     </div>
                 `;
-                if (!formData.horimetro) speakText('Digite o número do horímetro que está no painel da máquina.');
             }
             // PASSOS 0 A 15: AS 16 PERGUNTAS 5S
             else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length) {
@@ -522,26 +803,31 @@
 
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col h-full items-center justify-between">
-                        <div class="w-full text-center mt-2 shrink-0">
-                            <button onclick="speakText('${item.question}')" class="bg-orange-100 text-orange-700 p-4 rounded-full shadow-lg active:bg-orange-200 transition">
-                                <i class="fa-solid fa-volume-high text-4xl"></i>
+                        <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                            <span class="text-[10px] font-mono-num font-bold text-slate-500 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">
+                                ITEM ${currentStepIndex + 1}/${checklistItems.length}
+                            </span>
+                            <button onclick="speakText('${item.question}')" class="bg-orange-100 text-orange-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                <i class="fa-solid fa-volume-high text-xl"></i>
                             </button>
                         </div>
                         
                         <div class="text-center flex-1 flex flex-col justify-center my-2">
-                            <i class="fa-solid ${item.icon} text-6xl text-slate-400 mb-3"></i>
-                            <span class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-1">Item ${currentStepIndex + 1} de ${checklistItems.length}</span>
-                            <h2 class="text-2xl font-black text-slate-800 leading-snug">${item.title}</h2>
+                            <div class="w-24 h-24 rounded-3xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                                <i class="fa-solid ${item.icon} text-5xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-black text-slate-900 leading-snug px-2">${item.title}</h2>
+                            <p class="text-xs text-slate-500 font-medium mt-1 px-4">${item.question}</p>
                         </div>
                         
-                        <div class="w-full flex flex-col gap-3 shrink-0 pb-2">
-                            <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-giant ${okSelected ? 'bg-emerald-600 ring-4 ring-emerald-300 scale-105 shadow-xl' : 'bg-emerald-500'} text-white rounded-2xl p-5 text-xl font-bold shadow-md flex items-center justify-center gap-3 transition-all">
-                                <i class="fa-solid fa-circle-check text-3xl"></i>
-                                <span>Tudo Certo (OK)</span>
+                        <div class="w-full flex flex-col gap-2.5 shrink-0 pb-1">
+                            <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-industrial ${okSelected ? 'bg-emerald-600 ring-4 ring-emerald-300 scale-[1.02] shadow-lg' : 'bg-emerald-500 hover:bg-emerald-600'} text-white rounded-2xl p-4.5 text-lg font-black shadow-md flex items-center justify-center gap-3 transition-all">
+                                <i class="fa-solid fa-circle-check text-2xl"></i>
+                                <span>TUDO CERTO (OK)</span>
                             </button>
-                            <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-giant ${nokSelected ? 'bg-red-600 ring-4 ring-red-300 scale-105 shadow-xl' : 'bg-red-500'} text-white rounded-2xl p-5 text-xl font-bold shadow-md flex items-center justify-center gap-3 transition-all">
-                                <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
-                                <span>Problema (Defeito)</span>
+                            <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-industrial ${nokSelected ? 'bg-red-600 ring-4 ring-red-300 scale-[1.02] shadow-lg' : 'bg-red-500 hover:bg-red-600'} text-white rounded-2xl p-4.5 text-lg font-black shadow-md flex items-center justify-center gap-3 transition-all">
+                                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                                <span>PROBLEMA (DEFEITO)</span>
                             </button>
                         </div>
                         
@@ -550,39 +836,63 @@
                 `;
                 if (!val) speakText(item.question);
             }
-            // PASSO 99: OBSERVAÇÕES DE VOZ E ENVIO FINAL
+            // PASSO 99: OBSERVAÇÕES & ENVIO FINAL
             else if (currentStepIndex === 99) {
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col h-full">
-                        <div class="text-center mb-2 mt-2 shrink-0">
-                            <i class="fa-solid fa-clipboard-check text-3xl text-emerald-500 mb-1"></i>
-                            <h2 class="text-2xl font-black text-slate-800">Observações por Voz</h2>
-                            <p class="text-xs text-slate-500 font-medium">Grave até 5 áudios relatando problemas ou observações</p>
+                        <div class="text-center mb-2 mt-1 shrink-0">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-1 text-xl">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
+                            <h2 class="text-xl font-black text-slate-900">Relatório e Observações</h2>
+                            <p class="text-xs text-slate-500">Grave áudios ou escreva os detalhes mecânicos</p>
                         </div>
 
-                        <div id="obs-list" class="w-full flex flex-col gap-2 mb-2 overflow-y-auto flex-1">
+                        <!-- LISTA DE OBSERVAÇÕES CADASTRADAS -->
+                        <div id="obs-list" class="w-full flex flex-col gap-2 mb-2 overflow-y-auto flex-1 pr-1">
                             ${renderObservacoes()}
                         </div>
 
-                        <div class="shrink-0 w-full flex flex-col border-t border-slate-200 pt-3">
-                            ${observacoesList.length < 5 ? `
-                                <div class="w-full flex flex-col items-center bg-white p-3 rounded-2xl shadow-sm mb-3 border border-slate-200">
-                                    <button id="btn-mic" onclick="toggleRecording()" class="btn-giant bg-slate-100 text-slate-700 w-16 h-16 rounded-full shadow-inner flex items-center justify-center border-2 border-slate-300 mb-1 transition-colors">
-                                        <i id="mic-icon" class="fa-solid fa-microphone text-2xl"></i>
+                        <div class="shrink-0 w-full flex flex-col border-t border-slate-200 pt-2">
+                            <!-- CAMPO DE DESCRIÇÃO ESCRITA -->
+                            <div class="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm mb-2">
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                                    <i class="fa-solid fa-pen text-orange-600 mr-1"></i> Escrever Observação:
+                                </label>
+                                <div class="flex gap-1.5">
+                                    <input type="text" id="input-obs-escrita" placeholder="Ex: Vazamento leve de óleo perto do radiador..." class="flex-1 bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-orange-500">
+                                    <button onclick="adicionarObsEscrita()" class="btn-industrial bg-slate-800 hover:bg-slate-900 text-white px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0">
+                                        <i class="fa-solid fa-plus"></i> Inserir
                                     </button>
-                                    <p id="mic-status" class="text-xs font-bold text-slate-500 text-center">Toque para gravar o áudio</p>
                                 </div>
-                            ` : `<p class="text-red-500 text-xs font-bold mb-3 text-center">Limite de 5 áudios atingido.</p>`}
+                            </div>
 
-                            <button onclick="submitChecklistSupabase()" id="btn-enviar" class="w-full btn-giant bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl p-4 text-xl font-black shadow-lg flex items-center justify-center gap-3 mb-2">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> <span>Enviar Relatório</span>
+                            <!-- GRAVADOR DE ÁUDIO COM TRANSCRIÇÃO INTELIGENTE -->
+                            ${observacoesList.length < 5 ? `
+                                <div class="w-full flex flex-col items-center bg-white p-2.5 rounded-xl shadow-sm mb-2 border border-slate-200">
+                                    <div class="flex items-center gap-3 w-full justify-between px-2">
+                                        <button id="btn-mic" onclick="toggleRecording()" class="btn-industrial bg-slate-100 text-slate-700 w-12 h-12 rounded-full shadow-inner flex items-center justify-center border-2 border-slate-300 transition-colors">
+                                            <i id="mic-icon" class="fa-solid fa-microphone text-xl"></i>
+                                        </button>
+                                        <div class="flex-1">
+                                            <p id="mic-status" class="text-xs font-bold text-slate-700">Gravar Áudio por Voz</p>
+                                            <p id="live-transcript-preview" class="text-[10px] text-slate-400 italic truncate max-w-[220px]">Toque no microfone e relate o problema</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : '<p class="text-red-500 text-xs font-bold mb-2 text-center">Limite de 5 observações atingido.</p>'}
+
+                            <!-- BOTÃO DE ENVIO FINAL -->
+                            <button onclick="submitChecklistSupabase()" id="btn-enviar" class="w-full btn-industrial bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-xl p-3.5 text-lg font-black shadow-md flex items-center justify-center gap-2 mb-1.5">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> <span>Enviar Relatório 5S</span>
                             </button>
+                            
                             ${renderNavButtons()}
                         </div>
                     </div>
                 `;
                 if (observacoesList.length === 0 && !isRecording) {
-                    speakText("Quase pronto! Se quiser avisar sobre problemas, aperte o microfone, grave, e depois aperte para parar.");
+                    speakText("Checklist finalizado. Se quiser avisar sobre problemas, fale no microfone ou digite.");
                 }
             }
         }
@@ -598,10 +908,63 @@
             renderCurrentStep();
         }
 
-        // ==================== GRAVAÇÃO DE ÁUDIO NOVO (SUPABASE + GEMINI) ====================
+        // ==================== OBSERVAÇÕES POR ESCRITA ====================
+        function adicionarObsEscrita() {
+            const inp = document.getElementById('input-obs-escrita');
+            if (!inp) return;
+            const texto = inp.value.trim();
+            if (!texto) {
+                alert("Por favor, digite a observação antes de adicionar.");
+                return;
+            }
+            observacoesList.push({
+                tipo: 'texto',
+                text: texto,
+                audioBlob: null,
+                audioBase64: null
+            });
+            inp.value = '';
+            renderCurrentStep();
+        }
+
+        // ==================== GRAVAÇÃO DE ÁUDIO & TRANSCRIÇÃO INTELIGENTE ====================
         let isRecording = false;
         let mediaRecorder = null;
         let audioChunks = [];
+        let recognition = null;
+        let liveTranscribedText = "";
+
+        function initSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRec) {
+                try {
+                    recognition = new SpeechRec();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+                    recognition.lang = 'pt-BR';
+                    
+                    recognition.onresult = (event) => {
+                        let interim = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                liveTranscribedText += event.results[i][0].transcript + ' ';
+                            } else {
+                                interim += event.results[i][0].transcript;
+                            }
+                        }
+                        const prevEl = document.getElementById('live-transcript-preview');
+                        if (prevEl) {
+                            prevEl.innerText = (liveTranscribedText + interim).trim() || "Ouvindo sua fala...";
+                        }
+                    };
+
+                    recognition.onerror = (e) => {
+                        console.warn("SpeechRecognition aviso:", e.error);
+                    };
+                } catch(e) {}
+            }
+        }
+        initSpeechRecognition();
 
         function toggleRecording() {
             if (isRecording) stopRecording();
@@ -614,24 +977,30 @@
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 isRecording = true;
+                liveTranscribedText = "";
+
+                if (recognition) {
+                    try { recognition.start(); } catch(e){}
+                }
 
                 mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
                 mediaRecorder.onstop = async () => {
                     let mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
 
-                    // Converte para base64 para preview e IA
                     const reader = new FileReader();
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = async () => {
                         const base64Audio = reader.result;
+                        let textoFinal = liveTranscribedText.trim();
                         
-                        // Transcrição com Gemini (Temperature 0.0)
-                        let textoIA = await transcreverComGemini(base64Audio, mimeType);
-                        if (!textoIA || textoIA.trim() === "") textoIA = "Áudio gravado pelo operador.";
+                        if (!textoFinal) {
+                            textoFinal = "Áudio gravado pelo operador (toque para ouvir ou editar texto).";
+                        }
 
                         observacoesList.push({
-                            text: textoIA,
+                            tipo: 'audio',
+                            text: textoFinal,
                             audioBlob: audioBlob,
                             audioBase64: base64Audio,
                             mimeType: mimeType
@@ -659,12 +1028,15 @@
 
         function stopRecording() {
             isRecording = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e){}
+            }
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(t => t.stop());
             }
             const micStatusEl = document.getElementById('mic-status');
-            if (micStatusEl) micStatusEl.innerText = "Processando com Inteligência Artificial...";
+            if (micStatusEl) micStatusEl.innerText = "Processando áudio...";
         }
 
         function removerObservacao(idx) {
@@ -677,57 +1049,32 @@
         }
 
         function renderObservacoes() {
-            if (observacoesList.length === 0) return '';
+            if (observacoesList.length === 0) {
+                return `
+                <div class="bg-white border border-slate-200 rounded-xl p-3 text-center text-slate-400 text-xs italic">
+                    Nenhuma observação inserida ainda. Fale ou digite abaixo se houver algum apontamento.
+                </div>`;
+            }
             return observacoesList.map((obs, idx) => `
-                <div class="bg-white border border-slate-200 rounded-2xl p-3 flex flex-col gap-1 relative shadow-sm shrink-0">
+                <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-1 relative shadow-sm shrink-0">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-xs text-orange-700 uppercase tracking-wide">Áudio ${idx + 1}</span>
-                        <button onclick="removerObservacao(${idx})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid ${obs.tipo === 'audio' ? 'fa-microphone text-orange-600' : 'fa-pen text-slate-600'} text-xs"></i>
+                            <span class="font-bold text-[11px] text-slate-800 uppercase tracking-wide">
+                                ${obs.tipo === 'audio' ? 'Áudio ' + (idx + 1) : 'Nota Escrita ' + (idx + 1)}
+                            </span>
+                        </div>
+                        <button onclick="removerObservacao(${idx})" class="text-red-500 hover:text-red-700 p-1 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
-                    <textarea onchange="updateObsText(${idx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-700 font-medium focus:outline-none" rows="2">${obs.text}</textarea>
-                    <audio controls src="${obs.audioBase64}" class="h-8 w-full mt-1 rounded"></audio>
+                    <textarea onchange="updateObsText(${idx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-orange-500" rows="2">${obs.text}</textarea>
+                    ${obs.audioBase64 ? `<audio controls src="${obs.audioBase64}" class="h-7 w-full mt-1 rounded"></audio>` : ''}
                 </div>
             `).join('');
         }
 
-        // ==================== TRANSCRIÇÃO GEMINI (Literal / Temperature 0.0) ====================
-        async function transcreverComGemini(base64DataUrl, mimeType) {
-            try {
-                const pureBase64 = base64DataUrl.split(',')[1];
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-                const prompt = `Você é um transcritor de áudio estritamente literal para relatórios de manutenção de empilhadeiras.
-Sua única função é transcrever exatamente o que o operador relatou.
-REGRAS:
-1. Não invente palavras ou defeitos.
-2. Contexto mecânico: cilindro, vazamento, mangueira, óleo, arrefecimento, motor, freio, pneu, horímetro, buzina.
-3. Não adicione explicações ou saudações, entregue apenas o texto transcrito.`;
-
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inlineData: { mimeType: mimeType.split(';')[0], data: pureBase64 } }
-                            ]
-                        }],
-                        generationConfig: { temperature: 0.0 }
-                    })
-                });
-
-                const data = await res.json();
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    return data.candidates[0].content.parts[0].text.trim();
-                }
-            } catch (e) {
-                console.warn("Falha na transcrição Gemini:", e);
-            }
-            return "Observação de áudio gravada pelo operador.";
-        }
-
-        // ==================== ENVIO FINAL PARA O SUPABASE ====================
+        // ==================== ENVIO AO SUPABASE ====================
         async function submitChecklistSupabase() {
             const btnEnviar = document.getElementById('btn-enviar');
             btnEnviar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Salvando no Supabase...</span>';
@@ -735,6 +1082,7 @@ REGRAS:
 
             const horimetroNum = parseFloat(formData.horimetro) || 0;
             const temProblema = checklistItems.some(item => formData[item.id] === 'NÃO CONFORME');
+            const textoObsGeral = observacoesList.map(o => o.text).join(' | ');
 
             const checklistPayload = {
                 empilhadeira: formData.empilhadeira,
@@ -742,6 +1090,10 @@ REGRAS:
                 horimetro: horimetroNum,
                 maquina_id: formData.maquina_id || null,
                 tipo_checklist: 'empilhadeira',
+                categoria: formData.categoria || 'maquinas',
+                tipo_maquina: formData.tipo_maquina || 'empilhadeiras',
+                unidade: formData.unidade || 'FILIAL',
+                observacao_texto: textoObsGeral || null,
                 cilindros_elevacao: formData.cilindros_elevacao || 'CONFORME',
                 cilindros_inclinacao: formData.cilindros_inclinacao || 'CONFORME',
                 mangueiras_conexoes: formData.mangueiras_conexoes || 'CONFORME',
@@ -759,7 +1111,7 @@ REGRAS:
                 estado_pneus: formData.estado_pneus || 'CONFORME',
                 cilindros_direcao: formData.cilindros_direcao || 'CONFORME',
                 tem_problema: temProblema,
-                resumo_ia: observacoesList.map(o => o.text).join(' | ') || (temProblema ? 'Avarias apontadas no checklist' : 'Checklist 100% em conformidade.')
+                resumo_ia: textoObsGeral || (temProblema ? 'Avarias apontadas no checklist operacional' : 'Checklist 100% em conformidade.')
             };
 
             try {
@@ -785,17 +1137,17 @@ REGRAS:
                             status_operacional: temProblema ? 'alerta' : 'operando',
                             updated_at: new Date()
                         })
-                        .eq('nome', formData.empilhadeira);
+                        .or(`codigo.eq.${formData.empilhadeira},nome.eq.${formData.empilhadeira}`);
                 }
 
-                // 3. Upload dos Áudios
+                // 3. Upload dos Áudios e Observações
                 for (let i = 0; i < observacoesList.length; i++) {
                     const obs = observacoesList[i];
                     let audioUrlFinal = "";
 
                     if (obs.audioBlob) {
                         const fileName = `chk_${checklistId}_obs_${i + 1}_${Date.now()}.webm`;
-                        const { data: uploadRes, error: uploadErr } = await db.storage
+                        const { error: uploadErr } = await db.storage
                             .from('checklist-audios')
                             .upload(fileName, obs.audioBlob, { contentType: obs.mimeType || 'audio/webm' });
 
@@ -825,7 +1177,7 @@ REGRAS:
                             tipo: 'corretiva',
                             origem: 'checklist',
                             checklist_id: checklistId,
-                            titulo: `Reparo indicado no checklist - ${formData.empilhadeira}`,
+                            titulo: `Reparo indicado no checklist - ${formData.empilhadeira} (${formData.unidade})`,
                             descricao: checklistPayload.resumo_ia,
                             prioridade: 'alta',
                             status: 'pendente',
@@ -836,24 +1188,24 @@ REGRAS:
                 // Tela de Conclusão com Sucesso
                 appOperador.innerHTML = `
                     <div class="text-center w-full my-auto p-4">
-                        <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                            <i class="fa-solid fa-circle-check text-6xl"></i>
+                        <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fa-solid fa-circle-check text-5xl"></i>
                         </div>
-                        <h2 class="text-3xl font-black text-slate-900 mb-2">Relatório Enviado!</h2>
-                        <p class="text-base text-slate-600 mb-6 font-medium">Dados e áudios sincronizados com sucesso no Supabase.</p>
+                        <h2 class="text-2xl font-black text-slate-900 mb-1">Relatório Enviado!</h2>
+                        <p class="text-xs text-slate-500 mb-5 font-medium">Sincronizado no Supabase com sucesso.</p>
                         
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xs mx-auto mb-6 text-left">
-                            <div class="text-xs text-slate-400 font-bold uppercase mb-1">Resumo</div>
-                            <div class="text-sm font-bold text-slate-800">🚜 ${formData.empilhadeira}</div>
-                            <div class="text-sm text-slate-600">👤 ${formData.operador}</div>
-                            <div class="text-sm text-slate-600">⏱️ ${horimetroNum} Horas</div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xs mx-auto mb-5 text-left">
+                            <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Resumo do Checklist</div>
+                            <div class="text-sm font-bold text-slate-800">🚜 ${formData.empilhadeira} (${formData.unidade})</div>
+                            <div class="text-xs text-slate-600 mt-0.5">👤 ${formData.operador}</div>
+                            <div class="text-xs text-slate-600 mt-0.5">⏱️ ${horimetroNum} Horas</div>
                             <div class="mt-2 text-xs font-black ${temProblema ? 'text-red-600' : 'text-emerald-600'}">
                                 ${temProblema ? '⚠️ COM APONTAMENTOS DE MANUTENÇÃO' : '✅ 100% CONFORME'}
                             </div>
                         </div>
 
-                        <button onclick="reiniciarChecklist()" class="btn-giant bg-orange-600 hover:bg-orange-700 text-white rounded-2xl py-4 px-8 text-xl font-black shadow-lg w-full max-w-xs mx-auto block">
-                            Fazer Novo Checklist
+                        <button onclick="reiniciarChecklist()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white rounded-2xl py-3.5 px-6 text-lg font-black shadow-lg w-full max-w-xs mx-auto block">
+                            Novo Checklist
                         </button>
                     </div>
                 `;
@@ -863,19 +1215,28 @@ REGRAS:
             } catch (err) {
                 console.error("Erro ao salvar no Supabase:", err);
                 salvarFilaOfflineLocal(checklistPayload, observacoesList);
-                alert("Conexão instável. O checklist foi salvo localmente no celular e será enviado assim que a internet estabilizar!");
+                alert("Conexão instável. O checklist foi gravado no celular e será sincronizado quando a conexão retornar!");
                 btnEnviar.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Tentar Novamente</span>';
                 btnEnviar.disabled = false;
             }
         }
 
         function reiniciarChecklist() {
-            formData = { empilhadeira: '', maquina_id: null, operador: '', horimetro: '' };
+            formData = {
+                categoria: 'maquinas',
+                tipo_maquina: 'empilhadeiras',
+                unidade: 'FILIAL',
+                empilhadeira: '',
+                maquina_id: null,
+                operador: '',
+                horimetro: '',
+                observacao_texto: ''
+            };
             observacoesList = [];
-            goToStep(-1);
+            goToStep(-5);
         }
 
-        // ==================== OFFLINE FIRST / LOCALSTORAGE ====================
+        // ==================== OFFLINE FIRST ====================
         function salvarFilaOfflineLocal(payload, obs) {
             let fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
             fila.push({ payload, obs, dataHora: new Date().toISOString() });
@@ -916,8 +1277,9 @@ REGRAS:
         function atualizarSelectSOS() {
             const select = document.getElementById('sos-select-maquina');
             if (!select) return;
-            select.innerHTML = listaMaquinas.map(m => `
-                <option value="${m.nome}">${m.nome} (Atual: ${m.horimetro_atual || 0}h)</option>
+            const todas = [...maquinasFilial, ...maquinasMatriz];
+            select.innerHTML = todas.map(m => `
+                <option value="${m.codigo}">[${m.unidade}] ${m.codigo} - ${m.modelo || m.nome}</option>
             `).join('');
         }
 
@@ -939,7 +1301,7 @@ REGRAS:
                         sosAudioBlob = new Blob(sosAudioChunks, { type: 'audio/webm' });
                         preview.src = URL.createObjectURL(sosAudioBlob);
                         preview.classList.remove('hidden');
-                        status.innerText = "Áudio gravado pronto!";
+                        status.innerText = "Áudio pronto para envio!";
                     };
 
                     sosMediaRecorder.start();
@@ -970,7 +1332,7 @@ REGRAS:
                 let audioUrl = "";
                 if (sosAudioBlob && db) {
                     const fileName = `sos_${Date.now()}.webm`;
-                    const { data, error } = await db.storage
+                    const { error } = await db.storage
                         .from('checklist-audios')
                         .upload(fileName, sosAudioBlob, { contentType: 'audio/webm' });
                     
@@ -985,39 +1347,39 @@ REGRAS:
                         maquina_nome: maqNome,
                         operador: formData.operador || 'Operador de Turno',
                         audio_url: audioUrl,
-                        texto_transcrito: 'Alerta imediato de quebra enviado pelo operador.',
+                        texto_transcrito: 'Alerta imediato de quebra mecânica.',
                         gravidade: 'CRITICA',
                         status: 'pendente'
                     }]);
 
                     await db.from('maquinas')
                         .update({ status_operacional: 'manutencao_imediata' })
-                        .eq('nome', maqNome);
+                        .or(`codigo.eq.${maqNome},nome.eq.${maqNome}`);
 
                     await db.from('ordens_manutencao').insert([{
                         maquina_nome: maqNome,
                         tipo: 'emergencial',
                         origem: 'sos_operador',
                         titulo: `🚨 SOS QUEBRA: ${maqNome}`,
-                        descricao: 'Chamado de parada imediata gerado pelo operador no chão de fábrica.',
+                        descricao: 'Chamado de parada imediata gerado pelo operador.',
                         prioridade: 'urgente',
                         status: 'pendente'
                     }]);
                 }
 
                 fecharModalSOS();
-                alert(`🚨 Pedido de conserto para ${maqNome} enviado com sucesso! Os mecânicos foram acionados.`);
+                alert(`🚨 Pedido de conserto para ${maqNome} enviado com sucesso! Equipe acionada.`);
                 speakText(`Alerta de emergência para ${maqNome} enviado com sucesso!`);
             } catch (err) {
                 console.error(err);
-                alert("Erro ao enviar SOS. Avise o encarregado verbalmente.");
+                alert("Erro ao enviar SOS. Avise verbalmente a chefia.");
             } finally {
                 btnEnviar.disabled = false;
                 btnEnviar.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar Alerta';
             }
         }
 
-        // ==================== CONTROLE DO PIN DO GESTOR ====================
+        // ==================== PIN DO GESTOR ====================
         let pinDigitado = '';
 
         function abrirModalPinGestor() {
@@ -1074,7 +1436,7 @@ REGRAS:
             document.getElementById('btn-sos-header').classList.add('hidden');
             progressWrapper.classList.add('hidden');
             badgeModo.innerText = "Gestor";
-            badgeModo.className = "text-xs uppercase tracking-wider font-bold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full";
+            badgeModo.className = "text-[11px] uppercase tracking-wider font-extrabold bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded";
             carregarDadosGestor();
         }
 
@@ -1085,8 +1447,8 @@ REGRAS:
             document.getElementById('btn-sos-header').classList.remove('hidden');
             progressWrapper.classList.remove('hidden');
             badgeModo.innerText = "Operador";
-            badgeModo.className = "text-xs uppercase tracking-wider font-bold bg-black/25 px-2.5 py-0.5 rounded-full";
-            goToStep(-1);
+            badgeModo.className = "text-[11px] uppercase tracking-wider font-extrabold bg-slate-800 text-slate-200 px-2.5 py-0.5 rounded border border-slate-700";
+            goToStep(-5);
         }
 
         let abaAtualGestor = 'dashboard';
@@ -1095,12 +1457,12 @@ REGRAS:
             abaAtualGestor = aba;
             document.querySelectorAll('.tab-gestor-btn').forEach(btn => {
                 btn.classList.remove('bg-orange-600', 'text-white');
-                btn.classList.add('bg-slate-700', 'text-slate-300');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
             });
             const activeBtn = document.getElementById(`tab-btn-${aba}`);
             if (activeBtn) {
                 activeBtn.classList.add('bg-orange-600', 'text-white');
-                activeBtn.classList.remove('bg-slate-700', 'text-slate-300');
+                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
             }
             carregarDadosGestor();
         }
@@ -1116,7 +1478,7 @@ REGRAS:
 
             try {
                 const [resMaq, resChk, resOS, resSOS] = await Promise.all([
-                    db.from('maquinas').select('*, maquina_especificacoes(*)').order('nome'),
+                    db.from('maquinas').select('*, maquina_especificacoes(*)').order('unidade').order('codigo'),
                     db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(50),
                     db.from('ordens_manutencao').select('*').order('created_at', { ascending: false }),
                     db.from('chamados_emergencia').select('*').order('created_at', { ascending: false }).limit(20)
@@ -1130,6 +1492,7 @@ REGRAS:
                 document.getElementById('count-checklists').innerText = checklists.length;
                 document.getElementById('count-os').innerText = ordens.filter(o => o.status !== 'concluido').length;
                 document.getElementById('count-sos').innerText = chamados.filter(c => c.status === 'pendente').length;
+                document.getElementById('count-maquinas').innerText = maquinas.length;
 
                 if (abaAtualGestor === 'dashboard') {
                     renderAbaDashboard(container, maquinas, checklists, ordens);
@@ -1155,85 +1518,91 @@ REGRAS:
             const totalComProblema = checklists.filter(c => c.tem_problema).length;
             const taxaConformidade = checklists.length > 0 ? Math.round(((checklists.length - totalComProblema) / checklists.length) * 100) : 100;
 
+            const maqFilial = maquinas.filter(m => m.unidade === 'FILIAL').length;
+            const maqMatriz = maquinas.filter(m => m.unidade === 'MATRIZ').length;
+
             container.innerHTML = `
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex items-center justify-between">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Frota de Máquinas</p>
-                                <h3 class="text-3xl font-black text-white mt-1">${totalMaq}</h3>
-                                <p class="text-xs text-emerald-400 font-medium mt-1"><i class="fa-solid fa-circle-check"></i> ${maqOperando} em operação normal</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Frota Total</p>
+                                <h3 class="text-3xl font-mono-num font-black text-white mt-1">${totalMaq}</h3>
+                                <p class="text-xs text-slate-400 font-medium mt-1">
+                                    <span class="text-orange-400 font-bold">${maqFilial} Filial</span> • <span class="text-amber-400 font-bold">${maqMatriz} Matriz</span>
+                                </p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
                         </div>
 
-                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex items-center justify-between">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
                             <div>
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Conformidade 5S</p>
-                                <h3 class="text-3xl font-black ${taxaConformidade > 80 ? 'text-emerald-400' : 'text-amber-400'} mt-1">${taxaConformidade}%</h3>
+                                <h3 class="text-3xl font-mono-num font-black ${taxaConformidade > 80 ? 'text-emerald-400' : 'text-amber-400'} mt-1">${taxaConformidade}%</h3>
                                 <p class="text-xs text-slate-400 font-medium mt-1">${checklists.length} checklists avaliados</p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-shield-halved"></i></div>
                         </div>
 
-                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex items-center justify-between">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
                             <div>
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">O.S. em Aberto</p>
-                                <h3 class="text-3xl font-black text-amber-400 mt-1">${ordens.filter(o => o.status !== 'concluido').length}</h3>
-                                <p class="text-xs text-amber-300/80 font-medium mt-1">Preventivas & Corretivas</p>
+                                <h3 class="text-3xl font-mono-num font-black text-amber-400 mt-1">${ordens.filter(o => o.status !== 'concluido').length}</h3>
+                                <p class="text-xs text-amber-300/80 font-medium mt-1">Manutenções pendentes</p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-wrench"></i></div>
                         </div>
 
-                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex items-center justify-between">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Máquinas em Alerta</p>
-                                <h3 class="text-3xl font-black ${maqAlerta > 0 ? 'text-red-400' : 'text-slate-200'} mt-1">${maqAlerta}</h3>
-                                <p class="text-xs text-red-400 font-medium mt-1">Requer atenção técnica</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Alertas / SOS</p>
+                                <h3 class="text-3xl font-mono-num font-black ${maqAlerta > 0 ? 'text-red-400' : 'text-slate-200'} mt-1">${maqAlerta}</h3>
+                                <p class="text-xs text-red-400 font-medium mt-1">Requer atenção mecânica</p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
                         </div>
                     </div>
 
-                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-gauge-high text-orange-400"></i> Status Atual das Máquinas e Horímetro
+                                <i class="fa-solid fa-gauge-high text-orange-400"></i> Telemetria de Horímetro & Unidades
                             </h3>
                             <button onclick="mudarAbaGestor('maquinas')" class="text-xs text-orange-400 hover:underline">Ver catálogo completo →</button>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                             ${maquinas.map(m => {
                                 const horimetro = m.horimetro_atual || 0;
                                 const proxPreventiva = (m.horimetro_ultima_preventiva || 0) + (m.intervalo_preventiva_horas || 250);
                                 const horasRestantes = proxPreventiva - horimetro;
-                                let statusCor = 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400';
+                                let statusCor = 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400';
                                 if (horasRestantes <= 0 || m.status_operacional === 'manutencao_imediata') {
-                                    statusCor = 'border-red-500/50 bg-red-500/10 text-red-400';
+                                    statusCor = 'border-red-500/40 bg-red-500/10 text-red-400';
                                 } else if (horasRestantes <= 50 || m.status_operacional === 'alerta') {
-                                    statusCor = 'border-amber-500/50 bg-amber-500/10 text-amber-400';
+                                    statusCor = 'border-amber-500/40 bg-amber-500/10 text-amber-400';
                                 }
 
                                 return `
-                                <div class="bg-slate-900/80 border ${statusCor.split(' ')[0]} rounded-xl p-4 shadow-sm">
+                                <div class="bg-slate-950 border ${statusCor.split(' ')[0]} rounded-xl p-3.5 shadow-sm">
                                     <div class="flex justify-between items-start mb-2">
                                         <div>
-                                            <h4 class="font-bold text-white text-sm">${m.nome}</h4>
-                                            <span class="text-[10px] text-slate-400">${m.codigo} • ${m.modelo || 'Diesel'}</span>
+                                            <span class="text-[10px] font-mono-num font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">${m.unidade || 'FILIAL'}</span>
+                                            <h4 class="font-mono-num font-black text-white text-sm mt-1">${m.codigo}</h4>
+                                            <span class="text-[11px] text-slate-400 block truncate max-w-[150px]">${m.modelo || m.nome}</span>
                                         </div>
-                                        <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${statusCor}">
+                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${statusCor}">
                                             ${m.status_operacional}
                                         </span>
                                     </div>
-                                    <div class="mt-3 flex justify-between items-end">
+                                    <div class="mt-2 pt-2 border-t border-slate-800 flex justify-between items-end">
                                         <div>
-                                            <span class="text-xs text-slate-400 block">Horímetro Atual</span>
-                                            <span class="text-xl font-black text-white">${horimetro} h</span>
+                                            <span class="text-[10px] text-slate-400 block">Horímetro</span>
+                                            <span class="font-mono-num text-lg font-black text-white">${horimetro} h</span>
                                         </div>
                                         <div class="text-right">
-                                            <span class="text-[10px] text-slate-400 block">Próx. Preventiva</span>
-                                            <span class="text-xs font-bold ${horasRestantes <= 0 ? 'text-red-400' : 'text-slate-300'}">${horasRestantes <= 0 ? 'VENCIDA' : horasRestantes + ' h restantes'}</span>
+                                            <span class="text-[9px] text-slate-500 block">Preventiva</span>
+                                            <span class="text-[11px] font-bold ${horasRestantes <= 0 ? 'text-red-400' : 'text-slate-300'}">${horasRestantes <= 0 ? 'VENCIDA' : horasRestantes + ' h'}</span>
                                         </div>
                                     </div>
                                 </div>`;
@@ -1260,42 +1629,45 @@ REGRAS:
                             const audios = c.checklist_observacoes || [];
 
                             return `
-                            <div class="bg-slate-800 border ${c.tem_problema ? 'border-red-500/40 bg-red-950/10' : 'border-slate-700'} rounded-2xl p-4 shadow-md transition hover:border-slate-600">
+                            <div class="bg-slate-900 border ${c.tem_problema ? 'border-red-500/40 bg-red-950/10' : 'border-slate-800'} rounded-2xl p-4 shadow-md">
                                 <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-xl ${c.tem_problema ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'} flex items-center justify-center text-lg">
                                             <i class="fa-solid ${c.tem_problema ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i>
                                         </div>
                                         <div>
-                                            <h4 class="text-base font-bold text-white">${c.empilhadeira}</h4>
-                                            <span class="text-xs text-slate-400">Operador: <strong class="text-slate-200">${c.operador}</strong> • Horímetro: <strong class="text-slate-200">${c.horimetro}h</strong></span>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-mono-num text-base font-black text-white">${c.empilhadeira}</h4>
+                                                <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded font-mono-num">${c.unidade || 'FILIAL'}</span>
+                                            </div>
+                                            <span class="text-xs text-slate-400">Operador: <strong class="text-slate-200">${c.operador}</strong> • Horímetro: <strong class="text-slate-200 font-mono-num">${c.horimetro}h</strong></span>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${c.tem_problema ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
-                                            ${c.tem_problema ? 'COM PROBLEMA' : '100% CONFORME'}
+                                            ${c.tem_problema ? 'COM APONTAMENTO' : '100% CONFORME'}
                                         </span>
-                                        <span class="text-xs text-slate-400">${dataFmt}</span>
+                                        <span class="text-xs text-slate-500 font-mono-num">${dataFmt}</span>
                                     </div>
                                 </div>
 
-                                ${c.resumo_ia ? `
-                                    <div class="bg-slate-900/70 border border-slate-700/80 rounded-xl p-3 mb-3 text-xs text-slate-300">
-                                        <span class="font-bold text-orange-400 block mb-1"><i class="fa-solid fa-robot"></i> Transcrição Técnica do Gemini:</span>
-                                        <p class="italic">${c.resumo_ia}</p>
+                                ${c.resumo_ia || c.observacao_texto ? `
+                                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-2 text-xs text-slate-300">
+                                        <span class="font-bold text-orange-400 block mb-1"><i class="fa-solid fa-comment-dots"></i> Observações Técnicas:</span>
+                                        <p class="text-slate-300">${c.observacao_texto || c.resumo_ia}</p>
                                     </div>
                                 ` : ''}
 
                                 ${audios.length > 0 ? `
-                                    <div class="space-y-2 mt-2 pt-2 border-t border-slate-700/60">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Áudios Gravados pelo Operador:</span>
+                                    <div class="space-y-2 mt-2 pt-2 border-t border-slate-800">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Áudios & Detalhes Gravados:</span>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             ${audios.map(a => `
-                                                <div class="bg-slate-900 border border-slate-700 rounded-lg p-2 flex flex-col gap-1">
-                                                    <span class="text-[10px] text-orange-300 font-semibold truncate">${a.texto_corrigido_ia || a.texto_original || 'Áudio'}</span>
+                                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex flex-col gap-1">
+                                                    <span class="text-[11px] text-orange-300 font-medium">${a.texto_corrigido_ia || a.texto_original || 'Áudio'}</span>
                                                     ${a.audio_url ? `
-                                                        <audio controls src="${a.audio_url}" class="h-8 w-full mt-1"></audio>
-                                                    ` : '<span class="text-[10px] text-slate-500 italic">Áudio sem link público</span>'}
+                                                        <audio controls src="${a.audio_url}" class="h-7 w-full mt-1"></audio>
+                                                    ` : '<span class="text-[10px] text-slate-500 italic">Áudio processado sem link externo</span>'}
                                                 </div>
                                             `).join('')}
                                         </div>
@@ -1308,7 +1680,7 @@ REGRAS:
             `;
         }
 
-        // ABA 3: KANBAN DE MANUTENÇÕES
+        // ABA 3: KANBAN DE MANUTENÇÃO
         function renderAbaKanban(container, ordens) {
             const colunas = [
                 { id: 'pendente', titulo: 'Pendente / Solicitado', cor: 'border-amber-500', icone: 'fa-clock text-amber-400' },
@@ -1321,7 +1693,7 @@ REGRAS:
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-table-columns text-orange-400"></i> Kanban de Ordens de Serviço (Preventivas & Corretivas)
+                            <i class="fa-solid fa-table-columns text-orange-400"></i> Kanban de Ordens de Serviço
                         </h3>
                     </div>
 
@@ -1329,29 +1701,29 @@ REGRAS:
                         ${colunas.map(col => {
                             const itens = ordens.filter(o => o.status === col.id);
                             return `
-                            <div class="bg-slate-800/90 border-t-4 ${col.cor} border-x border-b border-slate-700 rounded-2xl p-4 shadow-lg min-h-[450px] flex flex-col">
-                                <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                                    <h4 class="text-xs font-black text-white uppercase flex items-center gap-2">
+                            <div class="bg-slate-900 border-t-4 ${col.cor} border-x border-b border-slate-800 rounded-2xl p-3.5 shadow-lg min-h-[420px] flex flex-col">
+                                <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
+                                    <h4 class="text-xs font-black text-white uppercase flex items-center gap-1.5">
                                         <i class="fa-solid ${col.icone}"></i> ${col.titulo}
                                     </h4>
-                                    <span class="bg-slate-700 text-white text-xs font-bold px-2 py-0.5 rounded-full">${itens.length}</span>
+                                    <span class="bg-slate-800 text-white text-xs font-bold px-2 py-0.5 rounded-full font-mono-num">${itens.length}</span>
                                 </div>
 
-                                <div class="space-y-3 flex-1 overflow-y-auto max-h-[600px]">
+                                <div class="space-y-2.5 flex-1 overflow-y-auto max-h-[600px]">
                                     ${itens.map(item => `
-                                        <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 shadow-md hover:border-slate-500 transition">
+                                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 shadow-md hover:border-slate-600 transition">
                                             <div class="flex justify-between items-start gap-1 mb-1">
-                                                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">
+                                                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">
                                                     ${item.prioridade}
                                                 </span>
-                                                <span class="text-[10px] text-slate-500">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
+                                                <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
                                             </div>
 
-                                            <h5 class="text-sm font-bold text-white mb-1">${item.titulo}</h5>
-                                            <p class="text-xs text-slate-400 line-clamp-2 mb-2">${item.descricao || ''}</p>
+                                            <h5 class="text-xs font-bold text-white mb-1">${item.titulo}</h5>
+                                            <p class="text-[11px] text-slate-400 line-clamp-2 mb-2">${item.descricao || ''}</p>
 
-                                            <div class="flex justify-between items-center text-[10px] text-slate-400 pt-2 border-t border-slate-800">
-                                                <span>🚜 ${item.maquina_nome}</span>
+                                            <div class="flex justify-between items-center text-[10px] text-slate-400 pt-2 border-t border-slate-900">
+                                                <span class="font-mono-num">🚜 ${item.maquina_nome}</span>
                                                 <select onchange="atualizarStatusOS('${item.id}', this.value)" class="bg-slate-800 text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
                                                     <option value="pendente" ${item.status === 'pendente' ? 'selected' : ''}>Pendente</option>
                                                     <option value="analise_pecas" ${item.status === 'analise_pecas' ? 'selected' : ''}>Análise Peças</option>
@@ -1378,69 +1750,72 @@ REGRAS:
                     .eq('id', osId);
                 carregarDadosGestor();
             } catch (err) {
-                alert("Erro ao mover O.S.");
+                alert("Erro ao mover status da O.S.");
             }
         }
 
         // ABA 4: MÁQUINAS E CATÁLOGO DE PEÇAS
         function renderAbaMaquinas(container, maquinas) {
             container.innerHTML = `
-                <div class="space-y-6">
+                <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-truck-ramp-box text-orange-400"></i> Perfil das Máquinas & Catálogo de Peças
+                                <i class="fa-solid fa-truck-ramp-box text-orange-400"></i> Catálogo de Frotas & Peças
                             </h3>
-                            <p class="text-xs text-slate-400">Organização de filtros, óleos e mangueiras para compras e trocas</p>
+                            <p class="text-xs text-slate-400">Empilhadeiras ativas e especificações técnicas de insumos</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         ${maquinas.map(m => {
                             const pecas = m.maquina_especificacoes || [];
                             return `
-                            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-                                <div class="flex justify-between items-start pb-3 border-b border-slate-700">
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+                                <div class="flex justify-between items-start pb-2.5 border-b border-slate-800">
                                     <div>
-                                        <h4 class="text-lg font-black text-white">${m.nome}</h4>
-                                        <span class="text-xs text-orange-400 font-semibold">${m.codigo} • ${m.tipo.toUpperCase()} (${m.modelo || 'Diesel'})</span>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-mono-num text-base font-black text-white">${m.codigo}</h4>
+                                            <span class="text-[10px] bg-slate-800 text-orange-400 px-1.5 py-0.5 rounded font-mono-num font-bold">${m.unidade || 'FILIAL'}</span>
+                                        </div>
+                                        <span class="text-xs text-slate-400">${m.modelo || m.nome}</span>
                                     </div>
                                     <div class="text-right">
-                                        <span class="text-xs text-slate-400 block">Horímetro Atual</span>
-                                        <span class="text-xl font-black text-white">${m.horimetro_atual || 0} h</span>
+                                        <span class="text-[10px] text-slate-400 block font-bold uppercase">Horímetro</span>
+                                        <span class="font-mono-num text-lg font-black text-white">${m.horimetro_atual || 0} h</span>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
-                                        <i class="fa-solid fa-cart-flatbed text-orange-400 mr-1"></i> Peças & Consumíveis para Manutenção (${pecas.length})
+                                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                                        <i class="fa-solid fa-cart-flatbed text-orange-400 mr-1"></i> Insumos e Peças (${pecas.length}):
                                     </span>
 
                                     ${pecas.length > 0 ? `
                                         <div class="overflow-x-auto">
                                             <table class="w-full text-left text-xs text-slate-300">
-                                                <thead class="bg-slate-900/60 text-slate-400 uppercase text-[10px]">
+                                                <thead class="bg-slate-950 text-slate-400 uppercase text-[10px]">
                                                     <tr>
-                                                        <th class="p-2">Item</th>
-                                                        <th class="p-2">Categoria</th>
-                                                        <th class="p-2">Cód. Fabricante</th>
-                                                        <th class="p-2">Qtd/Troca</th>
+                                                        <th class="p-1.5">Item</th>
+                                                        <th class="p-1.5">Categoria</th>
+                                                        <th class="p-1.5">Cód. Peça</th>
+                                                        <th class="p-1.5">Qtd</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="divide-y divide-slate-700/50">
+                                                <tbody class="divide-y divide-slate-800">
                                                     ${pecas.map(p => `
                                                         <tr>
-                                                            <td class="p-2 font-semibold text-white">${p.item_nome}</td>
-                                                            <td class="p-2 uppercase text-[10px] text-orange-300">${p.categoria}</td>
-                                                            <td class="p-2 font-mono text-slate-400">${p.codigo_fabricante || '-'}</td>
-                                                            <td class="p-2">${p.quantidade_por_troca} ${p.unidade}</td>
+                                                            <td class="p-1.5 font-semibold text-white">${p.item_nome}</td>
+                                                            <td class="p-1.5 uppercase text-[10px] text-orange-400">${p.categoria}</td>
+                                                            <td class="p-1.5 font-mono-num text-slate-400">${p.codigo_fabricante || '-'}</td>
+                                                            <td class="p-1.5 font-mono-num">${p.quantidade_por_troca} ${p.unidade || ''}</td>
                                                         </tr>
                                                     `).join('')}
                                                 </tbody>
                                             </table>
                                         </div>
                                     ` : `
-                                        <p class="text-xs text-slate-500 italic p-3 bg-slate-900/40 rounded-xl">Nenhuma peça cadastrada para este modelo ainda.</p>
+                                        <p class="text-xs text-slate-500 italic p-2.5 bg-slate-950/60 rounded-xl">Nenhuma peça cadastrada para este modelo.</p>
                                     `}
                                 </div>
                             </div>`;
@@ -1456,34 +1831,34 @@ REGRAS:
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-bell text-red-500 animate-pulse"></i> Chamados de Emergência (SOS Conserto)
+                            <i class="fa-solid fa-bell text-red-500 animate-pulse"></i> Chamados de Emergência SOS
                         </h3>
                     </div>
 
-                    <div class="space-y-3">
+                    <div class="space-y-2.5">
                         ${chamados.length > 0 ? chamados.map(c => `
-                            <div class="bg-slate-800 border-l-4 border-red-500 border-y border-r border-slate-700 rounded-xl p-4 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="bg-slate-900 border-l-4 border-red-500 border-y border-r border-slate-800 rounded-xl p-3.5 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                                 <div class="space-y-1">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-xs font-black uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400">${c.gravidade}</span>
-                                        <h4 class="text-base font-bold text-white">🚨 ${c.maquina_nome}</h4>
+                                        <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400">${c.gravidade}</span>
+                                        <h4 class="font-mono-num text-base font-bold text-white">🚨 ${c.maquina_nome}</h4>
                                         <span class="text-xs text-slate-400">• Operador: ${c.operador}</span>
                                     </div>
                                     <p class="text-xs text-slate-300">${c.texto_transcrito || 'Áudio relatando quebra mecânica.'}</p>
-                                    ${c.audio_url ? `<audio controls src="${c.audio_url}" class="h-8 mt-2"></audio>` : ''}
+                                    ${c.audio_url ? `<audio controls src="${c.audio_url}" class="h-7 mt-1.5"></audio>` : ''}
                                 </div>
 
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <button onclick="resolverSOS('${c.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition">
-                                        <i class="fa-solid fa-check"></i> Concluir Atendimento
+                                    <button onclick="resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg transition">
+                                        <i class="fa-solid fa-check"></i> Concluir Reparo
                                     </button>
                                 </div>
                             </div>
                         `).join('') : `
-                            <div class="p-8 text-center text-slate-500 bg-slate-800/40 rounded-2xl">
+                            <div class="p-8 text-center text-slate-500 bg-slate-900 rounded-2xl border border-slate-800">
                                 <i class="fa-solid fa-shield-cat text-4xl mb-2 text-emerald-400"></i>
-                                <p class="text-sm font-bold text-slate-300">Nenhum chamado de emergência aberto no momento.</p>
-                                <p class="text-xs text-slate-500">Todas as máquinas operando normalmente.</p>
+                                <p class="text-sm font-bold text-slate-300">Nenhum chamado de emergência ativo.</p>
+                                <p class="text-xs text-slate-500">Todas as empilhadeiras em regime operacional normal.</p>
                             </div>
                         `}
                     </div>
@@ -1504,8 +1879,8 @@ REGRAS:
             }
         }
 
-        // ==================== INICIALIZAÇÃO DA APLICAÇÃO ====================
-        goToStep(-1);
+        // ==================== INICIALIZAÇÃO ====================
+        goToStep(-5);
         atualizarSelectSOS();
         carregarDadosDoBanco();
     </script>
