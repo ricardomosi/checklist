@@ -51,10 +51,10 @@
                 <span>SOS Conserto</span>
             </button>
 
-            <!-- Alternar Modo Gestor (Protegido por PIN) -->
-            <button onclick="toggleModoGestor()" class="bg-white/15 hover:bg-white/25 text-white p-2 rounded-lg text-sm font-semibold transition flex items-center gap-1">
+            <!-- Alternar Modo Gestor (Abre Modal de Senha PIN) -->
+            <button onclick="abrirModalPinGestor()" class="bg-white/15 hover:bg-white/25 text-white p-2 rounded-lg text-sm font-semibold transition flex items-center gap-1">
                 <i class="fa-solid fa-sliders"></i>
-                <span class="hidden sm:inline text-xs">Gestão</span>
+                <span class="hidden sm:inline text-xs font-bold">Gestão</span>
             </button>
         </div>
     </header>
@@ -94,7 +94,7 @@
                 <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-700 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-600 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-bell text-red-400"></i> Alertas SOS (<span id="count-sos">0</span>)
                 </button>
-                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 ml-2 transition">
+                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 ml-2 transition flex items-center gap-1">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
                 </button>
             </div>
@@ -106,9 +106,43 @@
         </div>
     </main>
 
+    <!-- ==================== MODAL DE PIN DO GESTOR ==================== -->
+    <div id="modal-pin-gestor" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center text-white">
+            <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-1">Acesso do Gestor</h3>
+            <p class="text-xs text-slate-400 mb-4">Digite o código PIN para acessar o painel</p>
+            
+            <div id="pin-display" class="bg-slate-800 border-2 border-orange-500 h-12 rounded-xl flex items-center justify-center text-2xl tracking-[0.5em] font-mono font-bold mb-4 shadow-inner">
+                ----
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 max-w-[240px] mx-auto mb-4">
+                <button onclick="digitarPin('1')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">1</button>
+                <button onclick="digitarPin('2')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">2</button>
+                <button onclick="digitarPin('3')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">3</button>
+                <button onclick="digitarPin('4')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">4</button>
+                <button onclick="digitarPin('5')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">5</button>
+                <button onclick="digitarPin('6')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">6</button>
+                <button onclick="digitarPin('7')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">7</button>
+                <button onclick="digitarPin('8')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">8</button>
+                <button onclick="digitarPin('9')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">9</button>
+                <button onclick="limparPin()" class="btn-giant bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-delete-left"></i></button>
+                <button onclick="digitarPin('0')" class="btn-giant bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">0</button>
+                <button onclick="confirmarPin()" class="btn-giant bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-check"></i></button>
+            </div>
+
+            <button onclick="fecharModalPinGestor()" class="text-xs text-slate-400 hover:text-white font-medium py-1">
+                Cancelar e Voltar
+            </button>
+        </div>
+    </div>
+
     <!-- ==================== MODAL DE SOS / CONSERTO IMEDIATO ==================== -->
     <div id="modal-sos" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border-4 border-red-600 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border-4 border-red-600 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
             <div class="text-center mb-4">
                 <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-2 text-3xl shadow-inner">
                     <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
@@ -121,18 +155,18 @@
             <div class="mb-4">
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Qual máquina quebrou?</label>
                 <select id="sos-select-maquina" class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl p-3 font-bold text-slate-800 text-base focus:border-red-500 focus:outline-none">
-                    <!-- Opções dinâmicas -->
+                    <!-- Preenchido dinamicamente -->
                 </select>
             </div>
 
             <!-- Gravação do Áudio do Problema -->
-            <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col items-center mb-4">
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col items-center mb-4">
                 <p class="text-xs font-bold text-red-700 mb-3 text-center">Aperte o microfone e fale o que aconteceu:</p>
                 <button id="sos-btn-mic" onclick="toggleGravarAudioSOS()" class="btn-giant bg-white text-red-600 w-20 h-20 rounded-full shadow-lg flex items-center justify-center border-4 border-red-300 mb-2">
                     <i id="sos-mic-icon" class="fa-solid fa-microphone text-3xl"></i>
                 </button>
                 <span id="sos-mic-status" class="text-xs font-bold text-slate-600">Toque para gravar</span>
-                <audio id="sos-audio-preview" controls class="w-full mt-3 h-8 hidden"></audio>
+                <audio id="sos-audio-preview" controls class="w-full mt-3 h-8 hidden rounded-lg"></audio>
             </div>
 
             <div class="flex gap-3 mt-2">
@@ -153,8 +187,16 @@
         const SUPABASE_KEY = "sb_publishable_Myl_3AP0JE8TepHtQtDxGA_iLuznKjF";
         const GEMINI_API_KEY = "AIzaSyAjDSyP2hB9bftfH8TNQbVF9e97s64UwsQ";
 
-        // Inicializar cliente do Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Inicializar cliente do Supabase de forma segura
+        let db = null;
+        try {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log("Supabase client inicializado com sucesso!");
+            }
+        } catch (e) {
+            console.error("Erro ao instanciar Supabase:", e);
+        }
 
         // 16 Itens de Verificação 5S
         const checklistItems = [
@@ -182,9 +224,16 @@
         let observacoesList = [];
         let synth = window.speechSynthesis;
 
-        // Dados globais carregados do Supabase
-        let listaMaquinas = [];
-        let listaOperadores = [];
+        // Dados padrão imediatos (sem depender de delay de rede)
+        let listaMaquinas = [
+            { codigo: 'EMP-01', nome: 'ZOOMLION - FD70', horimetro_atual: 13339 },
+            { codigo: 'EMP-02', nome: 'ZOOMLION - FD35', horimetro_atual: 9999 },
+            { codigo: 'EMP-03', nome: 'CHLCPCD 70', horimetro_atual: 986 },
+            { codigo: 'EMP-04', nome: 'CHINESA-T50A', horimetro_atual: 1200 }
+        ];
+        let listaOperadores = [
+            { nome: 'Lázaro' }, { nome: 'Damião' }, { nome: 'João' }, { nome: 'Antônio' }
+        ];
 
         // Elementos DOM
         const appOperador = document.getElementById('app-operador');
@@ -193,28 +242,24 @@
         const progressWrapper = document.getElementById('progress-wrapper');
         const badgeModo = document.getElementById('badge-modo');
 
-        // ==================== INICIALIZAÇÃO E CARGA DO SUPABASE ====================
-        async function inicializarDados() {
+        // ==================== INICIALIZAÇÃO IMEDIATA & CARGA DO SUPABASE ====================
+        async function carregarDadosDoBanco() {
+            if (!db) return;
             try {
-                // Carregar Máquinas
-                const { data: maquinas, error: errMaq } = await supabase
+                // Carregar Máquinas reais
+                const { data: maquinas, error: errMaq } = await db
                     .from('maquinas')
                     .select('*')
                     .order('nome');
                 
                 if (!errMaq && maquinas && maquinas.length > 0) {
                     listaMaquinas = maquinas;
-                } else {
-                    listaMaquinas = [
-                        { codigo: 'EMP-01', nome: 'ZOOMLION - FD70', horimetro_atual: 13339 },
-                        { codigo: 'EMP-02', nome: 'ZOOMLION - FD35', horimetro_atual: 9999 },
-                        { codigo: 'EMP-03', nome: 'CHLCPCD 70', horimetro_atual: 986 },
-                        { codigo: 'EMP-04', nome: 'CHINESA-T50A', horimetro_atual: 1200 }
-                    ];
+                    atualizarSelectSOS();
+                    if (currentStepIndex === -1) renderCurrentStep();
                 }
 
-                // Carregar Operadores
-                const { data: operadores, error: errOp } = await supabase
+                // Carregar Operadores reais
+                const { data: operadores, error: errOp } = await db
                     .from('operadores')
                     .select('*')
                     .eq('ativo', true)
@@ -222,25 +267,10 @@
                 
                 if (!errOp && operadores && operadores.length > 0) {
                     listaOperadores = operadores;
-                } else {
-                    listaOperadores = [
-                        { nome: 'Lázaro' }, { nome: 'Damião' }, { nome: 'João' }, { nome: 'Antônio' }
-                    ];
+                    if (currentStepIndex === -2) renderCurrentStep();
                 }
-
-                atualizarSelectSOS();
-                goToStep(-1);
-            } catch (err) {
-                console.error("Erro ao carregar do Supabase, usando padrão local:", err);
-                listaMaquinas = [
-                    { codigo: 'EMP-01', nome: 'ZOOMLION - FD70', horimetro_atual: 13339 },
-                    { codigo: 'EMP-02', nome: 'ZOOMLION - FD35', horimetro_atual: 9999 },
-                    { codigo: 'EMP-03', nome: 'CHLCPCD 70', horimetro_atual: 986 },
-                    { codigo: 'EMP-04', nome: 'CHINESA-T50A', horimetro_atual: 1200 }
-                ];
-                listaOperadores = [{ nome: 'Lázaro' }, { nome: 'Damião' }, { nome: 'João' }, { nome: 'Antônio' }];
-                atualizarSelectSOS();
-                goToStep(-1);
+            } catch (e) {
+                console.warn("Aviso na sincronização de dados:", e);
             }
         }
 
@@ -255,7 +285,7 @@
                 sincronizarFilaOffline();
             } else {
                 dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
-                txt.innerText = "Offline (Salvo Local)";
+                txt.innerText = "Offline";
             }
         }
         window.addEventListener('online', atualizarStatusRede);
@@ -263,12 +293,15 @@
 
         // ==================== VOZ (TEXT-TO-SPEECH) ====================
         function speakText(text) {
-            if (!synth) return;
-            synth.cancel();
-            let utterThis = new SpeechSynthesisUtterance(text);
-            utterThis.lang = 'pt-BR';
-            utterThis.rate = 1.0;
-            synth.speak(utterThis);
+            try {
+                if (!synth) synth = window.speechSynthesis;
+                if (!synth) return;
+                synth.cancel();
+                let utterThis = new SpeechSynthesisUtterance(text);
+                utterThis.lang = 'pt-BR';
+                utterThis.rate = 1.0;
+                synth.speak(utterThis);
+            } catch (e) {}
         }
 
         // ==================== NAVEGAÇÃO OPERADOR ====================
@@ -701,11 +734,8 @@ REGRAS:
             btnEnviar.disabled = true;
 
             const horimetroNum = parseFloat(formData.horimetro) || 0;
-
-            // Detectar se há algum item 'NÃO CONFORME'
             const temProblema = checklistItems.some(item => formData[item.id] === 'NÃO CONFORME');
 
-            // Objeto do Checklist
             const checklistPayload = {
                 empilhadeira: formData.empilhadeira,
                 operador: formData.operador,
@@ -733,20 +763,21 @@ REGRAS:
             };
 
             try {
-                // 1. Inserir Checklist na tabela 'checklists'
-                const { data: chkData, error: chkError } = await supabase
+                if (!db) throw new Error("Supabase não inicializado.");
+
+                // 1. Inserir Checklist
+                const { data: chkData, error: chkError } = await db
                     .from('checklists')
                     .insert([checklistPayload])
                     .select()
                     .single();
 
                 if (chkError) throw chkError;
-
                 const checklistId = chkData.id;
 
-                // 2. Atualizar Horímetro e status na tabela de Máquinas
+                // 2. Atualizar Horímetro e status na máquina
                 if (formData.empilhadeira) {
-                    await supabase
+                    await db
                         .from('maquinas')
                         .update({ 
                             horimetro_atual: horimetroNum,
@@ -757,24 +788,24 @@ REGRAS:
                         .eq('nome', formData.empilhadeira);
                 }
 
-                // 3. Upload dos Áudios no Supabase Storage e Gravação de Observações
+                // 3. Upload dos Áudios
                 for (let i = 0; i < observacoesList.length; i++) {
                     const obs = observacoesList[i];
                     let audioUrlFinal = "";
 
                     if (obs.audioBlob) {
                         const fileName = `chk_${checklistId}_obs_${i + 1}_${Date.now()}.webm`;
-                        const { data: uploadRes, error: uploadErr } = await supabase.storage
+                        const { data: uploadRes, error: uploadErr } = await db.storage
                             .from('checklist-audios')
                             .upload(fileName, obs.audioBlob, { contentType: obs.mimeType || 'audio/webm' });
 
                         if (!uploadErr) {
-                            const { data: pubUrl } = supabase.storage.from('checklist-audios').getPublicUrl(fileName);
+                            const { data: pubUrl } = db.storage.from('checklist-audios').getPublicUrl(fileName);
                             audioUrlFinal = pubUrl.publicUrl;
                         }
                     }
 
-                    await supabase
+                    await db
                         .from('checklist_observacoes')
                         .insert([{
                             checklist_id: checklistId,
@@ -785,9 +816,9 @@ REGRAS:
                         }]);
                 }
 
-                // 4. Se houver problema, gerar Ordem de Manutenção preventiva/corretiva no Kanban
+                // 4. Se houver defeito, abrir O.S. no Kanban
                 if (temProblema) {
-                    await supabase
+                    await db
                         .from('ordens_manutencao')
                         .insert([{
                             maquina_nome: formData.empilhadeira,
@@ -853,17 +884,17 @@ REGRAS:
         }
 
         async function sincronizarFilaOffline() {
+            if (!db) return;
             let fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
             if (fila.length === 0) return;
 
             for (let i = 0; i < fila.length; i++) {
                 try {
                     const item = fila[i];
-                    await supabase.from('checklists').insert([item.payload]);
+                    await db.from('checklists').insert([item.payload]);
                 } catch(e) {}
             }
             localStorage.removeItem('checklists_offline_fila');
-            console.log("Fila offline sincronizada!");
         }
 
         // ==================== BOTÃO DE SOS (CONSERTO IMEDIATO) ====================
@@ -937,43 +968,42 @@ REGRAS:
 
             try {
                 let audioUrl = "";
-                if (sosAudioBlob) {
+                if (sosAudioBlob && db) {
                     const fileName = `sos_${Date.now()}.webm`;
-                    const { data, error } = await supabase.storage
+                    const { data, error } = await db.storage
                         .from('checklist-audios')
                         .upload(fileName, sosAudioBlob, { contentType: 'audio/webm' });
                     
                     if (!error) {
-                        const { data: pubUrl } = supabase.storage.from('checklist-audios').getPublicUrl(fileName);
+                        const { data: pubUrl } = db.storage.from('checklist-audios').getPublicUrl(fileName);
                         audioUrl = pubUrl.publicUrl;
                     }
                 }
 
-                // Inserir chamado de emergência
-                await supabase.from('chamados_emergencia').insert([{
-                    maquina_nome: maqNome,
-                    operador: formData.operador || 'Operador de Turno',
-                    audio_url: audioUrl,
-                    texto_transcrito: 'Alerta imediato de quebra enviado pelo operador.',
-                    gravidade: 'CRITICA',
-                    status: 'pendente'
-                }]);
+                if (db) {
+                    await db.from('chamados_emergencia').insert([{
+                        maquina_nome: maqNome,
+                        operador: formData.operador || 'Operador de Turno',
+                        audio_url: audioUrl,
+                        texto_transcrito: 'Alerta imediato de quebra enviado pelo operador.',
+                        gravidade: 'CRITICA',
+                        status: 'pendente'
+                    }]);
 
-                // Atualizar status da máquina para 'manutencao_imediata'
-                await supabase.from('maquinas')
-                    .update({ status_operacional: 'manutencao_imediata' })
-                    .eq('nome', maqNome);
+                    await db.from('maquinas')
+                        .update({ status_operacional: 'manutencao_imediata' })
+                        .eq('nome', maqNome);
 
-                // Criar Ordem de Serviço Urgente no Kanban
-                await supabase.from('ordens_manutencao').insert([{
-                    maquina_nome: maqNome,
-                    tipo: 'emergencial',
-                    origem: 'sos_operador',
-                    titulo: `🚨 SOS QUEBRA: ${maqNome}`,
-                    descricao: 'Chamado de parada imediata gerado pelo operador no chão de fábrica.',
-                    prioridade: 'urgente',
-                    status: 'pendente'
-                }]);
+                    await db.from('ordens_manutencao').insert([{
+                        maquina_nome: maqNome,
+                        tipo: 'emergencial',
+                        origem: 'sos_operador',
+                        titulo: `🚨 SOS QUEBRA: ${maqNome}`,
+                        descricao: 'Chamado de parada imediata gerado pelo operador no chão de fábrica.',
+                        prioridade: 'urgente',
+                        status: 'pendente'
+                    }]);
+                }
 
                 fecharModalSOS();
                 alert(`🚨 Pedido de conserto para ${maqNome} enviado com sucesso! Os mecânicos foram acionados.`);
@@ -987,23 +1017,65 @@ REGRAS:
             }
         }
 
-        // ==================== MODO GESTOR (PAINEL COMPLETO) ====================
-        let abaAtualGestor = 'dashboard';
+        // ==================== CONTROLE DO PIN DO GESTOR ====================
+        let pinDigitado = '';
 
-        function toggleModoGestor() {
-            const senha = prompt("Acesso Restrito da Gestão.\nDigite a senha:");
-            if (senha === "1234" || senha === "admin") {
-                document.getElementById('app-operador').classList.add('hidden');
-                document.getElementById('app-gestor').classList.remove('hidden');
-                document.getElementById('app-gestor').classList.add('flex');
-                document.getElementById('btn-sos-header').classList.add('hidden');
-                progressWrapper.classList.add('hidden');
-                badgeModo.innerText = "Gestor";
-                badgeModo.className = "text-xs uppercase tracking-wider font-bold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full";
-                carregarDadosGestor();
-            } else if (senha !== null) {
-                alert("Senha incorreta!");
+        function abrirModalPinGestor() {
+            pinDigitado = '';
+            atualizarDisplayPin();
+            document.getElementById('modal-pin-gestor').classList.remove('hidden');
+        }
+
+        function fecharModalPinGestor() {
+            document.getElementById('modal-pin-gestor').classList.add('hidden');
+            pinDigitado = '';
+        }
+
+        function digitarPin(digito) {
+            if (pinDigitado.length < 4) {
+                pinDigitado += digito;
+                atualizarDisplayPin();
+                if (pinDigitado.length === 4) {
+                    setTimeout(confirmarPin, 150);
+                }
             }
+        }
+
+        function limparPin() {
+            pinDigitado = pinDigitado.slice(0, -1);
+            atualizarDisplayPin();
+        }
+
+        function atualizarDisplayPin() {
+            const display = document.getElementById('pin-display');
+            if (!display) return;
+            let str = '';
+            for (let i = 0; i < 4; i++) {
+                str += i < pinDigitado.length ? '● ' : '- ';
+            }
+            display.innerText = str.trim();
+        }
+
+        function confirmarPin() {
+            if (pinDigitado === "1234") {
+                fecharModalPinGestor();
+                ativarModoGestor();
+            } else {
+                alert("Código PIN incorreto!");
+                pinDigitado = '';
+                atualizarDisplayPin();
+            }
+        }
+
+        function ativarModoGestor() {
+            document.getElementById('app-operador').classList.add('hidden');
+            document.getElementById('app-gestor').classList.remove('hidden');
+            document.getElementById('app-gestor').classList.add('flex');
+            document.getElementById('btn-sos-header').classList.add('hidden');
+            progressWrapper.classList.add('hidden');
+            badgeModo.innerText = "Gestor";
+            badgeModo.className = "text-xs uppercase tracking-wider font-bold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full";
+            carregarDadosGestor();
         }
 
         function voltarParaOperador() {
@@ -1016,6 +1088,8 @@ REGRAS:
             badgeModo.className = "text-xs uppercase tracking-wider font-bold bg-black/25 px-2.5 py-0.5 rounded-full";
             goToStep(-1);
         }
+
+        let abaAtualGestor = 'dashboard';
 
         function mudarAbaGestor(aba) {
             abaAtualGestor = aba;
@@ -1035,13 +1109,17 @@ REGRAS:
             const container = document.getElementById('gestor-conteudo');
             container.innerHTML = '<div class="flex items-center justify-center h-64 text-orange-400 text-xl font-bold"><i class="fa-solid fa-spinner fa-spin mr-3"></i> Carregando dados do Supabase...</div>';
 
+            if (!db) {
+                container.innerHTML = '<div class="p-6 text-amber-400">Aguardando conexão com banco de dados...</div>';
+                return;
+            }
+
             try {
-                // Buscar dados principais
                 const [resMaq, resChk, resOS, resSOS] = await Promise.all([
-                    supabase.from('maquinas').select('*, maquina_especificacoes(*)').order('nome'),
-                    supabase.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(50),
-                    supabase.from('ordens_manutencao').select('*').order('created_at', { ascending: false }),
-                    supabase.from('chamados_emergencia').select('*').order('created_at', { ascending: false }).limit(20)
+                    db.from('maquinas').select('*, maquina_especificacoes(*)').order('nome'),
+                    db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(50),
+                    db.from('ordens_manutencao').select('*').order('created_at', { ascending: false }),
+                    db.from('chamados_emergencia').select('*').order('created_at', { ascending: false }).limit(20)
                 ]);
 
                 const maquinas = resMaq.data || [];
@@ -1079,7 +1157,6 @@ REGRAS:
 
             container.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Cards de Métricas Principais -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex items-center justify-between">
                             <div>
@@ -1118,7 +1195,6 @@ REGRAS:
                         </div>
                     </div>
 
-                    <!-- Resumo Visual das Máquinas -->
                     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -1168,7 +1244,7 @@ REGRAS:
             `;
         }
 
-        // ABA 2: FEED DE CHECKLISTS COM ÁUDIO
+        // ABA 2: FEED DE CHECKLISTS
         function renderAbaChecklists(container, checklists) {
             container.innerHTML = `
                 <div class="space-y-4">
@@ -1203,7 +1279,6 @@ REGRAS:
                                     </div>
                                 </div>
 
-                                <!-- Resumo / Transcrição da IA -->
                                 ${c.resumo_ia ? `
                                     <div class="bg-slate-900/70 border border-slate-700/80 rounded-xl p-3 mb-3 text-xs text-slate-300">
                                         <span class="font-bold text-orange-400 block mb-1"><i class="fa-solid fa-robot"></i> Transcrição Técnica do Gemini:</span>
@@ -1211,7 +1286,6 @@ REGRAS:
                                     </div>
                                 ` : ''}
 
-                                <!-- Áudios Gravados -->
                                 ${audios.length > 0 ? `
                                     <div class="space-y-2 mt-2 pt-2 border-t border-slate-700/60">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Áudios Gravados pelo Operador:</span>
@@ -1296,8 +1370,9 @@ REGRAS:
         }
 
         async function atualizarStatusOS(osId, novoStatus) {
+            if (!db) return;
             try {
-                await supabase
+                await db
                     .from('ordens_manutencao')
                     .update({ status: novoStatus, updated_at: new Date() })
                     .eq('id', osId);
@@ -1307,7 +1382,7 @@ REGRAS:
             }
         }
 
-        // ABA 4: MÁQUINAS E CATÁLOGO DE PEÇAS / INSUMOS PARA COMPRAS
+        // ABA 4: MÁQUINAS E CATÁLOGO DE PEÇAS
         function renderAbaMaquinas(container, maquinas) {
             container.innerHTML = `
                 <div class="space-y-6">
@@ -1316,7 +1391,7 @@ REGRAS:
                             <h3 class="text-base font-bold text-white flex items-center gap-2">
                                 <i class="fa-solid fa-truck-ramp-box text-orange-400"></i> Perfil das Máquinas & Catálogo de Peças
                             </h3>
-                            <p class="text-xs text-slate-400">Organização de filtros, óleos e mangueiras para facilitar cotações e compras</p>
+                            <p class="text-xs text-slate-400">Organização de filtros, óleos e mangueiras para compras e trocas</p>
                         </div>
                     </div>
 
@@ -1336,7 +1411,6 @@ REGRAS:
                                     </div>
                                 </div>
 
-                                <!-- Ficha Técnica de Peças Cadastradas -->
                                 <div>
                                     <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
                                         <i class="fa-solid fa-cart-flatbed text-orange-400 mr-1"></i> Peças & Consumíveis para Manutenção (${pecas.length})
@@ -1418,8 +1492,9 @@ REGRAS:
         }
 
         async function resolverSOS(id) {
+            if (!db) return;
             try {
-                await supabase
+                await db
                     .from('chamados_emergencia')
                     .update({ status: 'resolvido', resolvido_em: new Date() })
                     .eq('id', id);
@@ -1429,8 +1504,10 @@ REGRAS:
             }
         }
 
-        // Iniciar aplicação
-        inicializarDados();
+        // ==================== INICIALIZAÇÃO DA APLICAÇÃO ====================
+        goToStep(-1);
+        atualizarSelectSOS();
+        carregarDadosDoBanco();
     </script>
 </body>
 </html>
