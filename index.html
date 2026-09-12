@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Checklist 5S & Gestão Industrial | JPatrício</title>
+    <title>Checklist 5S & Gestão Industrial de Frotas | JPatrício</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 6 -->
@@ -13,35 +13,61 @@
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     
     <style>
         * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .font-mono-num { font-family: 'JetBrains Mono', monospace; }
+        
         body { 
             touch-action: manipulation; 
             -webkit-user-select: none; 
             user-select: none; 
-            background-color: #0b1120; 
+            background-color: #090d16; 
             color: #0f172a; 
         }
         
-        /* Botões Tácteis Industriais */
+        /* Botões Tácteis Industriais com relevo físico */
         .btn-industrial {
-            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s, background-color 0.15s;
             position: relative;
         }
         .btn-industrial:active {
-            transform: translateY(2px) scale(0.98);
-            box-shadow: inset 0 3px 5px rgba(0,0,0,0.3) !important;
+            transform: translateY(3px) scale(0.985);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.35) !important;
+        }
+
+        /* Botões Gigantes da Checklist para Chão de Fábrica */
+        .btn-checklist-ok {
+            min-height: 105px;
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            border: 3px solid #34d399;
+            box-shadow: 0 6px 14px -2px rgba(16, 185, 129, 0.45), inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+        .btn-checklist-ok:active {
+            background: #047857;
+            transform: translateY(4px);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4) !important;
+        }
+
+        .btn-checklist-nok {
+            min-height: 105px;
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            border: 3px solid #f87171;
+            box-shadow: 0 6px 14px -2px rgba(239, 68, 68, 0.45), inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+        .btn-checklist-nok:active {
+            background: #b91c1c;
+            transform: translateY(4px);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4) !important;
         }
 
         /* Efeito de gravação ativa */
         .mic-recording {
-            animation: pulse-recording 1.2s infinite;
+            animation: pulse-recording 1.1s infinite;
             background-color: #dc2626 !important;
             color: white !important;
-            border-color: #f87171 !important;
+            border-color: #fca5a5 !important;
         }
         @keyframes pulse-recording {
             0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
@@ -54,9 +80,30 @@
         }
         @keyframes pulse-sos-anim {
             0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            50% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            50% { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
         }
 
+        /* Tabela Compacta de Dados */
+        .data-table-compact th {
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: #0b1120;
+            color: #94a3b8;
+            border-bottom: 1px solid #1e293b;
+        }
+        .data-table-compact td {
+            padding: 7px 10px;
+            font-size: 12px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .data-table-compact tr:hover {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+
+        /* Scrollbars industriais discretos */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -65,18 +112,18 @@
 <body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-950 text-slate-100">
 
     <!-- CABEÇALHO INDUSTRIAL DE OPERAÇÕES -->
-    <header class="bg-slate-900 border-b border-slate-800 text-white px-4 py-2.5 shadow-md flex justify-between items-center z-20 shrink-0">
-        <div class="flex items-center gap-3">
-            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="Logo JP" class="h-7 object-contain">
+    <header class="bg-slate-900 border-b border-slate-800 text-white px-3.5 py-2.5 shadow-md flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-2.5">
+            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="Logo JP" class="h-6 sm:h-7 object-contain">
             <div class="flex items-center gap-1.5">
-                <span class="text-[10px] font-mono-num font-bold text-orange-400 bg-orange-950/60 border border-orange-800/80 px-2 py-0.5 rounded">5S-OPS</span>
-                <span id="badge-modo" class="text-[11px] uppercase tracking-wider font-extrabold bg-slate-800 text-slate-200 px-2.5 py-0.5 rounded border border-slate-700">Operador</span>
+                <span class="text-[10px] font-mono-num font-bold text-orange-400 bg-orange-950/70 border border-orange-800/80 px-2 py-0.5 rounded">5S-OPS</span>
+                <span id="badge-modo" class="text-[11px] uppercase tracking-wider font-extrabold bg-slate-800 text-slate-200 px-2 py-0.5 rounded border border-slate-700">Operador</span>
             </div>
         </div>
 
         <div class="flex items-center gap-2">
             <!-- Ponto de status de rede -->
-            <div id="status-rede" class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-full text-xs font-semibold">
+            <div id="status-rede" class="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full text-xs font-semibold">
                 <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span id="status-text" class="text-slate-300 text-[11px]">Online</span>
             </div>
@@ -88,7 +135,7 @@
             </button>
 
             <!-- Acesso do Gestor (PIN 1234) -->
-            <button onclick="abrirModalPinGestor()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-lg text-xs font-bold border border-slate-700 transition flex items-center gap-1.5">
+            <button onclick="abrirModalPinGestor()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-700 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-sliders text-orange-400"></i>
                 <span class="hidden sm:inline">Gestão</span>
             </button>
@@ -108,14 +155,14 @@
     <!-- ==================== CONTAINER PRINCIPAL: MODO GESTOR ==================== -->
     <main id="app-gestor" class="flex-1 hidden flex-col w-full h-full overflow-hidden bg-slate-950 text-slate-100">
         <!-- Sub-header do Gestor -->
-        <div class="bg-slate-900 border-b border-slate-800 p-3 px-6 flex flex-wrap justify-between items-center gap-3 shrink-0">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">
+        <div class="bg-slate-900 border-b border-slate-800 p-2.5 px-4 sm:px-6 flex flex-wrap justify-between items-center gap-2.5 shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm">
                     <i class="fa-solid fa-chart-line"></i>
                 </div>
                 <div>
-                    <h1 class="text-sm sm:text-base font-black text-white tracking-wide">Centro de Gestão & Manutenção 5S</h1>
-                    <span class="text-[10px] text-slate-400 font-mono-num">SISTEMA INTEGRADO MATRIZ & FILIAL</span>
+                    <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-none">Painel de Gestão & Frotas</h1>
+                    <span class="text-[10px] text-slate-400 font-mono-num">MATRIZ & FILIAL INDUSTRIAL</span>
                 </div>
             </div>
             
@@ -124,55 +171,58 @@
                     <i class="fa-solid fa-chart-pie"></i> Indicadores
                 </button>
                 <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-clipboard-list"></i> Checklists (<span id="count-checklists">0</span>)
+                    <i class="fa-solid fa-table-list"></i> Checklists (<span id="count-checklists">0</span>)
                 </button>
                 <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-wrench"></i> Kanban O.S. (<span id="count-os">0</span>)
+                    <i class="fa-solid fa-calendar-days"></i> Manutenções (<span id="count-os">0</span>)
                 </button>
                 <button onclick="mudarAbaGestor('maquinas')" id="tab-btn-maquinas" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-truck-ramp-box"></i> Frotas (<span id="count-maquinas">13</span>)
+                    <i class="fa-solid fa-truck-ramp-box"></i> Frotas (<span id="count-maquinas">0</span>)
                 </button>
                 <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-bell text-red-400"></i> SOS (<span id="count-sos">0</span>)
                 </button>
-                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/40 ml-2 transition flex items-center gap-1">
+                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-red-500/40 ml-1.5 transition flex items-center gap-1">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
                 </button>
             </div>
         </div>
 
         <!-- Conteúdo das Abas do Gestor -->
-        <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-950">
-            <!-- Preenchido via JavaScript -->
+        <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-3 sm:p-5 bg-slate-950">
+            <!-- Preenchido dinamicamente via JS -->
         </div>
     </main>
 
-    <!-- ==================== MODAL DE PIN DO GESTOR ==================== -->
+    <!-- ==================== MODAL DE PIN DO GESTOR (TECLADO FÍSICO + ON-SCREEN) ==================== -->
     <div id="modal-pin-gestor" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center text-white">
-            <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-orange-500/30">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center text-white relative">
+            <div class="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl border border-orange-500/30">
                 <i class="fa-solid fa-lock"></i>
             </div>
-            <h3 class="text-xl font-bold mb-1">Acesso do Gestor</h3>
-            <p class="text-xs text-slate-400 mb-4">Digite o código PIN (Padrão: 1234)</p>
+            <h3 class="text-lg font-black mb-0.5">Acesso de Gestão</h3>
+            <p class="text-xs text-slate-400 mb-3">Digite a senha PIN de 4 dígitos no teclado físico ou toque abaixo:</p>
             
-            <div id="pin-display" class="bg-slate-950 border-2 border-orange-500 h-12 rounded-xl flex items-center justify-center text-2xl tracking-[0.5em] font-mono-num font-bold mb-4 shadow-inner">
+            <!-- Input invisível para capturar teclado físico de forma 100% confiável -->
+            <input type="password" id="input-pin-fisico" maxlength="4" class="absolute opacity-0 pointer-events-none" autocomplete="off">
+
+            <div id="pin-display" class="bg-slate-950 border-2 border-orange-500 h-11 rounded-xl flex items-center justify-center text-2xl tracking-[0.5em] font-mono-num font-bold mb-3.5 shadow-inner cursor-pointer" onclick="focarPinFisico()">
                 ----
             </div>
 
-            <div class="grid grid-cols-3 gap-2 max-w-[240px] mx-auto mb-4">
-                <button onclick="digitarPin('1')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">1</button>
-                <button onclick="digitarPin('2')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">2</button>
-                <button onclick="digitarPin('3')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">3</button>
-                <button onclick="digitarPin('4')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">4</button>
-                <button onclick="digitarPin('5')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">5</button>
-                <button onclick="digitarPin('6')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">6</button>
-                <button onclick="digitarPin('7')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">7</button>
-                <button onclick="digitarPin('8')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">8</button>
-                <button onclick="digitarPin('9')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">9</button>
-                <button onclick="limparPin()" class="btn-industrial bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-delete-left"></i></button>
-                <button onclick="digitarPin('0')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-3 text-xl font-bold">0</button>
-                <button onclick="confirmarPin()" class="btn-industrial bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-3 text-lg font-bold"><i class="fa-solid fa-check"></i></button>
+            <div class="grid grid-cols-3 gap-2 max-w-[230px] mx-auto mb-3">
+                <button onclick="digitarPin('1')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">1</button>
+                <button onclick="digitarPin('2')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">2</button>
+                <button onclick="digitarPin('3')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">3</button>
+                <button onclick="digitarPin('4')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">4</button>
+                <button onclick="digitarPin('5')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">5</button>
+                <button onclick="digitarPin('6')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">6</button>
+                <button onclick="digitarPin('7')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">7</button>
+                <button onclick="digitarPin('8')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">8</button>
+                <button onclick="digitarPin('9')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">9</button>
+                <button onclick="limparPin()" class="btn-industrial bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl py-2.5 text-base font-bold"><i class="fa-solid fa-delete-left"></i></button>
+                <button onclick="digitarPin('0')" class="btn-industrial bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2.5 text-xl font-bold font-mono-num">0</button>
+                <button onclick="confirmarPin()" class="btn-industrial bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-2.5 text-base font-bold"><i class="fa-solid fa-check"></i></button>
             </div>
 
             <button onclick="fecharModalPinGestor()" class="text-xs text-slate-400 hover:text-white font-medium py-1">
@@ -181,7 +231,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL DE CADASTRO / NOME DE OUTRO OPERADOR ==================== -->
+    <!-- ==================== MODAL DE CADASTRO DE OUTRO OPERADOR ==================== -->
     <div id="modal-operador-outro" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border-2 border-slate-300 text-slate-800 text-center">
             <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-orange-200">
@@ -203,6 +253,49 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL DE PERFIL COMPLETO / AGENDAMENTO DO EQUIPAMENTO ==================== -->
+    <div id="modal-perfil-equipamento" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl text-slate-100 overflow-hidden">
+            <!-- Header do Modal -->
+            <div class="bg-slate-850 p-4 px-5 border-b border-slate-800 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="modal-maq-codigo" class="text-lg font-black font-mono-num text-white">EMP-FD70</h3>
+                            <span id="modal-maq-unidade" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-orange-400 font-mono-num">FILIAL</span>
+                            <span id="modal-maq-categoria" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">MÁQUINAS</span>
+                        </div>
+                        <p id="modal-maq-nome" class="text-xs text-slate-400">ZOOMLION FD70 Diesel 4.5T</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalPerfil()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Navegação Interna do Perfil -->
+            <div class="flex border-b border-slate-800 bg-slate-900 px-4 text-xs font-bold gap-4 shrink-0 overflow-x-auto">
+                <button onclick="mudarSubAbaPerfil('preventivas')" id="subaba-btn-preventivas" class="py-3 border-b-2 border-orange-500 text-orange-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-oil-can"></i> Troca de Óleo & Filtros
+                </button>
+                <button onclick="mudarSubAbaPerfil('agendar')" id="subaba-btn-agendar" class="py-3 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-plus"></i> Agendar Manutenção
+                </button>
+                <button onclick="mudarSubAbaPerfil('dados')" id="subaba-btn-dados" class="py-3 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders"></i> Dados Técnicos
+                </button>
+            </div>
+
+            <!-- Conteúdo Dinâmico do Perfil -->
+            <div id="modal-perfil-conteudo" class="p-5 overflow-y-auto flex-1 space-y-4">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== MODAL DE SOS / CONSERTO IMEDIATO ==================== -->
     <div id="modal-sos" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border-4 border-red-600 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
@@ -214,15 +307,13 @@
                 <p class="text-xs text-slate-500 font-medium">A equipe de mecânica e gestão será notificada com urgência.</p>
             </div>
 
-            <!-- Escolha da Máquina com Defeito -->
             <div class="mb-3">
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Qual equipamento parou?</label>
                 <select id="sos-select-maquina" class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl p-3 font-bold text-slate-800 text-sm focus:border-red-500 focus:outline-none">
-                    <!-- Preenchido dinamicamente com todas as máquinas de Filial e Matriz -->
+                    <!-- Preenchido via JS -->
                 </select>
             </div>
 
-            <!-- Gravação de Áudio do Problema -->
             <div class="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col items-center mb-3">
                 <p class="text-xs font-bold text-red-700 mb-2 text-center">Aperte e relate o que quebrou:</p>
                 <button id="sos-btn-mic" onclick="toggleGravarAudioSOS()" class="btn-industrial bg-white text-red-600 w-16 h-16 rounded-full shadow-md flex items-center justify-center border-4 border-red-300 mb-2">
@@ -243,13 +334,12 @@
         </div>
     </div>
 
-    <!-- ==================== SCRIPT PRINCIPAL & REGRAS DE NEGÓCIO ==================== -->
+    <!-- ==================== SCRIPT PRINCIPAL ==================== -->
     <script>
-        // CONFIGURAÇÕES DO SUPABASE
+        // CONFIGURAÇÕES SUPABASE
         const SUPABASE_URL = "https://ibggvcjhzitrxiedzris.supabase.co";
         const SUPABASE_KEY = "sb_publishable_Myl_3AP0JE8TepHtQtDxGA_iLuznKjF";
 
-        // Inicializar cliente do Supabase
         let db = null;
         try {
             if (window.supabase && typeof window.supabase.createClient === 'function') {
@@ -260,34 +350,38 @@
             console.error("Erro ao instanciar Supabase:", e);
         }
 
-        // ==================== LISTA OFICIAL DE MÁQUINAS (FILIAL & MATRIZ) ====================
-        const maquinasFilial = [
-            { codigo: 'CLA-RCK1', nome: 'CLA-RCK1', modelo: 'Clark Retrátil RCK1', unidade: 'FILIAL', horimetro_atual: 1450 },
-            { codigo: 'EMP-FD70', nome: 'EMP-FD70 (ZOOMLION FD70)', modelo: 'ZOOMLION FD70 Diesel', unidade: 'FILIAL', horimetro_atual: 13339 },
-            { codigo: 'JHC-01',   nome: 'JHC-01',   modelo: 'Jungheinrich JHC-01', unidade: 'FILIAL', horimetro_atual: 3200 },
-            { codigo: 'CHL-7T01', nome: 'CHL-7T01 (CHLCPCD 70)', modelo: 'CHL CPCD 70 Diesel', unidade: 'FILIAL', horimetro_atual: 12004 },
-            { codigo: 'EMP-EL20', nome: 'EMP-EL20', modelo: 'Empilhadeira Elétrica 2.0T', unidade: 'FILIAL', horimetro_atual: 890 },
-            { codigo: 'EMP-FD35', nome: 'EMP-FD35 (ZOOMLION FD35)', modelo: 'ZOOMLION FD35 Diesel', unidade: 'FILIAL', horimetro_atual: 7955 },
-            { codigo: 'EMP-T50A', nome: 'EMP-T50A (CHINESA T50A)', modelo: 'Chinesa T50A GLP', unidade: 'FILIAL', horimetro_atual: 1200 }
+        // ==================== LISTAS OFICIAIS DE EQUIPAMENTOS ====================
+        let frotaTotal = [
+            // FILIAL - EMPILHADEIRAS
+            { id: '1', codigo: 'CLA-RCK1', nome: 'CLA-RCK1', modelo: 'Clark Retrátil RCK1', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 1450, horimetro_ultima_preventiva: 1250, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '2', codigo: 'EMP-FD70', nome: 'EMP-FD70 (ZOOMLION FD70)', modelo: 'ZOOMLION FD70 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 13339, horimetro_ultima_preventiva: 13200, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '3', codigo: 'JHC-01', nome: 'JHC-01', modelo: 'Jungheinrich JHC-01', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 3200, horimetro_ultima_preventiva: 3000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '4', codigo: 'CHL-7T01', nome: 'CHL-7T01 (CHLCPCD 70)', modelo: 'CHL CPCD 70 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 12004, horimetro_ultima_preventiva: 11800, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '5', codigo: 'EMP-EL20', nome: 'EMP-EL20', modelo: 'Empilhadeira Elétrica 2.0T', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 890, horimetro_ultima_preventiva: 750, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '6', codigo: 'EMP-FD35', nome: 'EMP-FD35 (ZOOMLION FD35)', modelo: 'ZOOMLION FD35 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 7955, horimetro_ultima_preventiva: 7800, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '7', codigo: 'EMP-T50A', nome: 'EMP-T50A (CHINESA T50A)', modelo: 'Chinesa T50A GLP', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 1200, horimetro_ultima_preventiva: 1000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+
+            // MATRIZ - EMPILHADEIRAS
+            { id: '8', codigo: 'EMP-0402', nome: 'EMP-0402', modelo: 'Empilhadeira 0402', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 4120, horimetro_ultima_preventiva: 4000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '9', codigo: 'HYS-TER1', nome: 'HYS-TER1', modelo: 'Hyster Fortis 1', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 6540, horimetro_ultima_preventiva: 6300, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '10', codigo: 'TOY-OT01', nome: 'TOY-OT01', modelo: 'Toyota 8FG01', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 5210, horimetro_ultima_preventiva: 5000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '11', codigo: 'EMP-EL21', nome: 'EMP-EL21', modelo: 'Empilhadeira Elétrica 2.1T', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 1100, horimetro_ultima_preventiva: 1000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '12', codigo: 'EMP-FD36', nome: 'EMP-FD36', modelo: 'Empilhadeira FD36 Diesel', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 3890, horimetro_ultima_preventiva: 3750, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '13', codigo: 'EMP-FD72', nome: 'EMP-FD72', modelo: 'Empilhadeira FD72 Diesel', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 2450, horimetro_ultima_preventiva: 2250, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+
+            // VEÍCULOS
+            { id: '14', codigo: 'CAM-01', nome: 'CAMINHÃO MERCEDES 2428', modelo: 'Atego 2428', marca: 'Mercedes-Benz', placa: 'JPR-2024', unidade: 'MATRIZ', categoria: 'veiculos', tipo: 'caminhao', tipo_controle: 'km', km_atual: 184500, km_ultima_preventiva: 175000, intervalo_km: 10000, status_operacional: 'operando' },
+            { id: '15', codigo: 'CAM-02', nome: 'CAMINHÃO VOLVO VM 270', modelo: 'VM 270 6x2', marca: 'Volvo', placa: 'JPR-5890', unidade: 'FILIAL', categoria: 'veiculos', tipo: 'caminhao', tipo_controle: 'km', km_atual: 92300, km_ultima_preventiva: 85000, intervalo_km: 10000, status_operacional: 'operando' },
+            { id: '16', codigo: 'UTIL-01', nome: 'STRADA FREEDOM', modelo: 'Strada 1.3', marca: 'Fiat', placa: 'BRA-3E12', unidade: 'MATRIZ', categoria: 'veiculos', tipo: 'utilitario', tipo_controle: 'km', km_atual: 45200, km_ultima_preventiva: 40000, intervalo_km: 10000, status_operacional: 'operando' },
+            { id: '17', codigo: 'UTIL-02', nome: 'HILUX 4X4 CABINE DUPLA', modelo: 'Hilux D-4D 2.8', marca: 'Toyota', placa: 'HLX-7788', unidade: 'FILIAL', categoria: 'veiculos', tipo: 'utilitario', tipo_controle: 'km', km_atual: 68100, km_ultima_preventiva: 60000, intervalo_km: 10000, status_operacional: 'operando' }
         ];
 
-        const maquinasMatriz = [
-            { codigo: 'EMP-0402', nome: 'EMP-0402', modelo: 'Empilhadeira 0402', unidade: 'MATRIZ', horimetro_atual: 4120 },
-            { codigo: 'HYS-TER1', nome: 'HYS-TER1', modelo: 'Hyster Fortis 1', unidade: 'MATRIZ', horimetro_atual: 6540 },
-            { codigo: 'TOY-OT01', nome: 'TOY-OT01', modelo: 'Toyota 8FG01', unidade: 'MATRIZ', horimetro_atual: 5210 },
-            { codigo: 'EMP-EL21', nome: 'EMP-EL21', modelo: 'Empilhadeira Elétrica 2.1T', unidade: 'MATRIZ', horimetro_atual: 1100 },
-            { codigo: 'EMP-FD36', nome: 'EMP-FD36', modelo: 'Empilhadeira FD36 Diesel', unidade: 'MATRIZ', horimetro_atual: 3890 },
-            { codigo: 'EMP-FD72', nome: 'EMP-FD72', modelo: 'Empilhadeira FD72 Diesel', unidade: 'MATRIZ', horimetro_atual: 2450 }
-        ];
-
-        // Lista de operadores padrão
         let listaOperadores = [
             { nome: 'Damião Candido da Silva' },
             { nome: 'Lázaro Antonio de Almeida' },
             { nome: 'Ivanaldo Alves Ferreira Filho' }
         ];
 
-        // 16 Itens de Verificação 5S
         const checklistItems = [
             { id: 'cilindros_elevacao', title: 'Cilindros de Elevação', question: 'Verifique os cilindros de elevação. Estão normais?', icon: 'fa-arrows-up-down' },
             { id: 'cilindros_inclinacao', title: 'Cilindros de Inclinação', question: 'Verifique os cilindros de inclinação. Estão normais?', icon: 'fa-compress-arrows-alt' },
@@ -307,7 +401,7 @@
             { id: 'cilindros_direcao', title: 'Cilindros de Direção', question: 'Como estão os cilindros da direção?', icon: 'fa-steering-wheel' }
         ];
 
-        // Estado do Formulário do Operador
+        // Estado do Formulário
         let currentStepIndex = -5;
         let formData = {
             categoria: 'maquinas',
@@ -315,32 +409,32 @@
             unidade: 'FILIAL',
             empilhadeira: '',
             maquina_id: null,
+            ultimo_horimetro: 0,
             operador: '',
-            horimetro: '',
+            horimetro: '', // Sempre começa zerado / limpo para digitação
             observacao_texto: ''
         };
         let observacoesList = [];
         let synth = window.speechSynthesis;
 
-        // Elementos DOM
         const appOperador = document.getElementById('app-operador');
         const appGestor = document.getElementById('app-gestor');
         const progressBar = document.getElementById('progress-bar');
         const progressWrapper = document.getElementById('progress-wrapper');
         const badgeModo = document.getElementById('badge-modo');
 
-        // ==================== CARGA DE DADOS DO SUPABASE ====================
+        // ==================== CARGA DE DADOS DO BANCO ====================
         async function carregarDadosDoBanco() {
             if (!db) return;
             try {
                 const { data: maquinas } = await db.from('maquinas').select('*');
                 if (maquinas && maquinas.length > 0) {
                     maquinas.forEach(m => {
-                        const lista = (m.unidade === 'MATRIZ') ? maquinasMatriz : maquinasFilial;
-                        const idx = lista.findIndex(item => item.codigo === m.codigo);
+                        const idx = frotaTotal.findIndex(item => item.codigo === m.codigo);
                         if (idx >= 0) {
-                            lista[idx].id = m.id;
-                            lista[idx].horimetro_atual = Number(m.horimetro_atual);
+                            frotaTotal[idx] = { ...frotaTotal[idx], ...m };
+                        } else {
+                            frotaTotal.push(m);
                         }
                     });
                 }
@@ -350,12 +444,13 @@
                     listaOperadores = ops;
                 }
                 atualizarSelectSOS();
+                document.getElementById('count-maquinas').innerText = frotaTotal.length;
             } catch (e) {
                 console.warn("Aviso na sincronização do Supabase:", e);
             }
         }
 
-        // ==================== REDE & STATUS ====================
+        // ==================== REDE & ONLINE ====================
         function atualizarStatusRede() {
             const isOnline = navigator.onLine;
             const dot = document.getElementById('status-dot');
@@ -372,7 +467,6 @@
         window.addEventListener('online', atualizarStatusRede);
         window.addEventListener('offline', atualizarStatusRede);
 
-        // ==================== TEXT-TO-SPEECH ====================
         function speakText(text) {
             try {
                 if (!synth) synth = window.speechSynthesis;
@@ -385,9 +479,9 @@
             } catch (e) {}
         }
 
-        // ==================== NAVEGAÇÃO E PROGRESSO ====================
+        // ==================== PROGRESSO E NAVEGAÇÃO ====================
         function updateProgress() {
-            let totalSteps = checklistItems.length + 5; // -5, -4, -1, -2, -3 + 16 itens + 99
+            let totalSteps = checklistItems.length + 5;
             let current = 1;
             if (currentStepIndex === -5) current = 1;
             else if (currentStepIndex === -4) current = 2;
@@ -421,7 +515,7 @@
         function goNext() {
             if (currentStepIndex === -5) {
                 if (formData.categoria === 'veiculos') {
-                    alert("O módulo de Veículos (Caminhões e Utilitários) está em parametrização. Selecione 'Máquinas' para continuar.");
+                    alert("O módulo de Veículos (Caminhões e Utilitários) está em parametrização técnica. Selecione 'Máquinas' para continuar.");
                     return;
                 }
                 goToStep(-4);
@@ -461,7 +555,7 @@
             if (currentStepIndex === -4 && formData.tipo_maquina) canAdvance = true;
             if (currentStepIndex === -1 && formData.empilhadeira) canAdvance = true;
             if (currentStepIndex === -2 && formData.operador) canAdvance = true;
-            if (currentStepIndex === -3 && formData.horimetro) canAdvance = true;
+            if (currentStepIndex === -3 && (formData.horimetro !== '')) canAdvance = true;
             if (currentStepIndex >= 0 && formData[checklistItems[currentStepIndex].id]) canAdvance = true;
 
             let nextDisabled = !canAdvance ? 'opacity-40 cursor-not-allowed' : '';
@@ -479,7 +573,7 @@
             `;
         }
 
-        // ==================== SELEÇÃO DE OPÇÕES ====================
+        // ==================== SELEÇÕES OPERADOR ====================
         function selectCategoria(cat) {
             formData.categoria = cat;
             if (cat === 'veiculos') {
@@ -505,9 +599,9 @@
         function selectEmpilhadeira(maqNome, maqId, horimetroAtual) {
             formData.empilhadeira = maqNome;
             formData.maquina_id = maqId;
-            if (horimetroAtual && !formData.horimetro) {
-                formData.horimetro = String(Math.round(horimetroAtual));
-            }
+            // Horímetro começa zerado para digitação, guardando a última leitura registrada
+            formData.ultimo_horimetro = horimetroAtual || 0;
+            formData.horimetro = '';
             renderCurrentStep();
         }
 
@@ -543,7 +637,7 @@
             renderCurrentStep();
         }
 
-        // ==================== RENDERIZADOR PRINCIPAL ====================
+        // ==================== RENDERIZADOR OPERADOR ====================
         function renderCurrentStep() {
             appOperador.innerHTML = '';
 
@@ -644,7 +738,7 @@
             }
             // PASSO -1: ESCOLHER EMPILHADEIRA (FILIAL OU MATRIZ)
             else if (currentStepIndex === -1) {
-                const maquinasDaUnidade = (formData.unidade === 'MATRIZ') ? maquinasMatriz : maquinasFilial;
+                const maquinasDaUnidade = frotaTotal.filter(m => m.categoria === 'maquinas' && m.tipo === 'empilhadeira' && m.unidade === formData.unidade);
 
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col h-full items-center justify-between">
@@ -660,13 +754,13 @@
                             <p class="text-xs text-slate-500">Escolha a Unidade e toque no código da máquina</p>
                         </div>
 
-                        <!-- ABAS: FILIAL vs MATRIZ -->
+                        <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ -->
                         <div class="w-full grid grid-cols-2 gap-2 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
                             <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-black text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                <i class="fa-solid fa-building"></i> FILIAL (${maquinasFilial.length})
+                                <i class="fa-solid fa-building"></i> FILIAL (${frotaTotal.filter(m => m.unidade === 'FILIAL' && m.tipo === 'empilhadeira').length})
                             </button>
                             <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-black text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                <i class="fa-solid fa-industry"></i> MATRIZ (${maquinasMatriz.length})
+                                <i class="fa-solid fa-industry"></i> MATRIZ (${frotaTotal.filter(m => m.unidade === 'MATRIZ' && m.tipo === 'empilhadeira').length})
                             </button>
                         </div>
 
@@ -689,7 +783,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <span class="text-[10px] text-slate-400 block font-bold uppercase">Horímetro</span>
+                                        <span class="text-[10px] text-slate-400 block font-bold uppercase">Último</span>
                                         <span class="font-mono-num text-xs font-black text-slate-800">${maq.horimetro_atual || 0} h</span>
                                     </div>
                                 </button>`;
@@ -735,7 +829,7 @@
                                 </button>`;
                             }).join('')}
 
-                            <!-- OPÇÃO "OUTRO" (DIGITAR NOME) -->
+                            <!-- OPÇÃO "OUTRO" -->
                             <button onclick="abrirModalOperadorOutro()" class="btn-industrial bg-slate-50 border-2 border-dashed ${isOutro ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200' : 'border-slate-400 hover:border-slate-600'} rounded-2xl p-4 flex items-center gap-3.5 shadow-sm text-left transition-all">
                                 <div class="w-12 h-12 rounded-xl ${isOutro ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center text-xl font-bold">
                                     <i class="fa-solid fa-pen-nib"></i>
@@ -752,13 +846,13 @@
                     </div>
                 `;
             }
-            // PASSO -3: HORÍMETRO
+            // PASSO -3: HORÍMETRO (SEMPRE COMEÇA ZERADO, EXIBINDO ÚLTIMO REGISTRO)
             else if (currentStepIndex === -3) {
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col items-center h-full justify-between">
                         <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
                             <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 5/5</span>
-                            <button onclick="speakText('Digite o número do horímetro que está no painel da máquina.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                            <button onclick="speakText('Digite o número do horímetro atual que está no painel da máquina.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
                                 <i class="fa-solid fa-volume-high text-base"></i>
                             </button>
                         </div>
@@ -766,8 +860,16 @@
                         <div class="text-center my-1 shrink-0">
                             <h2 class="text-2xl font-black text-slate-900">Horímetro Atual</h2>
                             <p class="text-xs text-slate-500">Veja o número no painel da empilhadeira</p>
+                            
+                            <!-- BADGE DE ÚLTIMO HORÍMETRO HISTÓRICO -->
+                            <div class="mt-2 inline-flex items-center gap-2 bg-slate-200/80 border border-slate-300 px-3 py-1 rounded-full text-xs text-slate-700 font-bold">
+                                <i class="fa-solid fa-clock-rotate-left text-orange-600"></i>
+                                <span>Último registrado:</span>
+                                <span class="font-mono-num text-orange-700 font-black">${formData.ultimo_horimetro || 0} h</span>
+                            </div>
                         </div>
                         
+                        <!-- Mostrador do Horímetro Atual Digitado (Começa zerado) -->
                         <div class="flex-1 w-full flex flex-col items-center justify-center max-w-[300px]">
                             <div class="w-full bg-slate-900 border-2 border-orange-500 h-14 rounded-2xl flex items-center justify-center text-3xl font-mono-num font-black text-orange-400 tracking-widest mb-3 shadow-inner">
                                 ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-400 ml-2">h</span>
@@ -794,7 +896,7 @@
                     </div>
                 `;
             }
-            // PASSOS 0 A 15: AS 16 PERGUNTAS 5S
+            // PASSOS 0 A 15: AS 16 PERGUNTAS 5S COM BOTÕES GIGANTES
             else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length) {
                 const item = checklistItems[currentStepIndex];
                 const val = formData[item.id];
@@ -812,22 +914,30 @@
                             </button>
                         </div>
                         
-                        <div class="text-center flex-1 flex flex-col justify-center my-2">
-                            <div class="w-24 h-24 rounded-3xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-3 shadow-inner">
-                                <i class="fa-solid ${item.icon} text-5xl"></i>
+                        <div class="text-center flex-1 flex flex-col justify-center my-1">
+                            <div class="w-20 h-20 rounded-3xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-2 shadow-inner">
+                                <i class="fa-solid ${item.icon} text-4xl"></i>
                             </div>
                             <h2 class="text-2xl font-black text-slate-900 leading-snug px-2">${item.title}</h2>
-                            <p class="text-xs text-slate-500 font-medium mt-1 px-4">${item.question}</p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5 px-3">${item.question}</p>
                         </div>
                         
-                        <div class="w-full flex flex-col gap-2.5 shrink-0 pb-1">
-                            <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-industrial ${okSelected ? 'bg-emerald-600 ring-4 ring-emerald-300 scale-[1.02] shadow-lg' : 'bg-emerald-500 hover:bg-emerald-600'} text-white rounded-2xl p-4.5 text-lg font-black shadow-md flex items-center justify-center gap-3 transition-all">
-                                <i class="fa-solid fa-circle-check text-2xl"></i>
-                                <span>TUDO CERTO (OK)</span>
+                        <!-- BOTÕES GIGANTES ULTRA-FÁCEIS DE APERTAR -->
+                        <div class="w-full flex flex-col gap-3 shrink-0 pb-1">
+                            <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.02]' : ''} text-white rounded-2xl p-4 text-xl font-black flex items-center justify-center gap-4 transition-all">
+                                <i class="fa-solid fa-circle-check text-4xl"></i>
+                                <div class="text-left">
+                                    <span class="block text-2xl tracking-wide">TUDO CERTO</span>
+                                    <span class="text-xs font-bold text-emerald-100 uppercase">Em Conformidade (OK)</span>
+                                </div>
                             </button>
-                            <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-industrial ${nokSelected ? 'bg-red-600 ring-4 ring-red-300 scale-[1.02] shadow-lg' : 'bg-red-500 hover:bg-red-600'} text-white rounded-2xl p-4.5 text-lg font-black shadow-md flex items-center justify-center gap-3 transition-all">
-                                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                                <span>PROBLEMA (DEFEITO)</span>
+
+                            <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial ${nokSelected ? 'ring-4 ring-red-400 scale-[1.02]' : ''} text-white rounded-2xl p-4 text-xl font-black flex items-center justify-center gap-4 transition-all">
+                                <i class="fa-solid fa-triangle-exclamation text-4xl"></i>
+                                <div class="text-left">
+                                    <span class="block text-2xl tracking-wide">PROBLEMA</span>
+                                    <span class="text-xs font-bold text-red-100 uppercase">Com Defeito / Avaria</span>
+                                </div>
                             </button>
                         </div>
                         
@@ -904,7 +1014,6 @@
         }
         function clearNum() {
             formData.horimetro = formData.horimetro.slice(0, -1);
-            if (formData.horimetro === '') formData.horimetro = '0';
             renderCurrentStep();
         }
 
@@ -927,7 +1036,7 @@
             renderCurrentStep();
         }
 
-        // ==================== GRAVAÇÃO DE ÁUDIO & TRANSCRIÇÃO INTELIGENTE ====================
+        // ==================== ÁUDIO E TRANSCRIÇÃO ====================
         let isRecording = false;
         let mediaRecorder = null;
         let audioChunks = [];
@@ -1140,7 +1249,7 @@
                         .or(`codigo.eq.${formData.empilhadeira},nome.eq.${formData.empilhadeira}`);
                 }
 
-                // 3. Upload dos Áudios e Observações
+                // 3. Upload dos Áudios
                 for (let i = 0; i < observacoesList.length; i++) {
                     const obs = observacoesList[i];
                     let audioUrlFinal = "";
@@ -1181,7 +1290,8 @@
                             descricao: checklistPayload.resumo_ia,
                             prioridade: 'alta',
                             status: 'pendente',
-                            horimetro_na_os: horimetroNum
+                            horimetro_na_os: horimetroNum,
+                            data_prevista: new Date().toISOString().split('T')[0]
                         }]);
                 }
 
@@ -1228,6 +1338,7 @@
                 unidade: 'FILIAL',
                 empilhadeira: '',
                 maquina_id: null,
+                ultimo_horimetro: 0,
                 operador: '',
                 horimetro: '',
                 observacao_texto: ''
@@ -1258,7 +1369,1224 @@
             localStorage.removeItem('checklists_offline_fila');
         }
 
-        // ==================== BOTÃO DE SOS (CONSERTO IMEDIATO) ====================
+        // ==================== PIN DO GESTOR (TECLADO FÍSICO + ON-SCREEN) ====================
+        let pinDigitado = '';
+
+        function abrirModalPinGestor() {
+            pinDigitado = '';
+            atualizarDisplayPin();
+            document.getElementById('modal-pin-gestor').classList.remove('hidden');
+            focarPinFisico();
+        }
+
+        function focarPinFisico() {
+            const inp = document.getElementById('input-pin-fisico');
+            if (inp) {
+                inp.value = '';
+                inp.focus();
+            }
+        }
+
+        function fecharModalPinGestor() {
+            document.getElementById('modal-pin-gestor').classList.add('hidden');
+            pinDigitado = '';
+        }
+
+        function digitarPin(digito) {
+            if (pinDigitado.length < 4) {
+                pinDigitado += digito;
+                atualizarDisplayPin();
+                if (pinDigitado.length === 4) {
+                    setTimeout(confirmarPin, 150);
+                }
+            }
+        }
+
+        function limparPin() {
+            pinDigitado = pinDigitado.slice(0, -1);
+            atualizarDisplayPin();
+        }
+
+        function atualizarDisplayPin() {
+            const display = document.getElementById('pin-display');
+            if (!display) return;
+            let str = '';
+            for (let i = 0; i < 4; i++) {
+                str += i < pinDigitado.length ? '● ' : '- ';
+            }
+            display.innerText = str.trim();
+        }
+
+        function confirmarPin() {
+            if (pinDigitado === "1234") {
+                fecharModalPinGestor();
+                ativarModoGestor();
+            } else {
+                alert("Código PIN incorreto!");
+                pinDigitado = '';
+                atualizarDisplayPin();
+                focarPinFisico();
+            }
+        }
+
+        // Escutar Teclado Físico Globalmente para o PIN
+        window.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('modal-pin-gestor');
+            if (!modal || modal.classList.contains('hidden')) return;
+
+            if (e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                digitarPin(e.key);
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                limparPin();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmarPin();
+            } else if (e.key === 'Escape') {
+                fecharModalPinGestor();
+            }
+        });
+
+        function ativarModoGestor() {
+            document.getElementById('app-operador').classList.add('hidden');
+            document.getElementById('app-gestor').classList.remove('hidden');
+            document.getElementById('app-gestor').classList.add('flex');
+            document.getElementById('btn-sos-header').classList.add('hidden');
+            progressWrapper.classList.add('hidden');
+            badgeModo.innerText = "Gestor";
+            badgeModo.className = "text-[11px] uppercase tracking-wider font-extrabold bg-amber-400 text-slate-950 px-2 py-0.5 rounded";
+            carregarDadosGestor();
+        }
+
+        function voltarParaOperador() {
+            document.getElementById('app-gestor').classList.add('hidden');
+            document.getElementById('app-gestor').classList.remove('flex');
+            document.getElementById('app-operador').classList.remove('hidden');
+            document.getElementById('btn-sos-header').classList.remove('hidden');
+            progressWrapper.classList.remove('hidden');
+            badgeModo.innerText = "Operador";
+            badgeModo.className = "text-[11px] uppercase tracking-wider font-extrabold bg-slate-800 text-slate-200 px-2 py-0.5 rounded border border-slate-700";
+            goToStep(-5);
+        }
+
+        // ==================== PAINEL DO GESTOR & ABAS ====================
+        let abaAtualGestor = 'dashboard';
+
+        function mudarAbaGestor(aba) {
+            abaAtualGestor = aba;
+            document.querySelectorAll('.tab-gestor-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+            const activeBtn = document.getElementById(`tab-btn-${aba}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-orange-600', 'text-white');
+                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+            }
+            carregarDadosGestor();
+        }
+
+        // Cache de dados do gestor
+        let cacheGestor = {
+            maquinas: [],
+            checklists: [],
+            ordens: [],
+            chamados: []
+        };
+
+        // Filtros Globais da Aba de Indicadores
+        let filtroIndicadores = {
+            categoria: 'todas', // 'todas', 'maquinas', 'veiculos'
+            unidade: 'todas',    // 'todas', 'FILIAL', 'MATRIZ'
+            maquinasSelecionadas: [] // Array de códigos selecionados; se vazio, todas selecionadas
+        };
+
+        // Filtros da Aba de Checklists (Planilha)
+        let filtroChecklist = {
+            categoria: 'todas',
+            unidade: 'todas',
+            equipamento: 'todos',
+            status: 'todos',
+            busca: ''
+        };
+
+        // Filtros da Aba de Frotas
+        let filtroFrota = {
+            categoria: 'todas',
+            unidade: 'todas',
+            busca: ''
+        };
+
+        // Estado do Kanban vs Calendário
+        let visualizacaoManutencao = 'kanban'; // 'kanban' ou 'calendario'
+        let mesAtualCalendario = new Date().getMonth();
+        let anoAtualCalendario = new Date().getFullYear();
+
+        async function carregarDadosGestor() {
+            const container = document.getElementById('gestor-conteudo');
+            container.innerHTML = '<div class="flex items-center justify-center h-48 text-orange-400 text-sm font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Atualizando dados em tempo real...</div>';
+
+            if (!db) {
+                container.innerHTML = '<div class="p-6 text-amber-400 text-center">Conectando ao banco de dados...</div>';
+                return;
+            }
+
+            try {
+                const [resMaq, resChk, resOS, resSOS] = await Promise.all([
+                    db.from('maquinas').select('*, maquina_especificacoes(*)').order('unidade').order('codigo'),
+                    db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(100),
+                    db.from('ordens_manutencao').select('*').order('created_at', { ascending: false }),
+                    db.from('chamados_emergencia').select('*').order('created_at', { ascending: false }).limit(20)
+                ]);
+
+                cacheGestor.maquinas = (resMaq.data && resMaq.data.length > 0) ? resMaq.data : frotaTotal;
+                cacheGestor.checklists = resChk.data || [];
+                cacheGestor.ordens = resOS.data || [];
+                cacheGestor.chamados = resSOS.data || [];
+
+                document.getElementById('count-checklists').innerText = cacheGestor.checklists.length;
+                document.getElementById('count-os').innerText = cacheGestor.ordens.filter(o => o.status !== 'concluido').length;
+                document.getElementById('count-sos').innerText = cacheGestor.chamados.filter(c => c.status === 'pendente').length;
+                document.getElementById('count-maquinas').innerText = cacheGestor.maquinas.length;
+
+                renderizarAbaAtualGestor();
+            } catch (err) {
+                container.innerHTML = `<div class="p-6 text-red-400">Erro na comunicação com Supabase: ${err.message}</div>`;
+            }
+        }
+
+        function renderizarAbaAtualGestor() {
+            const container = document.getElementById('gestor-conteudo');
+            if (abaAtualGestor === 'dashboard') {
+                renderAbaDashboard(container);
+            } else if (abaAtualGestor === 'checklists') {
+                renderAbaChecklists(container);
+            } else if (abaAtualGestor === 'kanban') {
+                renderAbaKanban(container);
+            } else if (abaAtualGestor === 'maquinas') {
+                renderAbaMaquinas(container);
+            } else if (abaAtualGestor === 'chamados') {
+                renderAbaChamados(container);
+            }
+        }
+
+        // ==================== ABA 1: INDICADORES COM MULTI-FILTRO ====================
+        function renderAbaDashboard(container) {
+            let maquinasFiltradas = cacheGestor.maquinas.filter(m => {
+                if (filtroIndicadores.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroIndicadores.categoria) return false;
+                if (filtroIndicadores.unidade !== 'todas' && m.unidade !== filtroIndicadores.unidade) return false;
+                if (filtroIndicadores.maquinasSelecionadas.length > 0 && !filtroIndicadores.maquinasSelecionadas.includes(m.codigo)) return false;
+                return true;
+            });
+
+            const codigosFiltrados = maquinasFiltradas.map(m => m.codigo);
+            const checklistsFiltrados = cacheGestor.checklists.filter(c => codigosFiltrados.includes(c.empilhadeira));
+            const ordensFiltradas = cacheGestor.ordens.filter(o => codigosFiltrados.includes(o.maquina_nome));
+
+            const totalEquip = maquinasFiltradas.length;
+            const equipOperando = maquinasFiltradas.filter(m => m.status_operacional === 'operando').length;
+            const equipAlerta = maquinasFiltradas.filter(m => m.status_operacional !== 'operando').length;
+            const totalComProblema = checklistsFiltrados.filter(c => c.tem_problema).length;
+            const taxaConformidade = checklistsFiltrados.length > 0 ? Math.round(((checklistsFiltrados.length - totalComProblema) / checklistsFiltrados.length) * 100) : 100;
+
+            const maquinasFilial = cacheGestor.maquinas.filter(m => m.unidade === 'FILIAL');
+            const maquinasMatriz = cacheGestor.maquinas.filter(m => m.unidade === 'MATRIZ');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <!-- BARRA DE FILTROS MULTI-OPÇÃO -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-3 shadow-md">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                            <span class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-filter text-orange-400"></i> Filtro de Múltiplas Opções para Indicadores
+                            </span>
+                            <button onclick="limparFiltroIndicadores()" class="text-[11px] text-slate-400 hover:text-orange-400 font-semibold underline">
+                                Resetar Filtros
+                            </button>
+                        </div>
+
+                        <!-- Linha 1: Categoria & Unidade -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Categoria</label>
+                                <select onchange="setFiltroIndicador('categoria', this.value)" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-2 focus:outline-none focus:border-orange-500">
+                                    <option value="todas" ${filtroIndicadores.categoria === 'todas' ? 'selected' : ''}>Todos os Equipamentos</option>
+                                    <option value="maquinas" ${filtroIndicadores.categoria === 'maquinas' ? 'selected' : ''}>🚜 Só Máquinas / Empilhadeiras</option>
+                                    <option value="veiculos" ${filtroIndicadores.categoria === 'veiculos' ? 'selected' : ''}>🚚 Só Veículos / Caminhões</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Unidade</label>
+                                <select onchange="setFiltroIndicador('unidade', this.value)" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-2 focus:outline-none focus:border-orange-500">
+                                    <option value="todas" ${filtroIndicadores.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
+                                    <option value="FILIAL" ${filtroIndicadores.unidade === 'FILIAL' ? 'selected' : ''}>🏢 Unidade FILIAL</option>
+                                    <option value="MATRIZ" ${filtroIndicadores.unidade === 'MATRIZ' ? 'selected' : ''}>🏭 Unidade MATRIZ</option>
+                                </select>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Status do Filtro Ativo</label>
+                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-300 flex items-center justify-between">
+                                    <span>Exibindo <strong>${maquinasFiltradas.length}</strong> de ${cacheGestor.maquinas.length} equipamentos</span>
+                                    <span class="text-[10px] text-orange-400 font-mono-num font-bold">
+                                        ${filtroIndicadores.maquinasSelecionadas.length === 0 ? 'TODAS SELECIONADAS' : filtroIndicadores.maquinasSelecionadas.length + ' SELECIONADAS'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Linha 2: Chips de Seleção Múltipla Separados por FILIAL e MATRIZ -->
+                        <div class="pt-2 border-t border-slate-800/80 space-y-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Seleção Individual (Toque para filtrar máquinas específicas):
+                            </span>
+                            
+                            <!-- Grupo FILIAL -->
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-mono-num text-orange-400 font-bold uppercase">🏢 FILIAL:</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${maquinasFilial.map(m => {
+                                        const isSel = filtroIndicadores.maquinasSelecionadas.includes(m.codigo);
+                                        return `
+                                        <button onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-1 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-white shadow-sm' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}">
+                                            ${isSel ? '✓ ' : ''}${m.codigo}
+                                        </button>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Grupo MATRIZ -->
+                            <div class="space-y-1 pt-1">
+                                <span class="text-[10px] font-mono-num text-amber-400 font-bold uppercase">🏭 MATRIZ:</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${maquinasMatriz.map(m => {
+                                        const isSel = filtroIndicadores.maquinasSelecionadas.includes(m.codigo);
+                                        return `
+                                        <button onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-1 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-white shadow-sm' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}">
+                                            ${isSel ? '✓ ' : ''}${m.codigo}
+                                        </button>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARDS DE METRICAS PRINCIPAIS (DESIGN RESTRAINED / OPERATE) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Frota no Filtro</p>
+                                <h3 class="text-2xl font-mono-num font-black text-white mt-0.5">${totalEquip}</h3>
+                                <p class="text-[11px] text-emerald-400 font-medium mt-0.5"><i class="fa-solid fa-circle-check"></i> ${equipOperando} em operação</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Conformidade 5S</p>
+                                <h3 class="text-2xl font-mono-num font-black ${taxaConformidade >= 85 ? 'text-emerald-400' : 'text-amber-400'} mt-0.5">${taxaConformidade}%</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">${checklistsFiltrados.length} checklists filtrados</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-shield-halved"></i></div>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">O.S. em Aberto</p>
+                                <h3 class="text-2xl font-mono-num font-black text-amber-400 mt-0.5">${ordensFiltradas.filter(o => o.status !== 'concluido').length}</h3>
+                                <p class="text-[11px] text-amber-300/80 mt-0.5">Pendentes de mecânica</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-wrench"></i></div>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Equipamentos em Alerta</p>
+                                <h3 class="text-2xl font-mono-num font-black ${equipAlerta > 0 ? 'text-red-400' : 'text-slate-200'} mt-0.5">${equipAlerta}</h3>
+                                <p class="text-[11px] text-red-400 mt-0.5">Manutenção ou avarias</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- GRID RESUMIDO DOS EQUIPAMENTOS FILTRADOS -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-gauge-high text-orange-400"></i> Telemetria dos Equipamentos Filtrados (${maquinasFiltradas.length})
+                            </h3>
+                            <button onclick="mudarAbaGestor('maquinas')" class="text-xs text-orange-400 hover:underline">Ver catálogo completo →</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                            ${maquinasFiltradas.map(m => {
+                                const isHoras = m.tipo_controle !== 'km';
+                                const atual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
+                                const unidadeMedida = isHoras ? 'h' : 'km';
+                                const prox = isHoras 
+                                    ? ((m.horimetro_ultima_preventiva || 0) + (m.intervalo_preventiva_horas || 250))
+                                    : ((m.km_ultima_preventiva || 0) + (m.intervalo_km || 10000));
+                                const restante = prox - atual;
+                                let statusCor = 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10';
+                                if (restante <= 0 || m.status_operacional === 'manutencao_imediata') {
+                                    statusCor = 'border-red-500/40 text-red-400 bg-red-500/10';
+                                } else if (restante <= 30 || m.status_operacional === 'alerta') {
+                                    statusCor = 'border-amber-500/40 text-amber-400 bg-amber-500/10';
+                                }
+
+                                return `
+                                <div onclick="abrirPerfilEquipamento('${m.codigo}')" class="bg-slate-950 border ${statusCor.split(' ')[0]} rounded-lg p-3 hover:border-orange-500 cursor-pointer transition">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div>
+                                            <span class="text-[9px] font-mono-num font-bold text-slate-400 bg-slate-800 px-1 py-0.5 rounded">${m.unidade || 'FILIAL'}</span>
+                                            <h4 class="font-mono-num font-bold text-white text-xs mt-1">${m.codigo}</h4>
+                                        </div>
+                                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${statusCor}">
+                                            ${m.status_operacional}
+                                        </span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400 truncate">${m.modelo || m.nome}</p>
+                                    <div class="mt-2 pt-1.5 border-t border-slate-900 flex justify-between items-end text-xs">
+                                        <div>
+                                            <span class="text-[9px] text-slate-500 block">Atual</span>
+                                            <span class="font-mono-num font-black text-white">${atual} ${unidadeMedida}</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[9px] text-slate-500 block">Óleo/Filtro</span>
+                                            <span class="font-mono-num font-bold ${restante <= 0 ? 'text-red-400' : 'text-slate-300'}">
+                                                ${restante <= 0 ? 'VENCIDO' : restante + ' ' + unidadeMedida}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setFiltroIndicador(campo, val) {
+            filtroIndicadores[campo] = val;
+            renderizarAbaAtualGestor();
+        }
+
+        function toggleFiltroMaquinaMulti(codigo) {
+            const idx = filtroIndicadores.maquinasSelecionadas.indexOf(codigo);
+            if (idx >= 0) {
+                filtroIndicadores.maquinasSelecionadas.splice(idx, 1);
+            } else {
+                filtroIndicadores.maquinasSelecionadas.push(codigo);
+            }
+            renderizarAbaAtualGestor();
+        }
+
+        function limparFiltroIndicadores() {
+            filtroIndicadores.categoria = 'todas';
+            filtroIndicadores.unidade = 'todas';
+            filtroIndicadores.maquinasSelecionadas = [];
+            renderizarAbaAtualGestor();
+        }
+
+        // ==================== ABA 2: CHECKLISTS COMPACTO (VISUAL DE PLANILHA) ====================
+        function renderAbaChecklists(container) {
+            let filtrados = cacheGestor.checklists.filter(c => {
+                if (filtroChecklist.unidade !== 'todas' && (c.unidade || 'FILIAL') !== filtroChecklist.unidade) return false;
+                if (filtroChecklist.equipamento !== 'todos' && c.empilhadeira !== filtroChecklist.equipamento) return false;
+                if (filtroChecklist.status === 'ok' && c.tem_problema) return false;
+                if (filtroChecklist.status === 'nok' && !c.tem_problema) return false;
+                if (filtroChecklist.busca) {
+                    const q = filtroChecklist.busca.toLowerCase();
+                    const matchOp = (c.operador || '').toLowerCase().includes(q);
+                    const matchEq = (c.empilhadeira || '').toLowerCase().includes(q);
+                    const matchObs = (c.observacao_texto || c.resumo_ia || '').toLowerCase().includes(q);
+                    if (!matchOp && !matchEq && !matchObs) return false;
+                }
+                return true;
+            });
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <!-- BARRA DE FILTROS ESTILO PLANILHA EXECUTIVA -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm flex flex-wrap gap-2.5 items-center justify-between">
+                        <div class="flex flex-wrap gap-2 items-center flex-1">
+                            <!-- Filtro Unidade -->
+                            <select onchange="filtroChecklist.unidade = this.value; renderizarAbaAtualGestor();" class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-1.5 focus:outline-none">
+                                <option value="todas" ${filtroChecklist.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
+                                <option value="FILIAL" ${filtroChecklist.unidade === 'FILIAL' ? 'selected' : ''}>🏢 FILIAL</option>
+                                <option value="MATRIZ" ${filtroChecklist.unidade === 'MATRIZ' ? 'selected' : ''}>🏭 MATRIZ</option>
+                            </select>
+
+                            <!-- Filtro Equipamento Específico -->
+                            <select onchange="filtroChecklist.equipamento = this.value; renderizarAbaAtualGestor();" class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-1.5 focus:outline-none max-w-[180px]">
+                                <option value="todos" ${filtroChecklist.equipamento === 'todos' ? 'selected' : ''}>Todos Equipamentos</option>
+                                <optgroup label="🏢 FILIAL">
+                                    ${frotaTotal.filter(m => m.unidade === 'FILIAL').map(m => `
+                                        <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
+                                    `).join('')}
+                                </optgroup>
+                                <optgroup label="🏭 MATRIZ">
+                                    ${frotaTotal.filter(m => m.unidade === 'MATRIZ').map(m => `
+                                        <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
+                                    `).join('')}
+                                </optgroup>
+                            </select>
+
+                            <!-- Filtro Status 5S -->
+                            <select onchange="filtroChecklist.status = this.value; renderizarAbaAtualGestor();" class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-1.5 focus:outline-none">
+                                <option value="todos" ${filtroChecklist.status === 'todos' ? 'selected' : ''}>Todos os Status</option>
+                                <option value="ok" ${filtroChecklist.status === 'ok' ? 'selected' : ''}>✅ 100% Conforme</option>
+                                <option value="nok" ${filtroChecklist.status === 'nok' ? 'selected' : ''}>⚠️ Com Apontamento</option>
+                            </select>
+
+                            <!-- Busca Textual -->
+                            <div class="relative flex-1 min-w-[160px]">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-slate-500"></i>
+                                <input type="text" placeholder="Filtrar operador, defeito..." value="${filtroChecklist.busca}" oninput="filtroChecklist.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 font-mono-num font-bold">
+                            Exibindo <span class="text-white">${filtrados.length}</span> registros
+                        </div>
+                    </div>
+
+                    <!-- TABELA COMPACTA ESTILO PLANILHA (DENSIDADE ALTA) -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-md overflow-hidden">
+                        <div class="overflow-x-auto max-h-[72vh]">
+                            <table class="w-full text-left data-table-compact">
+                                <thead class="sticky top-0 z-10">
+                                    <tr>
+                                        <th class="w-28">Data / Hora</th>
+                                        <th class="w-20">Unidade</th>
+                                        <th class="w-28">Equipamento</th>
+                                        <th class="w-36">Operador</th>
+                                        <th class="w-20 text-right">Horímetro</th>
+                                        <th class="w-28 text-center">Status 5S</th>
+                                        <th>Observações & Transcrição</th>
+                                        <th class="w-32">Áudio</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60 text-slate-200">
+                                    ${filtrados.length > 0 ? filtrados.map(c => {
+                                        const dt = new Date(c.created_at);
+                                        const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                                        const audios = c.checklist_observacoes || [];
+                                        const primeiroAudio = audios.find(a => a.audio_url);
+
+                                        return `
+                                        <tr>
+                                            <td class="font-mono-num text-[11px] text-slate-400 whitespace-nowrap">${dataFmt}</td>
+                                            <td>
+                                                <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-950 text-amber-300 border border-amber-800/50' : 'bg-orange-950 text-orange-300 border border-orange-800/50'}">
+                                                    ${c.unidade || 'FILIAL'}
+                                                </span>
+                                            </td>
+                                            <td class="font-mono-num font-bold text-white whitespace-nowrap">${c.empilhadeira}</td>
+                                            <td class="truncate max-w-[140px]" title="${c.operador}">${c.operador}</td>
+                                            <td class="text-right font-mono-num font-bold text-slate-300">${c.horimetro} h</td>
+                                            <td class="text-center">
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full inline-block ${c.tem_problema ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
+                                                    ${c.tem_problema ? 'COM DEFEITO' : 'CONFORME'}
+                                                </span>
+                                            </td>
+                                            <td class="text-xs text-slate-300 max-w-xs">
+                                                <span class="line-clamp-2" title="${c.observacao_texto || c.resumo_ia || '-'}">
+                                                    ${c.observacao_texto || c.resumo_ia || '-'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                ${primeiroAudio ? `
+                                                    <audio controls src="${primeiroAudio.audio_url}" class="h-6 w-28"></audio>
+                                                ` : '<span class="text-[10px] text-slate-600">-</span>'}
+                                            </td>
+                                        </tr>`;
+                                    }).join('') : `
+                                        <tr>
+                                            <td colspan="8" class="p-8 text-center text-slate-500 text-xs italic">
+                                                Nenhum checklist localizado com os filtros selecionados.
+                                            </td>
+                                        </tr>
+                                    `}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== ABA 3: KANBAN COM VISÃO DE CALENDÁRIO ====================
+        function renderAbaKanban(container) {
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <!-- CONTROLES DO KANBAN / CALENDÁRIO -->
+                    <div class="flex flex-wrap justify-between items-center bg-slate-900 border border-slate-800 p-2.5 px-4 rounded-xl gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-wrench text-orange-400"></i> Ordens de Serviço & Manutenção
+                            </span>
+                        </div>
+
+                        <!-- TOGGLE VISÃO: KANBAN vs CALENDÁRIO -->
+                        <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800">
+                            <button onclick="visualizacaoManutencao = 'kanban'; renderizarAbaAtualGestor();" class="px-3 py-1 text-xs font-bold rounded ${visualizacaoManutencao === 'kanban' ? 'bg-orange-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'} transition">
+                                <i class="fa-solid fa-table-columns mr-1"></i> Kanban
+                            </button>
+                            <button onclick="visualizacaoManutencao = 'calendario'; renderizarAbaAtualGestor();" class="px-3 py-1 text-xs font-bold rounded ${visualizacaoManutencao === 'calendario' ? 'bg-orange-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'} transition">
+                                <i class="fa-solid fa-calendar-days mr-1"></i> Calendário Mensal
+                            </button>
+                        </div>
+                    </div>
+
+                    ${visualizacaoManutencao === 'kanban' ? renderKanbanColunas() : renderCalendarioMensal()}
+                </div>
+            `;
+        }
+
+        function renderKanbanColunas() {
+            const colunas = [
+                { id: 'pendente', titulo: 'Pendente / Solicitado', cor: 'border-amber-500', icone: 'fa-clock text-amber-400' },
+                { id: 'analise_pecas', titulo: 'Análise de Peças', cor: 'border-orange-500', icone: 'fa-boxes-packing text-orange-400' },
+                { id: 'em_manutencao', titulo: 'Em Manutenção', cor: 'border-blue-500', icone: 'fa-wrench text-blue-400' },
+                { id: 'concluido', titulo: 'Concluído', cor: 'border-emerald-500', icone: 'fa-circle-check text-emerald-400' }
+            ];
+
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
+                    ${colunas.map(col => {
+                        const itens = cacheGestor.ordens.filter(o => o.status === col.id);
+                        return `
+                        <div class="bg-slate-900 border-t-4 ${col.cor} border-x border-b border-slate-800 rounded-xl p-3 shadow-sm min-h-[420px] flex flex-col">
+                            <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-800">
+                                <h4 class="text-xs font-black text-white uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid ${col.icone}"></i> ${col.titulo}
+                                </h4>
+                                <span class="bg-slate-800 text-white text-[11px] font-bold px-2 py-0.2 rounded-full font-mono-num">${itens.length}</span>
+                            </div>
+
+                            <div class="space-y-2 flex-1 overflow-y-auto max-h-[650px] pr-0.5">
+                                ${itens.map(item => `
+                                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 shadow-sm hover:border-slate-600 transition">
+                                        <div class="flex justify-between items-start gap-1 mb-1">
+                                            <span class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">
+                                                ${item.prioridade}
+                                            </span>
+                                            <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
+                                        </div>
+
+                                        <h5 class="text-xs font-bold text-white mb-0.5 leading-snug">${item.titulo}</h5>
+                                        <p class="text-[11px] text-slate-400 line-clamp-2 mb-2">${item.descricao || ''}</p>
+
+                                        <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1.5 border-t border-slate-900">
+                                            <span class="font-mono-num text-slate-300 font-semibold">🚜 ${item.maquina_nome}</span>
+                                            <select onchange="atualizarStatusOS('${item.id}', this.value)" class="bg-slate-800 text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
+                                                <option value="pendente" ${item.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+                                                <option value="analise_pecas" ${item.status === 'analise_pecas' ? 'selected' : ''}>Análise Peças</option>
+                                                <option value="em_manutencao" ${item.status === 'em_manutencao' ? 'selected' : ''}>Em Manutenção</option>
+                                                <option value="concluido" ${item.status === 'concluido' ? 'selected' : ''}>Concluído</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderCalendarioMensal() {
+            const mesesNomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const primeiroDia = new Date(anoAtualCalendario, mesAtualCalendario, 1).getDay();
+            const totalDiasMes = new Date(anoAtualCalendario, mesAtualCalendario + 1, 0).getDate();
+
+            // Mapear eventos por data (YYYY-MM-DD)
+            const eventosPorData = {};
+            cacheGestor.ordens.forEach(o => {
+                const d = o.data_prevista || (o.created_at ? o.created_at.split('T')[0] : null);
+                if (d) {
+                    if (!eventosPorData[d]) eventosPorData[d] = [];
+                    eventosPorData[d].push(o);
+                }
+            });
+
+            return `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3">
+                    <!-- NAVEGADOR DO MÊS -->
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <button onclick="mudarMesCalendario(-1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <h3 class="font-bold text-sm text-white uppercase tracking-wider font-mono-num">
+                                ${mesesNomes[mesAtualCalendario]} ${anoAtualCalendario}
+                            </h3>
+                            <button onclick="mudarMesCalendario(1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Emergencial/Corretiva</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Preventiva Agendada</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Concluída</span>
+                        </div>
+                    </div>
+
+                    <!-- GRID DOS DIAS DA SEMANA -->
+                    <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-400 uppercase">
+                        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                    </div>
+
+                    <!-- GRID DOS DIAS DO MÊS -->
+                    <div class="grid grid-cols-7 gap-1">
+                        ${Array.from({ length: primeiroDia }).map(() => `
+                            <div class="min-h-[90px] bg-slate-950/40 rounded border border-slate-900/60 p-1"></div>
+                        `).join('')}
+
+                        ${Array.from({ length: totalDiasMes }).map((_, i) => {
+                            const diaNum = i + 1;
+                            const mesFmt = String(mesAtualCalendario + 1).padStart(2, '0');
+                            const diaFmt = String(diaNum).padStart(2, '0');
+                            const dataIso = `${anoAtualCalendario}-${mesFmt}-${diaFmt}`;
+                            const eventosDoDia = eventosPorData[dataIso] || [];
+                            const isHoje = new Date().toISOString().split('T')[0] === dataIso;
+
+                            return `
+                            <div class="min-h-[95px] bg-slate-950 border ${isHoje ? 'border-orange-500 ring-1 ring-orange-400/50' : 'border-slate-800'} rounded p-1 flex flex-col justify-between hover:border-slate-600 transition">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-mono-num font-bold ${isHoje ? 'text-orange-400 font-black' : 'text-slate-400'}">${diaNum}</span>
+                                    ${eventosDoDia.length > 0 ? `<span class="text-[9px] font-mono-num font-black bg-slate-800 text-slate-200 px-1 rounded">${eventosDoDia.length}</span>` : ''}
+                                </div>
+
+                                <div class="space-y-1 overflow-y-auto max-h-[65px] flex-1 pr-0.5">
+                                    ${eventosDoDia.map(ev => {
+                                        let corPill = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+                                        if (ev.status === 'concluido') corPill = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+                                        else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-500/20 text-red-300 border-red-500/30';
+
+                                        return `
+                                        <div class="text-[10px] font-mono-num font-bold p-1 rounded border ${corPill} truncate" title="${ev.maquina_nome}: ${ev.titulo}">
+                                            ${ev.maquina_nome}
+                                        </div>`;
+                                    }).join('')}
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function mudarMesCalendario(delta) {
+            mesAtualCalendario += delta;
+            if (mesAtualCalendario < 0) {
+                mesAtualCalendario = 11;
+                anoAtualCalendario--;
+            } else if (mesAtualCalendario > 11) {
+                mesAtualCalendario = 0;
+                anoAtualCalendario++;
+            }
+            renderizarAbaAtualGestor();
+        }
+
+        async function atualizarStatusOS(osId, novoStatus) {
+            if (!db) return;
+            try {
+                await db
+                    .from('ordens_manutencao')
+                    .update({ status: novoStatus, updated_at: new Date() })
+                    .eq('id', osId);
+                carregarDadosGestor();
+            } catch (err) {
+                alert("Erro ao mover status da O.S.");
+            }
+        }
+
+        // ==================== ABA 4: FROTAS & PERFIL DETALHADO DO EQUIPAMENTO ====================
+        function renderAbaMaquinas(container) {
+            let lista = cacheGestor.maquinas.filter(m => {
+                if (filtroFrota.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroFrota.categoria) return false;
+                if (filtroFrota.unidade !== 'todas' && m.unidade !== filtroFrota.unidade) return false;
+                if (filtroFrota.busca) {
+                    const q = filtroFrota.busca.toLowerCase();
+                    const matchCod = (m.codigo || '').toLowerCase().includes(q);
+                    const matchNom = (m.nome || '').toLowerCase().includes(q);
+                    const matchPlaca = (m.placa || '').toLowerCase().includes(q);
+                    if (!matchCod && !matchNom && !matchPlaca) return false;
+                }
+                return true;
+            });
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <!-- BARRA DE FILTROS DE FROTAS -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm flex flex-wrap gap-2.5 items-center justify-between">
+                        <div class="flex flex-wrap gap-2 items-center flex-1">
+                            <!-- Filtro Categoria -->
+                            <select onchange="filtroFrota.categoria = this.value; renderizarAbaAtualGestor();" class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-1.5 focus:outline-none">
+                                <option value="todas" ${filtroFrota.categoria === 'todas' ? 'selected' : ''}>Todos os Tipos</option>
+                                <option value="maquinas" ${filtroFrota.categoria === 'maquinas' ? 'selected' : ''}>🚜 Só Máquinas</option>
+                                <option value="veiculos" ${filtroFrota.categoria === 'veiculos' ? 'selected' : ''}>🚚 Só Veículos</option>
+                            </select>
+
+                            <!-- Filtro Unidade -->
+                            <select onchange="filtroFrota.unidade = this.value; renderizarAbaAtualGestor();" class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg p-1.5 focus:outline-none">
+                                <option value="todas" ${filtroFrota.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
+                                <option value="FILIAL" ${filtroFrota.unidade === 'FILIAL' ? 'selected' : ''}>🏢 FILIAL</option>
+                                <option value="MATRIZ" ${filtroFrota.unidade === 'MATRIZ' ? 'selected' : ''}>🏭 MATRIZ</option>
+                            </select>
+
+                            <!-- Busca por código ou placa -->
+                            <div class="relative flex-1 min-w-[160px]">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-slate-500"></i>
+                                <input type="text" placeholder="Buscar código, placa, modelo..." value="${filtroFrota.busca}" oninput="filtroFrota.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 font-mono-num font-bold">
+                            Total: <span class="text-white">${lista.length}</span> ativos
+                        </div>
+                    </div>
+
+                    <!-- GRID DE EQUIPAMENTOS (CLIQUE PARA ABRIR PERFIL) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        ${lista.map(m => {
+                            const isHoras = m.tipo_controle !== 'km';
+                            const valorAtual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
+                            const unidadeTxt = isHoras ? 'Horas' : 'KM';
+                            const ultPreventiva = isHoras ? (m.horimetro_ultima_preventiva || 0) : (m.km_ultima_preventiva || 0);
+                            const intervalo = isHoras ? (m.intervalo_preventiva_horas || 250) : (m.intervalo_km || 10000);
+                            const proximaPreventiva = ultPreventiva + intervalo;
+                            const faltam = proximaPreventiva - valorAtual;
+
+                            const pctUso = Math.min(100, Math.max(0, Math.round(((valorAtual - ultPreventiva) / intervalo) * 100)));
+                            const venceu = faltam <= 0;
+
+                            return `
+                            <div onclick="abrirPerfilEquipamento('${m.codigo}')" class="bg-slate-900 border ${venceu ? 'border-red-500/50 hover:border-red-400' : 'border-slate-800 hover:border-orange-500'} rounded-xl p-4 shadow-sm cursor-pointer transition flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-[9px] font-mono-num font-bold bg-slate-800 text-orange-400 px-1.5 py-0.2 rounded">${m.unidade || 'FILIAL'}</span>
+                                                <span class="text-[9px] uppercase font-bold text-slate-400">${m.categoria || 'MÁQUINAS'}</span>
+                                            </div>
+                                            <h4 class="font-mono-num font-black text-white text-base mt-1">${m.codigo}</h4>
+                                            <p class="text-xs text-slate-400 truncate">${m.modelo || m.nome} ${m.placa ? '• Placa: ' + m.placa : ''}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[10px] text-slate-400 block uppercase font-bold">${isHoras ? 'Horímetro' : 'Quilometragem'}</span>
+                                            <span class="font-mono-num text-lg font-black text-white">${valorAtual} ${isHoras ? 'h' : 'km'}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- BARRA DE CONTROLE DE TROCA DE ÓLEO & FILTROS -->
+                                    <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 mt-2 space-y-1.5">
+                                        <div class="flex justify-between items-center text-[10px] font-mono-num font-bold">
+                                            <span class="text-slate-400 flex items-center gap-1">
+                                                <i class="fa-solid fa-oil-can text-orange-400"></i> Troca Óleo/Filtro (${intervalo} ${isHoras ? 'h' : 'km'}):
+                                            </span>
+                                            <span class="${venceu ? 'text-red-400 animate-pulse font-black' : 'text-slate-300'}">
+                                                ${venceu ? 'VENCIDA!' : 'Faltam ' + faltam + ' ' + (isHoras ? 'h' : 'km')}
+                                            </span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                            <div class="h-full rounded-full transition-all ${venceu ? 'bg-red-500' : (pctUso > 80 ? 'bg-amber-400' : 'bg-emerald-500')}" style="width: ${pctUso}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-orange-400 font-bold">
+                                    <span>Ver detalhes técnicos & perfil</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== MODAL DE PERFIL COMPLETO DO EQUIPAMENTO ====================
+        let equipamentoSelecionado = null;
+        let subAbaPerfilAtual = 'preventivas';
+
+        function abrirPerfilEquipamento(codigo) {
+            const maq = cacheGestor.maquinas.find(m => m.codigo === codigo) || frotaTotal.find(m => m.codigo === codigo);
+            if (!maq) return;
+            equipamentoSelecionado = maq;
+
+            document.getElementById('modal-maq-codigo').innerText = maq.codigo;
+            document.getElementById('modal-maq-unidade').innerText = maq.unidade || 'FILIAL';
+            document.getElementById('modal-maq-categoria').innerText = (maq.categoria || 'maquinas').toUpperCase();
+            document.getElementById('modal-maq-nome').innerText = `${maq.modelo || maq.nome} ${maq.placa ? '• Placa: ' + maq.placa : ''}`;
+
+            subAbaPerfilAtual = 'preventivas';
+            renderSubAbaPerfil();
+            document.getElementById('modal-perfil-equipamento').classList.remove('hidden');
+        }
+
+        function fecharModalPerfil() {
+            document.getElementById('modal-perfil-equipamento').classList.add('hidden');
+            equipamentoSelecionado = null;
+        }
+
+        function mudarSubAbaPerfil(aba) {
+            subAbaPerfilAtual = aba;
+            ['preventivas', 'agendar', 'dados'].forEach(a => {
+                const btn = document.getElementById(`subaba-btn-${a}`);
+                if (btn) {
+                    if (a === aba) {
+                        btn.className = "py-3 border-b-2 border-orange-500 text-orange-400 flex items-center gap-1.5 font-bold";
+                    } else {
+                        btn.className = "py-3 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-1.5 font-medium";
+                    }
+                }
+            });
+            renderSubAbaPerfil();
+        }
+
+        function renderSubAbaPerfil() {
+            const container = document.getElementById('modal-perfil-conteudo');
+            const m = equipamentoSelecionado;
+            if (!m) return;
+
+            const isHoras = m.tipo_controle !== 'km';
+            const atual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
+            const ultPreventiva = isHoras ? (m.horimetro_ultima_preventiva || 0) : (m.km_ultima_preventiva || 0);
+            const intervalo = isHoras ? (m.intervalo_preventiva_horas || 250) : (m.intervalo_km || 10000);
+            const proxima = ultPreventiva + intervalo;
+            const faltam = proxima - atual;
+
+            if (subAbaPerfilAtual === 'preventivas') {
+                container.innerHTML = `
+                    <div class="space-y-4 text-xs">
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                                <i class="fa-solid fa-oil-can text-orange-400"></i> Plano de Troca de Óleo e Filtros
+                            </h4>
+                            <p class="text-slate-400">Configure se este equipamento é monitorado por Horas (Horímetro) ou Quilômetros (KM) e defina o ciclo de substituição:</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Tipo de Controle</label>
+                                    <select id="edit-tipo-controle" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-bold focus:outline-none">
+                                        <option value="horas" ${isHoras ? 'selected' : ''}>⏱️ Horas Trabalhadas (Horímetro)</option>
+                                        <option value="km" ${!isHoras ? 'selected' : ''}>🚗 Quilômetros Rodados (KM)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Intervalo entre Trocas</label>
+                                    <input type="number" id="edit-intervalo" value="${intervalo}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num font-bold">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Leitura na Última Troca Realizada</label>
+                                    <input type="number" id="edit-ult-leitura" value="${ultPreventiva}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Leitura Atual do Painel</label>
+                                    <input type="number" id="edit-atual-leitura" value="${atual}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num">
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-lg ${faltam <= 0 ? 'bg-red-500/20 text-red-300 border border-red-500/40' : 'bg-slate-900 text-slate-300'} flex justify-between items-center">
+                                <span>Status da Revisão de Óleo:</span>
+                                <strong class="font-mono-num ${faltam <= 0 ? 'text-red-400' : 'text-emerald-400'}">
+                                    ${faltam <= 0 ? '⚠️ TROCA DE ÓLEO VENCIDA!' : 'Faltam ' + faltam + (isHoras ? ' horas' : ' km')}
+                                </strong>
+                            </div>
+
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="salvarConfigPreventiva()" class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg">
+                                    Salvar Configurações
+                                </button>
+                                <button onclick="registrarTrocaRealizadaAgora()" class="flex-1 btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg">
+                                    <i class="fa-solid fa-check-double mr-1"></i> Confirmar Troca Feita Hoje
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (subAbaPerfilAtual === 'agendar') {
+                container.innerHTML = `
+                    <div class="space-y-4 text-xs">
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-plus text-orange-400"></i> Agendar Manutenção no Calendário
+                            </h4>
+                            <p class="text-slate-400">Escolha uma data futura no calendário para programar revisão ou reparo:</p>
+
+                            <div class="space-y-2.5">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Título da Manutenção</label>
+                                    <input type="text" id="agendar-titulo" placeholder="Ex: Troca de óleo de motor e filtro de combustível" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-medium">
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Data Agendada</label>
+                                        <input type="date" id="agendar-data" value="${new Date().toISOString().split('T')[0]}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Tipo de Serviço</label>
+                                        <select id="agendar-tipo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                                            <option value="preventiva">Preventiva Periódica</option>
+                                            <option value="corretiva">Corretiva / Troca de Peça</option>
+                                            <option value="emergencial">Emergencial</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Observações Técnicas / Peças</label>
+                                    <textarea id="agendar-desc" rows="2" placeholder="Ex: Separar 10L óleo 15W40 e filtro código 489..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></textarea>
+                                </div>
+
+                                <button onclick="salvarNovoAgendamentoOS()" class="w-full btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg">
+                                    <i class="fa-solid fa-calendar-check mr-1"></i> Gravar Agendamento no Calendário
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (subAbaPerfilAtual === 'dados') {
+                container.innerHTML = `
+                    <div class="space-y-4 text-xs">
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-orange-400"></i> Ficha Técnica do Equipamento
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Código Identificador</label>
+                                    <input type="text" id="dados-codigo" value="${m.codigo}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Unidade</label>
+                                    <select id="dados-unidade" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold">
+                                        <option value="FILIAL" ${m.unidade === 'FILIAL' ? 'selected' : ''}>FILIAL</option>
+                                        <option value="MATRIZ" ${m.unidade === 'MATRIZ' ? 'selected' : ''}>MATRIZ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Modelo / Descrição</label>
+                                    <input type="text" id="dados-modelo" value="${m.modelo || m.nome}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Placa (Veículos)</label>
+                                    <input type="text" id="dados-placa" value="${m.placa || ''}" placeholder="Ex: ABC-1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Chassi / Número de Série</label>
+                                <input type="text" id="dados-chassi" value="${m.chassi || ''}" placeholder="Ex: 9BWZZZ377..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono-num">
+                            </div>
+
+                            <button onclick="salvarDadosTecnicos()" class="w-full btn-industrial bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-lg border border-slate-700">
+                                Salvar Alterações Técnicas
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function salvarConfigPreventiva() {
+            const m = equipamentoSelecionado;
+            if (!m || !db) return;
+            const tipoControle = document.getElementById('edit-tipo-controle').value;
+            const intervalo = parseFloat(document.getElementById('edit-intervalo').value) || 250;
+            const ultLeitura = parseFloat(document.getElementById('edit-ult-leitura').value) || 0;
+            const atualLeitura = parseFloat(document.getElementById('edit-atual-leitura').value) || 0;
+
+            const updatePayload = {
+                tipo_controle: tipoControle,
+                updated_at: new Date()
+            };
+
+            if (tipoControle === 'horas') {
+                updatePayload.intervalo_preventiva_horas = intervalo;
+                updatePayload.horimetro_ultima_preventiva = ultLeitura;
+                updatePayload.horimetro_atual = atualLeitura;
+            } else {
+                updatePayload.intervalo_km = intervalo;
+                updatePayload.km_ultima_preventiva = ultLeitura;
+                updatePayload.km_atual = atualLeitura;
+            }
+
+            try {
+                await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
+                alert("Configuração de troca preventiva de óleo/filtros salva com sucesso!");
+                fecharModalPerfil();
+                carregarDadosGestor();
+            } catch (e) {
+                alert("Erro ao salvar dados.");
+            }
+        }
+
+        async function registrarTrocaRealizadaAgora() {
+            const m = equipamentoSelecionado;
+            if (!m || !db) return;
+            const isHoras = m.tipo_controle !== 'km';
+            const leituraAtual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
+
+            if (!confirm(`Confirmar registro de troca de óleo e filtros realizada agora para ${m.codigo}?`)) return;
+
+            const updatePayload = { updated_at: new Date() };
+            if (isHoras) {
+                updatePayload.horimetro_ultima_preventiva = leituraAtual;
+            } else {
+                updatePayload.km_ultima_preventiva = leituraAtual;
+            }
+
+            try {
+                await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
+                await db.from('ordens_manutencao').insert([{
+                    maquina_nome: m.codigo,
+                    tipo: 'preventiva',
+                    origem: 'preventiva_agendada',
+                    titulo: `Troca de óleo e filtros realizada (${leituraAtual} ${isHoras ? 'h' : 'km'})`,
+                    descricao: `Registro de substituição periódica de consumíveis executada com sucesso.`,
+                    prioridade: 'baixa',
+                    status: 'concluido',
+                    data_prevista: new Date().toISOString().split('T')[0],
+                    data_conclusao: new Date()
+                }]);
+                alert("Troca de óleo e filtros registrada e concluída no sistema!");
+                fecharModalPerfil();
+                carregarDadosGestor();
+            } catch (e) {
+                alert("Erro ao registrar troca.");
+            }
+        }
+
+        async function salvarNovoAgendamentoOS() {
+            const m = equipamentoSelecionado;
+            if (!m || !db) return;
+            const titulo = document.getElementById('agendar-titulo').value.trim();
+            const dataPrevista = document.getElementById('agendar-data').value;
+            const tipo = document.getElementById('agendar-tipo').value;
+            const desc = document.getElementById('agendar-desc').value.trim();
+
+            if (!titulo) {
+                alert("Por favor, digite o título da manutenção.");
+                return;
+            }
+
+            try {
+                await db.from('ordens_manutencao').insert([{
+                    maquina_nome: m.codigo,
+                    tipo: tipo,
+                    origem: 'preventiva_agendada',
+                    titulo: titulo,
+                    descricao: desc || `Manutenção programada para ${m.codigo}`,
+                    prioridade: 'media',
+                    status: 'pendente',
+                    data_prevista: dataPrevista
+                }]);
+                alert("Manutenção agendada com sucesso! Ela aparecerá no Calendário e no Kanban.");
+                fecharModalPerfil();
+                carregarDadosGestor();
+            } catch (e) {
+                alert("Erro ao agendar.");
+            }
+        }
+
+        async function salvarDadosTecnicos() {
+            const m = equipamentoSelecionado;
+            if (!m || !db) return;
+            const codigo = document.getElementById('dados-codigo').value.trim();
+            const unidade = document.getElementById('dados-unidade').value;
+            const modelo = document.getElementById('dados-modelo').value.trim();
+            const placa = document.getElementById('dados-placa').value.trim();
+            const chassi = document.getElementById('dados-chassi').value.trim();
+
+            try {
+                await db.from('maquinas').update({
+                    codigo: codigo,
+                    unidade: unidade,
+                    modelo: modelo,
+                    placa: placa || null,
+                    chassi: chassi || null,
+                    updated_at: new Date()
+                }).eq('id', m.id);
+                alert("Dados técnicos atualizados com sucesso!");
+                fecharModalPerfil();
+                carregarDadosGestor();
+            } catch (e) {
+                alert("Erro ao salvar.");
+            }
+        }
+
+        // ==================== ABA 5: CHAMADOS SOS ====================
+        function renderAbaChamados(container) {
+            const chamados = cacheGestor.chamados;
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-white uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-bell text-red-500 animate-pulse"></i> Chamados de Emergência SOS
+                        </h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        ${chamados.length > 0 ? chamados.map(c => `
+                            <div class="bg-slate-900 border-l-4 border-red-500 border-y border-r border-slate-800 rounded-xl p-3.5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-mono-num">${c.gravidade}</span>
+                                        <h4 class="font-mono-num text-sm font-bold text-white">🚨 ${c.maquina_nome}</h4>
+                                        <span class="text-xs text-slate-400">• Operador: ${c.operador}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-300">${c.texto_transcrito || 'Áudio relatando quebra mecânica.'}</p>
+                                    ${c.audio_url ? `<audio controls src="${c.audio_url}" class="h-6 mt-1.5"></audio>` : ''}
+                                </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button onclick="resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition">
+                                        <i class="fa-solid fa-check mr-1"></i> Concluir Reparo
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : `
+                            <div class="p-8 text-center text-slate-500 bg-slate-900 rounded-xl border border-slate-800">
+                                <i class="fa-solid fa-shield-cat text-3xl mb-2 text-emerald-400"></i>
+                                <p class="text-xs font-bold text-slate-300">Nenhum chamado de emergência ativo.</p>
+                                <p class="text-[11px] text-slate-500">Todas as empilhadeiras e veículos operando normalmente.</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function resolverSOS(id) {
+            if (!db) return;
+            try {
+                await db
+                    .from('chamados_emergencia')
+                    .update({ status: 'resolvido', resolvido_em: new Date() })
+                    .eq('id', id);
+                carregarDadosGestor();
+            } catch(e) {
+                alert("Erro ao concluir chamado.");
+            }
+        }
+
+        // ==================== SOS MODAL ====================
         let sosMediaRecorder = null;
         let sosAudioChunks = [];
         let sosAudioBlob = null;
@@ -1277,8 +2605,7 @@
         function atualizarSelectSOS() {
             const select = document.getElementById('sos-select-maquina');
             if (!select) return;
-            const todas = [...maquinasFilial, ...maquinasMatriz];
-            select.innerHTML = todas.map(m => `
+            select.innerHTML = frotaTotal.map(m => `
                 <option value="${m.codigo}">[${m.unidade}] ${m.codigo} - ${m.modelo || m.nome}</option>
             `).join('');
         }
@@ -1363,7 +2690,8 @@
                         titulo: `🚨 SOS QUEBRA: ${maqNome}`,
                         descricao: 'Chamado de parada imediata gerado pelo operador.',
                         prioridade: 'urgente',
-                        status: 'pendente'
+                        status: 'pendente',
+                        data_prevista: new Date().toISOString().split('T')[0]
                     }]);
                 }
 
@@ -1376,506 +2704,6 @@
             } finally {
                 btnEnviar.disabled = false;
                 btnEnviar.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar Alerta';
-            }
-        }
-
-        // ==================== PIN DO GESTOR ====================
-        let pinDigitado = '';
-
-        function abrirModalPinGestor() {
-            pinDigitado = '';
-            atualizarDisplayPin();
-            document.getElementById('modal-pin-gestor').classList.remove('hidden');
-        }
-
-        function fecharModalPinGestor() {
-            document.getElementById('modal-pin-gestor').classList.add('hidden');
-            pinDigitado = '';
-        }
-
-        function digitarPin(digito) {
-            if (pinDigitado.length < 4) {
-                pinDigitado += digito;
-                atualizarDisplayPin();
-                if (pinDigitado.length === 4) {
-                    setTimeout(confirmarPin, 150);
-                }
-            }
-        }
-
-        function limparPin() {
-            pinDigitado = pinDigitado.slice(0, -1);
-            atualizarDisplayPin();
-        }
-
-        function atualizarDisplayPin() {
-            const display = document.getElementById('pin-display');
-            if (!display) return;
-            let str = '';
-            for (let i = 0; i < 4; i++) {
-                str += i < pinDigitado.length ? '● ' : '- ';
-            }
-            display.innerText = str.trim();
-        }
-
-        function confirmarPin() {
-            if (pinDigitado === "1234") {
-                fecharModalPinGestor();
-                ativarModoGestor();
-            } else {
-                alert("Código PIN incorreto!");
-                pinDigitado = '';
-                atualizarDisplayPin();
-            }
-        }
-
-        function ativarModoGestor() {
-            document.getElementById('app-operador').classList.add('hidden');
-            document.getElementById('app-gestor').classList.remove('hidden');
-            document.getElementById('app-gestor').classList.add('flex');
-            document.getElementById('btn-sos-header').classList.add('hidden');
-            progressWrapper.classList.add('hidden');
-            badgeModo.innerText = "Gestor";
-            badgeModo.className = "text-[11px] uppercase tracking-wider font-extrabold bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded";
-            carregarDadosGestor();
-        }
-
-        function voltarParaOperador() {
-            document.getElementById('app-gestor').classList.add('hidden');
-            document.getElementById('app-gestor').classList.remove('flex');
-            document.getElementById('app-operador').classList.remove('hidden');
-            document.getElementById('btn-sos-header').classList.remove('hidden');
-            progressWrapper.classList.remove('hidden');
-            badgeModo.innerText = "Operador";
-            badgeModo.className = "text-[11px] uppercase tracking-wider font-extrabold bg-slate-800 text-slate-200 px-2.5 py-0.5 rounded border border-slate-700";
-            goToStep(-5);
-        }
-
-        let abaAtualGestor = 'dashboard';
-
-        function mudarAbaGestor(aba) {
-            abaAtualGestor = aba;
-            document.querySelectorAll('.tab-gestor-btn').forEach(btn => {
-                btn.classList.remove('bg-orange-600', 'text-white');
-                btn.classList.add('bg-slate-800', 'text-slate-300');
-            });
-            const activeBtn = document.getElementById(`tab-btn-${aba}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-orange-600', 'text-white');
-                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
-            }
-            carregarDadosGestor();
-        }
-
-        async function carregarDadosGestor() {
-            const container = document.getElementById('gestor-conteudo');
-            container.innerHTML = '<div class="flex items-center justify-center h-64 text-orange-400 text-xl font-bold"><i class="fa-solid fa-spinner fa-spin mr-3"></i> Carregando dados do Supabase...</div>';
-
-            if (!db) {
-                container.innerHTML = '<div class="p-6 text-amber-400">Aguardando conexão com banco de dados...</div>';
-                return;
-            }
-
-            try {
-                const [resMaq, resChk, resOS, resSOS] = await Promise.all([
-                    db.from('maquinas').select('*, maquina_especificacoes(*)').order('unidade').order('codigo'),
-                    db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(50),
-                    db.from('ordens_manutencao').select('*').order('created_at', { ascending: false }),
-                    db.from('chamados_emergencia').select('*').order('created_at', { ascending: false }).limit(20)
-                ]);
-
-                const maquinas = resMaq.data || [];
-                const checklists = resChk.data || [];
-                const ordens = resOS.data || [];
-                const chamados = resSOS.data || [];
-
-                document.getElementById('count-checklists').innerText = checklists.length;
-                document.getElementById('count-os').innerText = ordens.filter(o => o.status !== 'concluido').length;
-                document.getElementById('count-sos').innerText = chamados.filter(c => c.status === 'pendente').length;
-                document.getElementById('count-maquinas').innerText = maquinas.length;
-
-                if (abaAtualGestor === 'dashboard') {
-                    renderAbaDashboard(container, maquinas, checklists, ordens);
-                } else if (abaAtualGestor === 'checklists') {
-                    renderAbaChecklists(container, checklists);
-                } else if (abaAtualGestor === 'kanban') {
-                    renderAbaKanban(container, ordens);
-                } else if (abaAtualGestor === 'maquinas') {
-                    renderAbaMaquinas(container, maquinas);
-                } else if (abaAtualGestor === 'chamados') {
-                    renderAbaChamados(container, chamados);
-                }
-            } catch (err) {
-                container.innerHTML = `<div class="p-6 text-red-400">Erro ao carregar dados: ${err.message}</div>`;
-            }
-        }
-
-        // ABA 1: DASHBOARD & KPIS
-        function renderAbaDashboard(container, maquinas, checklists, ordens) {
-            const totalMaq = maquinas.length;
-            const maqOperando = maquinas.filter(m => m.status_operacional === 'operando').length;
-            const maqAlerta = maquinas.filter(m => m.status_operacional !== 'operando').length;
-            const totalComProblema = checklists.filter(c => c.tem_problema).length;
-            const taxaConformidade = checklists.length > 0 ? Math.round(((checklists.length - totalComProblema) / checklists.length) * 100) : 100;
-
-            const maqFilial = maquinas.filter(m => m.unidade === 'FILIAL').length;
-            const maqMatriz = maquinas.filter(m => m.unidade === 'MATRIZ').length;
-
-            container.innerHTML = `
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Frota Total</p>
-                                <h3 class="text-3xl font-mono-num font-black text-white mt-1">${totalMaq}</h3>
-                                <p class="text-xs text-slate-400 font-medium mt-1">
-                                    <span class="text-orange-400 font-bold">${maqFilial} Filial</span> • <span class="text-amber-400 font-bold">${maqMatriz} Matriz</span>
-                                </p>
-                            </div>
-                            <div class="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
-                        </div>
-
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Conformidade 5S</p>
-                                <h3 class="text-3xl font-mono-num font-black ${taxaConformidade > 80 ? 'text-emerald-400' : 'text-amber-400'} mt-1">${taxaConformidade}%</h3>
-                                <p class="text-xs text-slate-400 font-medium mt-1">${checklists.length} checklists avaliados</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-shield-halved"></i></div>
-                        </div>
-
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">O.S. em Aberto</p>
-                                <h3 class="text-3xl font-mono-num font-black text-amber-400 mt-1">${ordens.filter(o => o.status !== 'concluido').length}</h3>
-                                <p class="text-xs text-amber-300/80 font-medium mt-1">Manutenções pendentes</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-wrench"></i></div>
-                        </div>
-
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Alertas / SOS</p>
-                                <h3 class="text-3xl font-mono-num font-black ${maqAlerta > 0 ? 'text-red-400' : 'text-slate-200'} mt-1">${maqAlerta}</h3>
-                                <p class="text-xs text-red-400 font-medium mt-1">Requer atenção mecânica</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-gauge-high text-orange-400"></i> Telemetria de Horímetro & Unidades
-                            </h3>
-                            <button onclick="mudarAbaGestor('maquinas')" class="text-xs text-orange-400 hover:underline">Ver catálogo completo →</button>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                            ${maquinas.map(m => {
-                                const horimetro = m.horimetro_atual || 0;
-                                const proxPreventiva = (m.horimetro_ultima_preventiva || 0) + (m.intervalo_preventiva_horas || 250);
-                                const horasRestantes = proxPreventiva - horimetro;
-                                let statusCor = 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400';
-                                if (horasRestantes <= 0 || m.status_operacional === 'manutencao_imediata') {
-                                    statusCor = 'border-red-500/40 bg-red-500/10 text-red-400';
-                                } else if (horasRestantes <= 50 || m.status_operacional === 'alerta') {
-                                    statusCor = 'border-amber-500/40 bg-amber-500/10 text-amber-400';
-                                }
-
-                                return `
-                                <div class="bg-slate-950 border ${statusCor.split(' ')[0]} rounded-xl p-3.5 shadow-sm">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <span class="text-[10px] font-mono-num font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">${m.unidade || 'FILIAL'}</span>
-                                            <h4 class="font-mono-num font-black text-white text-sm mt-1">${m.codigo}</h4>
-                                            <span class="text-[11px] text-slate-400 block truncate max-w-[150px]">${m.modelo || m.nome}</span>
-                                        </div>
-                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${statusCor}">
-                                            ${m.status_operacional}
-                                        </span>
-                                    </div>
-                                    <div class="mt-2 pt-2 border-t border-slate-800 flex justify-between items-end">
-                                        <div>
-                                            <span class="text-[10px] text-slate-400 block">Horímetro</span>
-                                            <span class="font-mono-num text-lg font-black text-white">${horimetro} h</span>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-[9px] text-slate-500 block">Preventiva</span>
-                                            <span class="text-[11px] font-bold ${horasRestantes <= 0 ? 'text-red-400' : 'text-slate-300'}">${horasRestantes <= 0 ? 'VENCIDA' : horasRestantes + ' h'}</span>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ABA 2: FEED DE CHECKLISTS
-        function renderAbaChecklists(container, checklists) {
-            container.innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-orange-400"></i> Histórico de Checklists Realizados (${checklists.length})
-                        </h3>
-                    </div>
-
-                    <div class="space-y-3">
-                        ${checklists.map(c => {
-                            const dataFmt = new Date(c.created_at).toLocaleString('pt-BR');
-                            const audios = c.checklist_observacoes || [];
-
-                            return `
-                            <div class="bg-slate-900 border ${c.tem_problema ? 'border-red-500/40 bg-red-950/10' : 'border-slate-800'} rounded-2xl p-4 shadow-md">
-                                <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-xl ${c.tem_problema ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'} flex items-center justify-center text-lg">
-                                            <i class="fa-solid ${c.tem_problema ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2">
-                                                <h4 class="font-mono-num text-base font-black text-white">${c.empilhadeira}</h4>
-                                                <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded font-mono-num">${c.unidade || 'FILIAL'}</span>
-                                            </div>
-                                            <span class="text-xs text-slate-400">Operador: <strong class="text-slate-200">${c.operador}</strong> • Horímetro: <strong class="text-slate-200 font-mono-num">${c.horimetro}h</strong></span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${c.tem_problema ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
-                                            ${c.tem_problema ? 'COM APONTAMENTO' : '100% CONFORME'}
-                                        </span>
-                                        <span class="text-xs text-slate-500 font-mono-num">${dataFmt}</span>
-                                    </div>
-                                </div>
-
-                                ${c.resumo_ia || c.observacao_texto ? `
-                                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-2 text-xs text-slate-300">
-                                        <span class="font-bold text-orange-400 block mb-1"><i class="fa-solid fa-comment-dots"></i> Observações Técnicas:</span>
-                                        <p class="text-slate-300">${c.observacao_texto || c.resumo_ia}</p>
-                                    </div>
-                                ` : ''}
-
-                                ${audios.length > 0 ? `
-                                    <div class="space-y-2 mt-2 pt-2 border-t border-slate-800">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Áudios & Detalhes Gravados:</span>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                            ${audios.map(a => `
-                                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex flex-col gap-1">
-                                                    <span class="text-[11px] text-orange-300 font-medium">${a.texto_corrigido_ia || a.texto_original || 'Áudio'}</span>
-                                                    ${a.audio_url ? `
-                                                        <audio controls src="${a.audio_url}" class="h-7 w-full mt-1"></audio>
-                                                    ` : '<span class="text-[10px] text-slate-500 italic">Áudio processado sem link externo</span>'}
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                ` : ''}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // ABA 3: KANBAN DE MANUTENÇÃO
-        function renderAbaKanban(container, ordens) {
-            const colunas = [
-                { id: 'pendente', titulo: 'Pendente / Solicitado', cor: 'border-amber-500', icone: 'fa-clock text-amber-400' },
-                { id: 'analise_pecas', titulo: 'Análise de Peças', cor: 'border-orange-500', icone: 'fa-boxes-packing text-orange-400' },
-                { id: 'em_manutencao', titulo: 'Em Manutenção', cor: 'border-blue-500', icone: 'fa-wrench text-blue-400' },
-                { id: 'concluido', titulo: 'Concluído', cor: 'border-emerald-500', icone: 'fa-circle-check text-emerald-400' }
-            ];
-
-            container.innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-table-columns text-orange-400"></i> Kanban de Ordens de Serviço
-                        </h3>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-                        ${colunas.map(col => {
-                            const itens = ordens.filter(o => o.status === col.id);
-                            return `
-                            <div class="bg-slate-900 border-t-4 ${col.cor} border-x border-b border-slate-800 rounded-2xl p-3.5 shadow-lg min-h-[420px] flex flex-col">
-                                <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
-                                    <h4 class="text-xs font-black text-white uppercase flex items-center gap-1.5">
-                                        <i class="fa-solid ${col.icone}"></i> ${col.titulo}
-                                    </h4>
-                                    <span class="bg-slate-800 text-white text-xs font-bold px-2 py-0.5 rounded-full font-mono-num">${itens.length}</span>
-                                </div>
-
-                                <div class="space-y-2.5 flex-1 overflow-y-auto max-h-[600px]">
-                                    ${itens.map(item => `
-                                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 shadow-md hover:border-slate-600 transition">
-                                            <div class="flex justify-between items-start gap-1 mb-1">
-                                                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">
-                                                    ${item.prioridade}
-                                                </span>
-                                                <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
-                                            </div>
-
-                                            <h5 class="text-xs font-bold text-white mb-1">${item.titulo}</h5>
-                                            <p class="text-[11px] text-slate-400 line-clamp-2 mb-2">${item.descricao || ''}</p>
-
-                                            <div class="flex justify-between items-center text-[10px] text-slate-400 pt-2 border-t border-slate-900">
-                                                <span class="font-mono-num">🚜 ${item.maquina_nome}</span>
-                                                <select onchange="atualizarStatusOS('${item.id}', this.value)" class="bg-slate-800 text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
-                                                    <option value="pendente" ${item.status === 'pendente' ? 'selected' : ''}>Pendente</option>
-                                                    <option value="analise_pecas" ${item.status === 'analise_pecas' ? 'selected' : ''}>Análise Peças</option>
-                                                    <option value="em_manutencao" ${item.status === 'em_manutencao' ? 'selected' : ''}>Em Manutenção</option>
-                                                    <option value="concluido" ${item.status === 'concluido' ? 'selected' : ''}>Concluído</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        async function atualizarStatusOS(osId, novoStatus) {
-            if (!db) return;
-            try {
-                await db
-                    .from('ordens_manutencao')
-                    .update({ status: novoStatus, updated_at: new Date() })
-                    .eq('id', osId);
-                carregarDadosGestor();
-            } catch (err) {
-                alert("Erro ao mover status da O.S.");
-            }
-        }
-
-        // ABA 4: MÁQUINAS E CATÁLOGO DE PEÇAS
-        function renderAbaMaquinas(container, maquinas) {
-            container.innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-truck-ramp-box text-orange-400"></i> Catálogo de Frotas & Peças
-                            </h3>
-                            <p class="text-xs text-slate-400">Empilhadeiras ativas e especificações técnicas de insumos</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        ${maquinas.map(m => {
-                            const pecas = m.maquina_especificacoes || [];
-                            return `
-                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
-                                <div class="flex justify-between items-start pb-2.5 border-b border-slate-800">
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="font-mono-num text-base font-black text-white">${m.codigo}</h4>
-                                            <span class="text-[10px] bg-slate-800 text-orange-400 px-1.5 py-0.5 rounded font-mono-num font-bold">${m.unidade || 'FILIAL'}</span>
-                                        </div>
-                                        <span class="text-xs text-slate-400">${m.modelo || m.nome}</span>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="text-[10px] text-slate-400 block font-bold uppercase">Horímetro</span>
-                                        <span class="font-mono-num text-lg font-black text-white">${m.horimetro_atual || 0} h</span>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                                        <i class="fa-solid fa-cart-flatbed text-orange-400 mr-1"></i> Insumos e Peças (${pecas.length}):
-                                    </span>
-
-                                    ${pecas.length > 0 ? `
-                                        <div class="overflow-x-auto">
-                                            <table class="w-full text-left text-xs text-slate-300">
-                                                <thead class="bg-slate-950 text-slate-400 uppercase text-[10px]">
-                                                    <tr>
-                                                        <th class="p-1.5">Item</th>
-                                                        <th class="p-1.5">Categoria</th>
-                                                        <th class="p-1.5">Cód. Peça</th>
-                                                        <th class="p-1.5">Qtd</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="divide-y divide-slate-800">
-                                                    ${pecas.map(p => `
-                                                        <tr>
-                                                            <td class="p-1.5 font-semibold text-white">${p.item_nome}</td>
-                                                            <td class="p-1.5 uppercase text-[10px] text-orange-400">${p.categoria}</td>
-                                                            <td class="p-1.5 font-mono-num text-slate-400">${p.codigo_fabricante || '-'}</td>
-                                                            <td class="p-1.5 font-mono-num">${p.quantidade_por_troca} ${p.unidade || ''}</td>
-                                                        </tr>
-                                                    `).join('')}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ` : `
-                                        <p class="text-xs text-slate-500 italic p-2.5 bg-slate-950/60 rounded-xl">Nenhuma peça cadastrada para este modelo.</p>
-                                    `}
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // ABA 5: CHAMADOS DE EMERGÊNCIA (SOS)
-        function renderAbaChamados(container, chamados) {
-            container.innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-bell text-red-500 animate-pulse"></i> Chamados de Emergência SOS
-                        </h3>
-                    </div>
-
-                    <div class="space-y-2.5">
-                        ${chamados.length > 0 ? chamados.map(c => `
-                            <div class="bg-slate-900 border-l-4 border-red-500 border-y border-r border-slate-800 rounded-xl p-3.5 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400">${c.gravidade}</span>
-                                        <h4 class="font-mono-num text-base font-bold text-white">🚨 ${c.maquina_nome}</h4>
-                                        <span class="text-xs text-slate-400">• Operador: ${c.operador}</span>
-                                    </div>
-                                    <p class="text-xs text-slate-300">${c.texto_transcrito || 'Áudio relatando quebra mecânica.'}</p>
-                                    ${c.audio_url ? `<audio controls src="${c.audio_url}" class="h-7 mt-1.5"></audio>` : ''}
-                                </div>
-
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <button onclick="resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg transition">
-                                        <i class="fa-solid fa-check"></i> Concluir Reparo
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('') : `
-                            <div class="p-8 text-center text-slate-500 bg-slate-900 rounded-2xl border border-slate-800">
-                                <i class="fa-solid fa-shield-cat text-4xl mb-2 text-emerald-400"></i>
-                                <p class="text-sm font-bold text-slate-300">Nenhum chamado de emergência ativo.</p>
-                                <p class="text-xs text-slate-500">Todas as empilhadeiras em regime operacional normal.</p>
-                            </div>
-                        `}
-                    </div>
-                </div>
-            `;
-        }
-
-        async function resolverSOS(id) {
-            if (!db) return;
-            try {
-                await db
-                    .from('chamados_emergencia')
-                    .update({ status: 'resolvido', resolvido_em: new Date() })
-                    .eq('id', id);
-                carregarDadosGestor();
-            } catch(e) {
-                alert("Erro ao concluir chamado.");
             }
         }
 
