@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Checklist Empilhadeira</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { touch-action: manipulation; -webkit-user-select: none; user-select: none; background-color: #f3f4f6; }
+        .btn-giant { transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s; }
+        .btn-giant:active { transform: scale(0.95); box-shadow: inset 0 4px 6px rgba(0,0,0,0.2); }
+        .mic-recording { animation: pulse-red 1.5s infinite; background-color: #ef4444 !important; color: white !important; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+<body class="h-[100dvh] flex flex-col font-sans overflow-hidden text-gray-800">
+
+    <!-- CABEÇALHO LARANJA COM LOGO -->
+    <header class="bg-orange-500 text-white p-3 shadow-md flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-2">
+            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="Logo Empresa" class="h-8 object-contain">
+        </div>
+        <div class="text-xs font-semibold bg-orange-700 px-3 py-1 rounded-full shadow-inner"><span id="progress-text">Início</span></div>
+    </header>
+
+    <div class="w-full bg-gray-200 h-1.5 shrink-0"><div id="progress-bar" class="bg-green-500 h-1.5 transition-all duration-300" style="width: 0%"></div></div>
+
+    <main id="app-container" class="flex-1 flex flex-col items-center justify-between p-4 overflow-y-auto w-full max-w-md mx-auto relative pb-6">
+    </main>
+
+    <script>
+        const checklistItems = [
+            { id: 'cilindros_elevacao', title: 'Cilindros de Elevação', question: 'Verifique os cilindros de elevação. Estão normais?', icon: 'fa-arrows-up-down' },
+            { id: 'cilindros_inclinacao', title: 'Cilindros de Inclinação', question: 'Verifique os cilindros de inclinação. Estão normais?', icon: 'fa-compress-arrows-alt' },
+            { id: 'mangueiras_conexoes', title: 'Mangueiras e Conexões', question: 'Como estão as mangueiras e as conexões?', icon: 'fa-bezier-curve' },
+            { id: 'estado_lanternas', title: 'Lanternas', question: 'As lanternas estão ligando e funcionando bem?', icon: 'fa-lightbulb' },
+            { id: 'buzina_sirene', title: 'Buzina e Sirene', question: 'A buzina e a sirene de ré estão apitando?', icon: 'fa-bullhorn' },
+            { id: 'funcionamento_painel', title: 'Painel', question: 'O painel acende e mostra os ponteiros certinhos?', icon: 'fa-gauge-high' },
+            { id: 'nivel_oleo_motor', title: 'Óleo do Motor', question: 'O nível do óleo do motor está correto?', icon: 'fa-eye-dropper' },
+            { id: 'vazamentos_motor_caixa', title: 'Motor e Caixa', question: 'Tem algum vazamento no motor ou na caixa?', icon: 'fa-oil-can' },
+            { id: 'nivel_arrefecimento', title: 'Água do Radiador', question: 'O nível do líquido de arrefecimento está correto?', icon: 'fa-temperature-half' },
+            { id: 'mangotes_agua', title: 'Mangotes de Água', question: 'Os mangotes de água estão ressecados ou furados?', icon: 'fa-water' },
+            { id: 'radiador', title: 'Radiador', question: 'O radiador está furado ou entupido?', icon: 'fa-snowflake' },
+            { id: 'freio_servico', title: 'Freio de Pé', question: 'O freio de serviço, o freio de pé, está funcionando bem?', icon: 'fa-shoe-prints' },
+            { id: 'freio_estacionamento', title: 'Freio de Mão', question: 'O freio de estacionamento, o freio de mão, está segurando?', icon: 'fa-parking' },
+            { id: 'parafusos_pneu', title: 'Parafusos do Pneu', question: 'Os parafusos do pneu estão todos no lugar e apertados?', icon: 'fa-wrench' },
+            { id: 'estado_pneus', title: 'Estado dos Pneus', question: 'Os pneus estão em bom estado, sem estarem carecas ou cortados?', icon: 'fa-circle-notch' },
+            { id: 'cilindros_direcao', title: 'Cilindros de Direção', question: 'Como estão os cilindros da direção?', icon: 'fa-steering-wheel' }
+        ];
+
+        let currentStepIndex = -1;
+        let formData = { empilhadeira: '', operador: '', horimetro: '' };
+        let observacoesList = [];
+        let synth = window.speechSynthesis;
+
+        // SEU LINK DO APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsKDmSXqeysqvLMiUWvPgZcv5taH4mt-olEJOqqNDuONjrCTxKqn5_xhWFxpS_mD7t7Q/exec"; 
+
+        const appContainer = document.getElementById('app-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        function updateProgress() {
+            let totalSteps = checklistItems.length + 3;
+            let current = 0;
+            if (currentStepIndex === -2) current = 1;
+            else if (currentStepIndex === -3) current = 2;
+            else if (currentStepIndex >= 0) current = currentStepIndex + 3;
+            else if (currentStepIndex === 99) current = totalSteps;
+
+            let percentage = (current / totalSteps) * 100;
+            progressBar.style.width = percentage + '%';
+            
+            if (currentStepIndex < 0) progressText.innerText = "Início";
+            else if (currentStepIndex >= 0 && currentStepIndex !== 99) progressText.innerText = `${currentStepIndex + 1} de ${checklistItems.length}`;
+            else progressText.innerText = "Finalizando";
+        }
+
+        function speakText(text) {
+            synth.cancel();
+            let utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.lang = 'pt-BR';
+            synth.speak(utterThis);
+        }
+
+        function goToStep(stepNumber) {
+            currentStepIndex = stepNumber;
+            updateProgress();
+            renderCurrentStep();
+        }
+
+        // --- SISTEMA DE NAVEGAÇÃO AVANÇAR E VOLTAR ---
+        function goBack() {
+            if (currentStepIndex === -1) return;
+            if (currentStepIndex === -2) goToStep(-1);
+            else if (currentStepIndex === -3) goToStep(-2);
+            else if (currentStepIndex === 0) goToStep(-3);
+            else if (currentStepIndex > 0 && currentStepIndex < checklistItems.length) goToStep(currentStepIndex - 1);
+            else if (currentStepIndex === 99) goToStep(checklistItems.length - 1);
+        }
+
+        function goNext() {
+            if (currentStepIndex === -1 && formData.empilhadeira) goToStep(-2);
+            else if (currentStepIndex === -2 && formData.operador) goToStep(-3);
+            else if (currentStepIndex === -3) {
+                if (!formData.horimetro) formData.horimetro = '0';
+                goToStep(0);
+            }
+            else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length - 1) {
+                if (formData[checklistItems[currentStepIndex].id]) goToStep(currentStepIndex + 1);
+            }
+            else if (currentStepIndex === checklistItems.length - 1) {
+                if (formData[checklistItems[currentStepIndex].id]) goToStep(99);
+            }
+        }
+
+        function renderNavButtons() {
+            if (currentStepIndex === 99) {
+                return `
+                <div class="w-full flex justify-start mt-4 shrink-0">
+                    <button onclick="goBack()" class="bg-gray-300 text-gray-700 py-3 px-6 rounded-xl font-bold shadow-sm active:bg-gray-400 flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </button>
+                </div>`;
+            }
+
+            let backDisabled = currentStepIndex === -1 ? 'opacity-50 cursor-not-allowed' : '';
+            let backAction = currentStepIndex === -1 ? '' : 'onclick="goBack()"';
+
+            let canAdvance = false;
+            if (currentStepIndex === -1 && formData.empilhadeira) canAdvance = true;
+            if (currentStepIndex === -2 && formData.operador) canAdvance = true;
+            if (currentStepIndex === -3 && formData.horimetro) canAdvance = true;
+            if (currentStepIndex >= 0 && formData[checklistItems[currentStepIndex].id]) canAdvance = true;
+
+            let nextDisabled = !canAdvance ? 'opacity-50 cursor-not-allowed' : '';
+            let nextAction = canAdvance ? 'onclick="goNext()"' : '';
+
+            return `
+                <div class="w-full flex justify-between gap-4 mt-4 shrink-0 border-t border-gray-200 pt-4">
+                    <button ${backAction} class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-xl font-bold shadow-sm active:bg-gray-400 transition-all flex items-center justify-center gap-2 ${backDisabled}">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </button>
+                    <button ${nextAction} class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold shadow-sm active:bg-orange-600 transition-all flex items-center justify-center gap-2 ${nextDisabled}">
+                        Avançar <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // Funções para apenas selecionar na tela (sem pular sozinho)
+        function selectEmpilhadeira(maq) { formData.empilhadeira = maq; renderCurrentStep(); }
+        function selectOperador(op) { formData.operador = op; renderCurrentStep(); }
+        function selectQuestion(id, val) { formData[id] = val; renderCurrentStep(); }
+
+        function renderCurrentStep() {
+            appContainer.innerHTML = '';
+
+            if (currentStepIndex === -1) {
+                const maquinas = ['ZOOMLION - FD70', 'ZOOMLION - FD35', 'CHLCPCD 70', 'CHINESA-T50A'];
+                appContainer.innerHTML = `
+                    <div class="w-full flex flex-col h-full items-center justify-between">
+                        <div class="w-full text-center mb-2 mt-2 shrink-0">
+                            <button onclick="speakText('Qual empilhadeira você vai usar agora?')" class="bg-orange-100 text-orange-700 p-4 rounded-full shadow-md active:bg-orange-300"><i class="fa-solid fa-volume-high text-3xl"></i></button>
+                        </div>
+                        <h2 class="text-xl font-bold mb-4 text-center shrink-0">Qual Empilhadeira?</h2>
+                        
+                        <div class="flex flex-col gap-3 w-full flex-1 justify-center">
+                            ${maquinas.map(maq => {
+                                const selecionado = formData.empilhadeira === maq;
+                                return `
+                                <button onclick="selectEmpilhadeira('${maq}')" class="btn-giant bg-white border-2 ${selecionado ? 'border-orange-500 bg-orange-50 ring-2 ring-orange-300 scale-[1.02]' : 'border-gray-300'} rounded-xl p-4 text-lg font-bold text-gray-700 flex items-center justify-between shadow-sm transition-all">
+                                    <span class="${selecionado ? 'text-orange-700' : ''}">${maq}</span>
+                                    <i class="fa-solid fa-truck text-${selecionado ? 'orange' : 'gray'}-500 text-2xl"></i>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                        ${renderNavButtons()}
+                    </div>
+                `;
+                if(!formData.empilhadeira) speakText('Qual empilhadeira você vai usar agora?');
+            } 
+            else if (currentStepIndex === -2) {
+                const operadores = ['Lázaro', 'Damião', 'João', 'Antônio'];
+                appContainer.innerHTML = `
+                    <div class="w-full flex flex-col h-full items-center justify-between">
+                        <div class="w-full text-center mb-2 mt-2 shrink-0">
+                            <button onclick="speakText('Quem é você? Aperte no seu nome.')" class="bg-orange-100 text-orange-700 p-4 rounded-full shadow-md active:bg-orange-300"><i class="fa-solid fa-volume-high text-3xl"></i></button>
+                        </div>
+                        <h2 class="text-xl font-bold mb-4 text-center shrink-0">Quem é você?</h2>
+                        
+                        <div class="grid grid-cols-2 gap-3 w-full flex-1 content-center">
+                            ${operadores.map(op => {
+                                const selecionado = formData.operador === op;
+                                return `
+                                <button onclick="selectOperador('${op}')" class="btn-giant bg-white border-2 ${selecionado ? 'border-orange-500 bg-orange-50 ring-2 ring-orange-300 scale-[1.05]' : 'border-gray-300'} rounded-xl p-3 flex flex-col items-center justify-center shadow-sm gap-2 transition-all">
+                                    <div class="${selecionado ? 'bg-orange-200' : 'bg-gray-200'} rounded-full w-12 h-12 flex items-center justify-center"><i class="fa-solid fa-user text-2xl ${selecionado ? 'text-orange-600' : 'text-gray-500'}"></i></div>
+                                    <span class="text-base font-bold ${selecionado ? 'text-orange-700' : ''}">${op}</span>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                        ${renderNavButtons()}
+                    </div>
+                `;
+                if(!formData.operador) speakText('Quem é você? Aperte no seu nome.');
+            }
+            else if (currentStepIndex === -3) {
+                appContainer.innerHTML = `
+                    <div class="w-full flex flex-col items-center h-full justify-between">
+                        <div class="w-full text-center mb-2 mt-2 shrink-0">
+                            <button onclick="speakText('Digite o número do horímetro que está no painel.')" class="bg-orange-100 text-orange-700 p-3 rounded-full shadow-md active:bg-orange-300"><i class="fa-solid fa-volume-high text-2xl"></i></button>
+                        </div>
+                        <h2 class="text-lg font-bold mb-2 text-center shrink-0">Horímetro</h2>
+                        
+                        <div class="flex-1 w-full flex flex-col items-center justify-center">
+                            <div class="w-full bg-white border-2 border-orange-400 h-12 rounded-xl flex items-center justify-center text-2xl font-bold text-gray-800 tracking-widest mb-3 shadow-inner" id="display-horimetro">${formData.horimetro || '0'}</div>
+                            <div class="grid grid-cols-3 gap-2 w-full max-w-[280px]">
+                                <button onclick="typeNum(1)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">1</button>
+                                <button onclick="typeNum(2)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">2</button>
+                                <button onclick="typeNum(3)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">3</button>
+                                <button onclick="typeNum(4)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">4</button>
+                                <button onclick="typeNum(5)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">5</button>
+                                <button onclick="typeNum(6)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">6</button>
+                                <button onclick="typeNum(7)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">7</button>
+                                <button onclick="typeNum(8)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">8</button>
+                                <button onclick="typeNum(9)" class="btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">9</button>
+                                <button onclick="clearNum()" class="btn-giant bg-red-100 text-red-600 border border-red-300 rounded-lg py-3 text-lg font-bold shadow-sm"><i class="fa-solid fa-delete-left"></i></button>
+                                <button onclick="typeNum(0)" class="col-span-2 btn-giant bg-white border border-gray-300 rounded-lg py-3 text-xl font-bold shadow-sm">0</button>
+                            </div>
+                        </div>
+                        ${renderNavButtons()}
+                    </div>
+                `;
+                if(!formData.horimetro) speakText('Digite o número do horímetro que está no painel.');
+            }
+            else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length) {
+                const item = checklistItems[currentStepIndex];
+                const val = formData[item.id];
+                const okSelected = val === 'CONFORME';
+                const nokSelected = val === 'NÃO CONFORME';
+
+                appContainer.innerHTML = `
+                    <div class="w-full flex flex-col h-full items-center justify-between">
+                        <div class="w-full text-center mt-2 mb-2 shrink-0">
+                            <button onclick="speakText('${item.question}')" class="bg-orange-100 text-orange-700 p-4 rounded-full shadow-lg active:bg-orange-300 transform transition"><i class="fa-solid fa-volume-high text-4xl"></i></button>
+                        </div>
+                        <div class="text-center flex-1 flex flex-col justify-center my-2">
+                            <i class="fa-solid ${item.icon} text-5xl text-gray-400 mb-3"></i>
+                            <h2 class="text-2xl font-extrabold text-gray-800 leading-tight">${item.title}</h2>
+                        </div>
+                        <div class="w-full flex flex-col gap-3 shrink-0 pb-2">
+                            <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-giant ${okSelected ? 'bg-green-600 ring-4 ring-green-300 scale-105 shadow-xl' : 'bg-green-500'} text-white rounded-xl p-5 text-xl font-bold shadow-md flex items-center justify-center gap-3 transition-all">
+                                <i class="fa-solid fa-circle-check text-3xl"></i> <span>Tudo Certo (OK)</span>
+                            </button>
+                            <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-giant ${nokSelected ? 'bg-red-600 ring-4 ring-red-300 scale-105 shadow-xl' : 'bg-red-500'} text-white rounded-xl p-5 text-xl font-bold shadow-md flex items-center justify-center gap-3 transition-all">
+                                <i class="fa-solid fa-triangle-exclamation text-3xl"></i> <span>Problema</span>
+                            </button>
+                        </div>
+                        ${renderNavButtons()}
+                    </div>
+                `;
+                // Fala só se não foi selecionada ainda (para não falar toda vez que ele volta na tela)
+                if(!val) speakText(item.question);
+            }
+            else if (currentStepIndex === 99) {
+                appContainer.innerHTML = `
+                    <div class="w-full flex flex-col h-full">
+                        <div class="text-center mb-2 mt-2 shrink-0">
+                            <i class="fa-solid fa-clipboard-check text-3xl text-green-500 mb-1"></i>
+                            <h2 class="text-xl font-extrabold text-gray-800">Observações (Até 5)</h2>
+                        </div>
+
+                        <div id="obs-list" class="w-full flex flex-col gap-2 mb-2 overflow-y-auto flex-1">
+                            ${renderObservacoes()}
+                        </div>
+
+                        <div class="shrink-0 w-full flex flex-col border-t border-gray-200 pt-3">
+                            ${observacoesList.length < 5 ? `
+                                <div class="w-full flex flex-col items-center bg-white p-3 rounded-xl shadow-sm mb-3 border border-gray-200">
+                                    <button id="btn-mic" onclick="toggleRecording()" class="btn-giant bg-gray-100 text-gray-700 w-16 h-16 rounded-full shadow-inner flex items-center justify-center border-2 border-gray-300 mb-1 transition-colors">
+                                        <i id="mic-icon" class="fa-solid fa-microphone text-2xl"></i>
+                                    </button>
+                                    <p id="mic-status" class="text-xs font-bold text-gray-500 text-center">Aperte para gravar um áudio</p>
+                                </div>
+                            ` : `<p class="text-red-500 text-xs font-bold mb-3 text-center">Você já gravou 5 áudios.</p>`}
+
+                            <button onclick="submitChecklist()" id="btn-enviar" class="w-full btn-giant bg-orange-600 text-white rounded-xl p-4 text-lg font-bold shadow-lg flex items-center justify-center gap-2 mb-2">
+                                <i class="fa-solid fa-paper-plane"></i> <span>Enviar Relatório</span>
+                            </button>
+                            ${renderNavButtons()}
+                        </div>
+                    </div>
+                `;
+                
+                if (observacoesList.length === 0 && !isRecording) {
+                    speakText("Quase lá! Se quiser avisar sobre problemas, aperte o microfone, grave, e depois aperte para parar.");
+                }
+            }
+        }
+
+        function typeNum(num) {
+            if (formData.horimetro === '0') formData.horimetro = '';
+            formData.horimetro += num.toString();
+            renderCurrentStep();
+        }
+        function clearNum() {
+            formData.horimetro = formData.horimetro.slice(0, -1);
+            if (formData.horimetro === '') formData.horimetro = '0';
+            renderCurrentStep();
+        }
+
+        // --- SISTEMA DE GRAVAÇÃO COM CORREÇÃO MOBILE ROBUSTA ---
+        let isRecording = false;
+        let mediaRecorder = null;
+        let recognition = null;
+        let audioChunks = [];
+        let tempTranscript = "";
+        let tempInterim = "";
+
+        function toggleRecording() {
+            if (isRecording) stopRecording();
+            else startRecording();
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                tempTranscript = "";
+                tempInterim = "";
+                isRecording = true;
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+                    recognition.lang = 'pt-BR';
+                    
+                    recognition.onresult = (event) => {
+                        if (!isRecording) return; 
+
+                        let interim = '';
+                        let final = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                final += event.results[i][0].transcript + " ";
+                            } else {
+                                interim += event.results[i][0].transcript;
+                            }
+                        }
+                        tempTranscript += final;
+                        tempInterim = interim; 
+                        
+                        let displayTxt = (tempTranscript + tempInterim).trim();
+                        if(displayTxt.length > 30) displayTxt = displayTxt.substring(0, 30) + "...";
+                        
+                        const micStatusEl = document.getElementById('mic-status');
+                        if (micStatusEl) {
+                            micStatusEl.innerText = displayTxt || "Ouvindo...";
+                        }
+                    };
+
+                    recognition.onerror = (e) => {
+                        console.log("Erro de fala temporário: ", e.error);
+                    };
+
+                    recognition.onend = () => {
+                        if (isRecording) {
+                            try { recognition.start(); } catch(e) {}
+                        }
+                    };
+
+                    try { recognition.start(); } catch(e) {}
+                }
+
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+                
+                mediaRecorder.onstop = () => {
+                    let mimeType = mediaRecorder.mimeType;
+                    if (!mimeType) mimeType = 'audio/mp4'; 
+                    
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = () => {
+                        let textoCapturado = (tempTranscript + " " + tempInterim).trim();
+                        if (textoCapturado === "") textoCapturado = "Apenas áudio gravado (Voz não reconhecida pelo celular).";
+
+                        observacoesList.push({
+                            text: textoCapturado,
+                            audioBase64: reader.result
+                        });
+                        renderCurrentStep();
+                    };
+                };
+
+                mediaRecorder.start(200);
+                
+                const btnMicEl = document.getElementById('btn-mic');
+                const micIconEl = document.getElementById('mic-icon');
+                const micStatusEl = document.getElementById('mic-status');
+                
+                if (btnMicEl) btnMicEl.classList.add('mic-recording');
+                if (micIconEl) micIconEl.classList.replace('fa-microphone', 'fa-stop');
+                if (micStatusEl) {
+                    micStatusEl.innerText = "Ouvindo... Aperte p/ parar";
+                    micStatusEl.classList.replace('text-gray-500', 'text-red-500');
+                }
+
+            } catch (err) {
+                alert("Para gravar áudio, o celular precisa permitir o acesso ao microfone.");
+            }
+        }
+
+        function stopRecording() {
+            isRecording = false; 
+            
+            if (recognition) {
+                recognition.onend = null;
+                recognition.onresult = null; 
+                try { recognition.stop(); } catch(e){}
+            }
+            
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            
+            const micStatusEl = document.getElementById('mic-status');
+            if (micStatusEl) {
+                micStatusEl.innerText = "Processando áudio...";
+            }
+        }
+
+        function removerObservacao(index) {
+            observacoesList.splice(index, 1);
+            renderCurrentStep();
+        }
+        function updateObsText(index, val) {
+            observacoesList[index].text = val;
+        }
+
+        function renderObservacoes() {
+            if(observacoesList.length === 0) return '';
+            return observacoesList.map((obs, index) => `
+                <div class="bg-gray-50 border border-gray-300 rounded-xl p-2 flex flex-col gap-1 relative shadow-sm shrink-0">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-sm text-orange-700">Observação ${index + 1}</span>
+                        <button onclick="removerObservacao(${index})" class="text-red-500 p-1 text-lg"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                    <textarea onchange="updateObsText(${index}, this.value)" class="w-full bg-white border border-gray-200 rounded p-1.5 text-xs text-gray-700" rows="2">${obs.text}</textarea>
+                    <audio controls src="${obs.audioBase64}" class="h-8 w-full mt-1 rounded"></audio>
+                </div>
+            `).join('');
+        }
+
+        function submitChecklist() {
+            const btnEnviar = document.getElementById('btn-enviar');
+            btnEnviar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Salvando...</span>';
+            btnEnviar.disabled = true;
+
+            for(let i=0; i<5; i++) {
+                formData[`obs${i+1}_texto`] = observacoesList[i] ? observacoesList[i].text : "";
+                formData[`obs${i+1}_audio`] = observacoesList[i] ? observacoesList[i].audioBase64 : "";
+            }
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(formData)
+            }).then(() => {
+                appContainer.innerHTML = `
+                    <div class="text-center w-full mt-10">
+                        <i class="fa-solid fa-circle-check text-6xl text-green-500 mb-4 drop-shadow-md"></i>
+                        <h2 class="text-3xl font-extrabold text-gray-800 mb-3">Enviado!</h2>
+                        <p class="text-lg text-gray-600 mb-8">Relatório salvo na planilha.</p>
+                        <button onclick="goToStep(-1)" class="bg-orange-600 text-white rounded-xl py-4 px-8 text-xl font-bold shadow-lg w-full max-w-[250px] mx-auto block">
+                            Fazer Novo
+                        </button>
+                    </div>
+                `;
+                progressText.innerText = "Concluído";
+                progressBar.style.width = '100%';
+                speakText("Tudo pronto! Relatório enviado com sucesso.");
+            }).catch(error => {
+                alert("Erro ao enviar. Verifique a internet e tente novamente.");
+                btnEnviar.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>Tentar Novamente</span>';
+                btnEnviar.disabled = false;
+            });
+        }
+
+        goToStep(-1);
+    </script>
+</body>
+</html>

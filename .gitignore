@@ -1,0 +1,35 @@
+# RTK
+rtk-x86_64-pc-windows-msvc*
+
+# Google Cloud Skills e manifestos
+.agents/
+.datacloud_skills_manifest
+accidental-data-loss-prevention/
+bigquery-*/
+building-data-apps/
+data-autocleaning/
+dataform-bigquery/
+dbt-bigquery/
+discovering-gcp-data-assets/
+enforcing-resource-attribution/
+federate-lakehouse-catalog/
+gcp-*/
+gcs-security-assessment/
+google-cloud-*/
+managing-python-dependencies/
+ml-best-practices/
+notebook-guidance/
+schema-mapping/
+skill-repair/
+
+# Sistema Operacional e IDE
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# Logs e temporários
+*.log
+*.tmp
