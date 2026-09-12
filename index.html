@@ -1558,17 +1558,36 @@
 
         function renderizarAbaAtualGestor() {
             const container = document.getElementById('gestor-conteudo');
+            // Keep the search controls mounted while updating results.
+            const buscaAtiva = container.contains(document.activeElement) && document.activeElement.matches('input[data-busca]');
+            const destino = buscaAtiva ? document.createElement('div') : container;
             if (abaAtualGestor === 'dashboard') {
-                renderAbaDashboard(container);
+                renderAbaDashboard(destino);
             } else if (abaAtualGestor === 'checklists') {
-                renderAbaChecklists(container);
+                renderAbaChecklists(destino);
             } else if (abaAtualGestor === 'kanban') {
-                renderAbaKanban(container);
+                renderAbaKanban(destino);
             } else if (abaAtualGestor === 'maquinas') {
-                renderAbaMaquinas(container);
+                renderAbaMaquinas(destino);
             } else if (abaAtualGestor === 'chamados') {
-                renderAbaChamados(container);
+                renderAbaChamados(destino);
             }
+            if (buscaAtiva) {
+                const atual = container.firstElementChild;
+                const novo = destino.firstElementChild;
+                while (atual.children.length > 1) atual.lastElementChild.remove();
+                while (novo.children.length > 1) atual.append(novo.children[1]);
+                const contagem = container.querySelector('[data-contagem]');
+                if (contagem) contagem.replaceChildren(...destino.querySelector('[data-contagem]').childNodes);
+            }
+        }
+
+        function normalizarBusca(valor) {
+            return String(valor ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
+        }
+
+        function escaparHTML(valor) {
+            return String(valor ?? '').replace(/[&<>"']/g, caractere => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[caractere]));
         }
 
         // ==================== ABA 1: INDICADORES COM MULTI-FILTRO ====================
@@ -1799,10 +1818,10 @@
                 if (filtroChecklist.status === 'ok' && c.tem_problema) return false;
                 if (filtroChecklist.status === 'nok' && !c.tem_problema) return false;
                 if (filtroChecklist.busca) {
-                    const q = filtroChecklist.busca.toLowerCase();
-                    const matchOp = (c.operador || '').toLowerCase().includes(q);
-                    const matchEq = (c.empilhadeira || '').toLowerCase().includes(q);
-                    const matchObs = (c.observacao_texto || c.resumo_ia || '').toLowerCase().includes(q);
+                    const q = normalizarBusca(filtroChecklist.busca);
+                    const matchOp = normalizarBusca(c.operador).includes(q);
+                    const matchEq = normalizarBusca(c.empilhadeira).includes(q);
+                    const matchObs = normalizarBusca([c.observacao_texto, c.resumo_ia].filter(Boolean).join(' ')).includes(q);
                     if (!matchOp && !matchEq && !matchObs) return false;
                 }
                 return true;
@@ -1845,11 +1864,11 @@
                             <!-- Busca Textual -->
                             <div class="relative flex-1 min-w-[160px]">
                                 <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-slate-500"></i>
-                                <input type="text" placeholder="Filtrar operador, defeito..." value="${filtroChecklist.busca}" oninput="filtroChecklist.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
+                                <input type="text" data-busca="checklists" aria-label="Buscar checklists por operador, equipamento ou observação" placeholder="Operador, equipamento ou observação" value="${escaparHTML(filtroChecklist.busca)}" oninput="filtroChecklist.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
                             </div>
                         </div>
 
-                        <div class="text-[11px] text-slate-400 font-mono-num font-bold">
+                        <div data-contagem aria-live="polite" class="text-[11px] text-slate-400 font-mono-num font-bold">
                             Exibindo <span class="text-white">${filtrados.length}</span> registros
                         </div>
                     </div>
@@ -2113,11 +2132,9 @@
                 if (filtroFrota.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroFrota.categoria) return false;
                 if (filtroFrota.unidade !== 'todas' && m.unidade !== filtroFrota.unidade) return false;
                 if (filtroFrota.busca) {
-                    const q = filtroFrota.busca.toLowerCase();
-                    const matchCod = (m.codigo || '').toLowerCase().includes(q);
-                    const matchNom = (m.nome || '').toLowerCase().includes(q);
-                    const matchPlaca = (m.placa || '').toLowerCase().includes(q);
-                    if (!matchCod && !matchNom && !matchPlaca) return false;
+                    const q = normalizarBusca(filtroFrota.busca);
+                    const texto = normalizarBusca([m.codigo, m.nome, m.placa, m.modelo, m.marca].filter(Boolean).join(' '));
+                    if (!texto.includes(q)) return false;
                 }
                 return true;
             });
@@ -2144,11 +2161,11 @@
                             <!-- Busca por código ou placa -->
                             <div class="relative flex-1 min-w-[160px]">
                                 <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-slate-500"></i>
-                                <input type="text" placeholder="Buscar código, placa, modelo..." value="${filtroFrota.busca}" oninput="filtroFrota.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
+                                <input type="text" data-busca="frota" aria-label="Buscar frota por código, placa, modelo ou marca" placeholder="Código, placa, modelo ou marca" value="${escaparHTML(filtroFrota.busca)}" oninput="filtroFrota.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
                             </div>
                         </div>
 
-                        <div class="text-[11px] text-slate-400 font-mono-num font-bold">
+                        <div data-contagem aria-live="polite" class="text-[11px] text-slate-400 font-mono-num font-bold">
                             Total: <span class="text-white">${lista.length}</span> ativos
                         </div>
                     </div>
@@ -2533,7 +2550,7 @@
 
         // ==================== ABA 5: CHAMADOS SOS ====================
         function renderAbaChamados(container) {
-            const chamados = cacheGestor.chamados;
+            const chamados = [...cacheGestor.chamados].sort((a, b) => Number(b.status === 'pendente') - Number(a.status === 'pendente'));
             container.innerHTML = `
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
@@ -2556,16 +2573,16 @@
                                 </div>
 
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <button onclick="resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition">
+                                    ${c.status === 'pendente' ? `<button onclick="resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition">
                                         <i class="fa-solid fa-check mr-1"></i> Concluir Reparo
-                                    </button>
+                                    </button>` : `<span class="text-emerald-400 text-xs font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> ${c.status === 'resolvido' ? 'Resolvido' : escaparHTML(c.status || 'Sem status')}</span>`}
                                 </div>
                             </div>
                         `).join('') : `
                             <div class="p-8 text-center text-slate-500 bg-slate-900 rounded-xl border border-slate-800">
                                 <i class="fa-solid fa-shield-cat text-3xl mb-2 text-emerald-400"></i>
-                                <p class="text-xs font-bold text-slate-300">Nenhum chamado de emergência ativo.</p>
-                                <p class="text-[11px] text-slate-500">Todas as empilhadeiras e veículos operando normalmente.</p>
+                                <p class="text-xs font-bold text-slate-300">Nenhum chamado de emergência encontrado.</p>
+                                <p class="text-[11px] text-slate-500">Consulte Manutenções para acompanhar as ordens de serviço.</p>
                             </div>
                         `}
                     </div>

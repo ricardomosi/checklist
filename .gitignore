@@ -34,3 +34,9 @@ Desktop.ini
 *.log
 *.tmp
 skills-lock.json
+
+# Sessões locais de escolha visual e evidências de revisão
+.impeccable/decision.json
+.impeccable/questions/
+.impeccable/mocks/
+.impeccable/review/
