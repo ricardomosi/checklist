@@ -2,7 +2,7 @@
 
 ## Escopo e direção confirmados
 
-Interface clara e profissional para gestores; prioridade em pendências críticas e manutenção, seguida de histórico e frota. Preservar fluxo de operador e controles grandes. Inspeção realizada no navegador local em 1280 × 720, nas abas Indicadores, Checklists, Manutenções e Frotas. Esta é a análise inicial: o redesign e a validação responsiva ainda não estão concluídos.
+Interface clara e profissional para gestores; prioridade em pendências críticas e manutenção, seguida de histórico e frota. Preservar fluxo de operador e controles grandes. Análise inicial em 1280 × 720; implementação direta autorizada pelo usuário e validação em desktop e celular realizadas em 13/09/2026.
 
 ## Problemas encontrados
 
@@ -24,6 +24,16 @@ Busca contínua sem remontar o campo, normalização de acentos, inclusão de mo
 
 Verificação: sintaxe JavaScript válida; digitação contínua no navegador manteve foco em ambos os filtros; “eletrica” retornou os dois modelos Elétrica e “damiao” retornou registros de Damião. Revisão independente do diff funcional sem bloqueadores. Não foram realizadas gravações de registros de teste no Supabase.
 
-## Próxima implementação
+## Implementação visual
 
-Aplicar a direção visual escolhida na Impeccable: tema claro, navegação legível, rótulos dos filtros, reset dos filtros, escala de texto ajustável e cores semânticas. Validar todas as abas e modais em desktop e celular. A escolha entre implementação direta e composição visual prévia permanece pendente.
+Tema claro aplicado ao operador, gestor e modais. Menu lateral em desktop e faixa rolável no celular; Manutenções abre por padrão. Ordens urgentes vêm primeiro dentro da etapa. Resumo de urgências e acesso ao SOS ficam acima do quadro.
+
+Tipografia de interface com escala em rem, botão A+ persistente, zoom liberado, foco visível, cartões de frota acionáveis por teclado e redução de movimento conforme preferência do dispositivo. Filtros de histórico e frota receberam rótulos e ação de limpeza. Calendário mantém dias legíveis com rolagem horizontal própria no celular.
+
+Troca de abas usa o cache carregado; Atualizar refaz as consultas. Erros retornados pelo banco agora aparecem com opção de tentar novamente. Indicadores sem restrição incluem todo o histórico carregado, inclusive nomes antigos, e ausência de checklists não aparece como 100% de conformidade.
+
+Verificações: JavaScript analisado pelo Node, acesso por PIN, navegação, Kanban/calendário, filtros e reset, buscas sem acento, aumento/restauração de texto e abertura do perfil técnico. Capturas locais em .impeccable/review/. Nenhuma operação de gravação no Supabase foi usada para teste.
+
+## Melhorias futuras identificadas
+
+Mapear nomes históricos a IDs de equipamento para filtros específicos confiáveis; ampliar/paginar o histórico além dos limites de consulta existentes; tornar autorizações de gestores independentes do PIN no frontend; testar sincronização offline com falhas parciais antes de expandir esse fluxo. Esses itens exigem trabalho de dados/backend além da reformulação visual.
