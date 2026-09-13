@@ -202,40 +202,278 @@
         </section>
     </main>
 
-    <!-- ==================== MODAL DE PIN DO GESTOR (TECLADO FÍSICO + ON-SCREEN) ==================== -->
-    <div id="modal-pin-gestor" class="fixed inset-0 bg-black/80  z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-300 rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center text-slate-900 relative">
-            <div class="w-12 h-12 bg-orange-500/20 text-orange-700 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl border border-orange-500/30">
+    <!-- ==================== MODAL DE PIN DO GESTOR (APENAS TECLADO FÍSICO) ==================== -->
+    <div id="modal-pin-gestor" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-sm p-6 sm:p-7 shadow-2xl text-center text-slate-900" onclick="event.stopPropagation()">
+            <div class="w-14 h-14 bg-orange-50 text-orange-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-orange-200 shadow-inner">
                 <i class="fa-solid fa-lock"></i>
             </div>
-            <h3 class="text-lg font-bold mb-0.5">Acesso de Gestão</h3>
-            <p class="text-xs text-slate-600 mb-3">Digite a senha PIN de 4 dígitos no teclado físico ou toque abaixo:</p>
+            <h3 class="text-xl font-bold text-slate-900 mb-1">Acesso de Gestão</h3>
+            <p class="text-xs text-slate-600 mb-5">Digite a senha PIN de 4 dígitos diretamente no teclado:</p>
             
-            <!-- Input invisível para capturar teclado físico de forma 100% confiável -->
-            <input type="password" id="input-pin-fisico" maxlength="4" class="absolute opacity-0 pointer-events-none" autocomplete="off">
-
-            <div id="pin-display" class="bg-slate-50 border-2 border-orange-500 h-11 rounded-xl flex items-center justify-center text-2xl tracking-[0.5em] font-mono-num font-bold mb-3.5 shadow-inner cursor-pointer" onclick="focarPinFisico()">
-                ----
+            <div class="max-w-[220px] mx-auto mb-4">
+                <input type="password" id="input-pin-fisico" maxlength="4" inputmode="numeric" placeholder="••••" autocomplete="off"
+                    class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 rounded-xl h-14 text-center text-3xl font-mono-num font-bold tracking-[0.5em] text-slate-900 focus:outline-none focus:ring-4 focus:ring-orange-100 transition shadow-inner">
+                <p id="pin-erro-msg" class="text-red-600 text-xs font-bold mt-2 hidden">PIN incorreto. Tente novamente.</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 max-w-[230px] mx-auto mb-3">
-                <button onclick="digitarPin('1')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">1</button>
-                <button onclick="digitarPin('2')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">2</button>
-                <button onclick="digitarPin('3')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">3</button>
-                <button onclick="digitarPin('4')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">4</button>
-                <button onclick="digitarPin('5')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">5</button>
-                <button onclick="digitarPin('6')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">6</button>
-                <button onclick="digitarPin('7')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">7</button>
-                <button onclick="digitarPin('8')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">8</button>
-                <button onclick="digitarPin('9')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">9</button>
-                <button onclick="limparPin()" class="btn-industrial bg-red-500/20 text-red-700 border border-red-500/30 rounded-xl py-2.5 text-base font-bold"><i class="fa-solid fa-delete-left"></i></button>
-                <button onclick="digitarPin('0')" class="btn-industrial bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl py-2.5 text-xl font-bold font-mono-num">0</button>
-                <button onclick="confirmarPin()" class="btn-industrial bg-emerald-600 hover:bg-emerald-500 text-slate-900 rounded-xl py-2.5 text-base font-bold"><i class="fa-solid fa-check"></i></button>
+            <div class="flex gap-2.5 max-w-[220px] mx-auto mb-2">
+                <button type="button" onclick="fecharModalPinGestor()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition border border-slate-300">
+                    Cancelar
+                </button>
+                <button type="button" onclick="confirmarPin()" class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
+                    Entrar
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3">Dica: use <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">Enter</kbd> para confirmar ou <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">Esc</kbd> para fechar</p>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE EVENTOS DO DIA (CALENDÁRIO) ==================== -->
+    <div id="modal-detalhes-dia" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Cabeçalho do Dia -->
+            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <h3 id="detalhes-dia-titulo" class="text-base sm:text-lg font-bold text-slate-900">12 de Setembro de 2026</h3>
+                        <p id="detalhes-dia-subtitulo" class="text-xs text-slate-500 font-medium">Resumo operacional e manutenções programadas</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirAgendamentoParaDia()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Agendar</span> Manutenção
+                    </button>
+                    <button onclick="fecharModalDetalhesDia()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
-            <button onclick="fecharModalPinGestor()" class="text-xs text-slate-600 hover:text-slate-900 font-medium py-1">
-                Cancelar e Voltar
-            </button>
+            <!-- Conteúdo com Manutenções, Checklists e SOS -->
+            <div id="detalhes-dia-conteudo" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4">
+                <!-- Preenchido via JavaScript -->
+            </div>
+
+            <!-- Rodapé com atalhos de navegação rápida -->
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                <div class="flex gap-2">
+                    <button onclick="navegarDoDiaPara('kanban')" class="text-xs text-slate-600 hover:text-orange-700 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-table-columns"></i> Ver Quadro Kanban
+                    </button>
+                    <span class="text-slate-300">•</span>
+                    <button onclick="navegarDoDiaPara('checklists')" class="text-xs text-slate-600 hover:text-orange-700 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-clipboard-check"></i> Ver Tabela de Checklists
+                    </button>
+                </div>
+                <button onclick="fecharModalDetalhesDia()" class="text-xs font-semibold text-slate-500 hover:text-slate-800">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE AGENDAMENTO DE MANUTENÇÃO (MÁQUINA OU VEÍCULO) ==================== -->
+    <div id="modal-agendar-dia" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Agendar Manutenção no Calendário</h3>
+                        <p class="text-xs text-slate-500">Programar intervenção para máquina ou veículo</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalAgendarDia()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-3.5">
+                <div>
+                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Equipamento (Máquina ou Veículo)</label>
+                    <select id="agendar-equipamento-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-orange-500">
+                        <!-- Preenchido via JS -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Data Programada</label>
+                        <input type="date" id="agendar-data-input" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-mono-num text-slate-900 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Tipo de Intervenção</label>
+                        <select id="agendar-tipo-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                            <option value="preventiva">Preventiva Periódica</option>
+                            <option value="corretiva">Corretiva / Reparo</option>
+                            <option value="troca_oleo">Troca de Óleo e Filtros</option>
+                            <option value="revisao_geral">Revisão Geral 5S</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Prioridade</label>
+                        <select id="agendar-prioridade-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                            <option value="baixa">Baixa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Mecânico Responsável</label>
+                        <input type="text" id="agendar-mecanico-input" placeholder="Ex: Equipe de Manutenção" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Título da Ordem / Serviço</label>
+                    <input type="text" id="agendar-titulo-input" placeholder="Ex: Troca de mangueiras de elevação e filtros" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Observações Técnicas / Peças Necessárias</label>
+                    <textarea id="agendar-obs-textarea" rows="2" placeholder="Descreva os detalhes e peças necessárias..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500"></textarea>
+                </div>
+            </div>
+
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-2 shrink-0">
+                <button onclick="fecharModalAgendarDia()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition border border-slate-300">
+                    Cancelar
+                </button>
+                <button onclick="salvarAgendamentoDia()" class="btn-industrial px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> Gravar no Calendário
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE DETALHES DA O.S. / MANUTENÇÃO ==================== -->
+    <div id="modal-detalhes-os" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Cabeçalho -->
+            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-wrench"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="os-modal-num" class="text-base font-bold text-slate-900">O.S. #00</h3>
+                            <span id="os-modal-prioridade" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded">ALTA</span>
+                            <span id="os-modal-tipo" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">CORRETIVA</span>
+                        </div>
+                        <p id="os-modal-titulo" class="text-xs text-slate-600 font-medium truncate max-w-xs sm:max-w-md">Título do reparo</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalDetalhesOS()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Corpo dos detalhes -->
+            <div id="os-modal-corpo" class="p-5 overflow-y-auto flex-1 space-y-4 text-xs">
+                <!-- Preenchido via JavaScript -->
+            </div>
+
+            <!-- Rodapé com ações e seletor de status -->
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                <div class="flex items-center gap-2">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase">Mover Etapa:</label>
+                    <select id="os-modal-select-status" onchange="atualizarStatusOSModal(this.value)" class="bg-white border border-slate-300 text-xs font-semibold rounded-lg p-1.5 focus:outline-none">
+                        <option value="pendente">Pendente / Solicitado</option>
+                        <option value="analise_pecas">Análise de Peças</option>
+                        <option value="em_manutencao">Em Manutenção</option>
+                        <option value="concluido">Concluído</option>
+                    </select>
+                </div>
+                <button onclick="fecharModalDetalhesOS()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE DETALHES DO CHAMADO SOS ==================== -->
+    <div id="modal-detalhes-sos" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="p-4 px-5 border-b border-red-200 flex justify-between items-center shrink-0 bg-red-50">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="sos-modal-maq" class="text-base font-bold text-slate-900">JHC-01</h3>
+                            <span id="sos-modal-gravidade" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-red-200 text-red-800">CRÍTICA</span>
+                            <span id="sos-modal-status-badge" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded">PENDENTE</span>
+                        </div>
+                        <p id="sos-modal-operador" class="text-xs text-slate-600">Operador: Damião</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalDetalhesSOS()" class="w-8 h-8 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="sos-modal-corpo" class="p-5 overflow-y-auto flex-1 space-y-3.5 text-xs">
+                <!-- Preenchido via JavaScript -->
+            </div>
+
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-between items-center gap-2 shrink-0">
+                <span id="sos-modal-data-rodape" class="text-[11px] font-mono-num text-slate-500">12/09/2026 às 13:07:31</span>
+                <div id="sos-modal-acoes">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE DETALHES COMPLETOS DO CHECKLIST ==================== -->
+    <div id="modal-detalhes-checklist" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Cabeçalho -->
+            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div id="chk-modal-icon-wrap" class="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">
+                        <i id="chk-modal-icon" class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="chk-modal-equip" class="text-base sm:text-lg font-bold font-mono-num text-slate-900">CLA-RCK1</h3>
+                            <span id="chk-modal-unidade" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 font-mono-num">FILIAL</span>
+                            <span id="chk-modal-status-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-md">CONFORME</span>
+                        </div>
+                        <p id="chk-modal-meta" class="text-xs text-slate-500 font-medium">Operador: Damião • 12/09/2026 às 10:15 • Horímetro: 555 h</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalDetalhesChecklist()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Corpo com Resumo de Perguntas, Defeitos, Observação e Áudio -->
+            <div id="chk-modal-corpo" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4">
+                <!-- Preenchido via JavaScript -->
+            </div>
+
+            <!-- Rodapé -->
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-between items-center gap-2 shrink-0">
+                <div id="chk-modal-os-link">
+                    <!-- Link para O.S. se houver -->
+                </div>
+                <button onclick="fecharModalDetalhesChecklist()" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
+                    Fechar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1377,82 +1615,77 @@
             localStorage.removeItem('checklists_offline_fila');
         }
 
-        // ==================== PIN DO GESTOR (TECLADO FÍSICO + ON-SCREEN) ====================
-        let pinDigitado = '';
-
+        // ==================== PIN DO GESTOR (APENAS TECLADO FÍSICO) ====================
         function abrirModalPinGestor() {
-            pinDigitado = '';
-            atualizarDisplayPin();
-            document.getElementById('modal-pin-gestor').classList.remove('hidden');
-            focarPinFisico();
-        }
-
-        function focarPinFisico() {
+            const modal = document.getElementById('modal-pin-gestor');
             const inp = document.getElementById('input-pin-fisico');
+            const err = document.getElementById('pin-erro-msg');
+            if (err) err.classList.add('hidden');
+            if (modal) modal.classList.remove('hidden');
             if (inp) {
                 inp.value = '';
-                inp.focus();
+                setTimeout(() => inp.focus(), 60);
             }
         }
 
         function fecharModalPinGestor() {
-            document.getElementById('modal-pin-gestor').classList.add('hidden');
-            pinDigitado = '';
+            const modal = document.getElementById('modal-pin-gestor');
+            if (modal) modal.classList.add('hidden');
+            const inp = document.getElementById('input-pin-fisico');
+            if (inp) inp.value = '';
         }
 
-        function digitarPin(digito) {
-            if (pinDigitado.length < 4) {
-                pinDigitado += digito;
-                atualizarDisplayPin();
-                if (pinDigitado.length === 4) {
-                    setTimeout(confirmarPin, 150);
+        function confirmarPin() {
+            const inp = document.getElementById('input-pin-fisico');
+            const err = document.getElementById('pin-erro-msg');
+            const val = inp ? inp.value.trim() : '';
+            if (val === "1234") {
+                fecharModalPinGestor();
+                ativarModoGestor();
+            } else {
+                if (err) err.classList.remove('hidden');
+                if (inp) {
+                    inp.value = '';
+                    inp.classList.add('border-red-500', 'ring-4', 'ring-red-200');
+                    setTimeout(() => inp.classList.remove('border-red-500', 'ring-4', 'ring-red-200'), 1500);
+                    inp.focus();
                 }
             }
         }
 
-        function limparPin() {
-            pinDigitado = pinDigitado.slice(0, -1);
-            atualizarDisplayPin();
-        }
-
-        function atualizarDisplayPin() {
-            const display = document.getElementById('pin-display');
-            if (!display) return;
-            let str = '';
-            for (let i = 0; i < 4; i++) {
-                str += i < pinDigitado.length ? '● ' : '- ';
+        // Teclado físico no campo de PIN
+        document.addEventListener('DOMContentLoaded', () => {
+            const inp = document.getElementById('input-pin-fisico');
+            if (inp) {
+                inp.addEventListener('input', () => {
+                    if (inp.value.length === 4) {
+                        confirmarPin();
+                    }
+                });
+                inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        confirmarPin();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        fecharModalPinGestor();
+                    }
+                });
             }
-            display.innerText = str.trim();
-        }
+        });
 
-        function confirmarPin() {
-            if (pinDigitado === "1234") {
-                fecharModalPinGestor();
-                ativarModoGestor();
-            } else {
-                alert("Código PIN incorreto!");
-                pinDigitado = '';
-                atualizarDisplayPin();
-                focarPinFisico();
-            }
-        }
-
-        // Escutar Teclado Físico Globalmente para o PIN
+        // Escuta global para fechar com Esc se o modal estiver aberto
         window.addEventListener('keydown', (e) => {
             const modal = document.getElementById('modal-pin-gestor');
-            if (!modal || modal.classList.contains('hidden')) return;
-
-            if (e.key >= '0' && e.key <= '9') {
-                e.preventDefault();
-                digitarPin(e.key);
-            } else if (e.key === 'Backspace') {
-                e.preventDefault();
-                limparPin();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                confirmarPin();
-            } else if (e.key === 'Escape') {
-                fecharModalPinGestor();
+            if (modal && !modal.classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    fecharModalPinGestor();
+                } else {
+                    const inp = document.getElementById('input-pin-fisico');
+                    if (inp && document.activeElement !== inp) {
+                        inp.focus();
+                    }
+                }
             }
         });
 
@@ -1655,6 +1888,26 @@
 
         function escaparHTML(valor) {
             return String(valor ?? '').replace(/[&<>"']/g, caractere => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[caractere]));
+        }
+
+        function extrairDefeitosChecklist(c) {
+            if (!c) return [];
+            const defeitos = [];
+            checklistItems.forEach(item => {
+                const val = String(c[item.id] || '').toUpperCase();
+                if (val.includes('NÃO') || val.includes('NAO') || val.includes('DEFEITO') || val === 'NOK' || c[item.id] === false) {
+                    defeitos.push(item.title);
+                }
+            });
+            if (c.respostas_customizadas && typeof c.respostas_customizadas === 'object') {
+                Object.entries(c.respostas_customizadas).forEach(([k, v]) => {
+                    const val = String(v || '').toUpperCase();
+                    if (val.includes('NÃO') || val.includes('NAO') || val.includes('DEFEITO') || val === 'NOK' || v === false) {
+                        defeitos.push(k);
+                    }
+                });
+            }
+            return defeitos;
         }
 
         // ==================== ABA 1: INDICADORES COM MULTI-FILTRO ====================
@@ -1953,6 +2206,7 @@
                                         <th class="w-36">Operador</th>
                                         <th class="w-20 text-right">Horímetro</th>
                                         <th class="w-28 text-center">Status 5S</th>
+                                        <th class="w-44">Defeito Identificado</th>
                                         <th>Observações & Transcrição</th>
                                         <th class="w-32">Áudio</th>
                                     </tr>
@@ -1963,9 +2217,10 @@
                                         const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                                         const audios = c.checklist_observacoes || [];
                                         const primeiroAudio = audios.find(a => a.audio_url);
+                                        const defs = extrairDefeitosChecklist(c);
 
                                         return `
-                                        <tr>
+                                        <tr onclick="abrirModalDetalhesChecklist('${c.id}')" class="cursor-pointer hover:bg-orange-50/50 transition" title="Clique para ver os detalhes completos deste checklist">
                                             <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
                                             <td>
                                                 <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-800/50' : 'bg-orange-50 text-orange-700 border border-orange-800/50'}">
@@ -1976,16 +2231,27 @@
                                             <td class="truncate max-w-[140px]" title="${c.operador}">${c.operador}</td>
                                             <td class="text-right font-mono-num font-bold text-slate-600">${c.horimetro} h</td>
                                             <td class="text-center">
-                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full inline-block ${c.tem_problema ? 'bg-red-500/20 text-red-700 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-700 border border-emerald-500/30'}">
+                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block ${c.tem_problema ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300'}">
                                                     ${c.tem_problema ? 'COM DEFEITO' : 'CONFORME'}
                                                 </span>
+                                            </td>
+                                            <td class="text-xs text-slate-700">
+                                                ${defs.length > 0 ? `
+                                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200 inline-block max-w-[180px] truncate" title="${defs.join(', ')}">
+                                                        ${defs.join(', ')}
+                                                    </span>
+                                                ` : (c.tem_problema ? `
+                                                    <span class="text-[10px] font-semibold text-red-700">Apontamento em obs.</span>
+                                                ` : `
+                                                    <span class="text-[10px] font-medium text-emerald-700">— Nenhum (OK)</span>
+                                                `)}
                                             </td>
                                             <td class="text-xs text-slate-600 max-w-xs">
                                                 <span class="line-clamp-2" title="${c.observacao_texto || c.resumo_ia || '-'}">
                                                     ${c.observacao_texto || c.resumo_ia || '-'}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td onclick="event.stopPropagation()">
                                                 ${primeiroAudio ? `
                                                     <audio controls src="${primeiroAudio.audio_url}" class="h-6 w-28"></audio>
                                                 ` : '<span class="text-[10px] text-slate-600">-</span>'}
@@ -1993,7 +2259,7 @@
                                         </tr>`;
                                     }).join('') : `
                                         <tr>
-                                            <td colspan="8" class="p-8 text-center text-slate-600 text-xs italic">
+                                            <td colspan="9" class="p-8 text-center text-slate-600 text-xs italic">
                                                 Nenhum checklist localizado com os filtros selecionados.
                                             </td>
                                         </tr>
@@ -2062,29 +2328,36 @@
 
                             <div class="space-y-2 flex-1 overflow-y-auto max-h-[650px] pr-0.5">
                                 ${itens.length === 0 ? '<p class="text-sm text-slate-600 py-6">Nenhuma ordem nesta etapa.</p>' : ''}
-                                ${itens.map(item => `
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 shadow-sm hover:border-slate-400 transition">
+                                ${itens.map(item => {
+                                    const dtCriacao = item.created_at ? new Date(item.created_at) : null;
+                                    const dtFmt = dtCriacao ? (dtCriacao.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dtCriacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) : '';
+
+                                    return `
+                                    <div onclick="abrirModalDetalhesOS('${item.id}')" class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 shadow-sm hover:border-orange-400 hover:shadow-md cursor-pointer transition" title="Clique para ver os detalhes completos desta O.S.">
                                         <div class="flex justify-between items-start gap-1 mb-1">
                                             <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-700' : 'bg-orange-500/20 text-orange-700'}">
                                                 ${item.prioridade}
                                             </span>
-                                            <span class="text-[10px] text-slate-600 font-mono-num">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
+                                            <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
                                         </div>
 
                                         <h5 class="text-xs font-bold text-slate-900 mb-0.5 leading-snug">${item.titulo}</h5>
                                         <p class="text-[11px] text-slate-600 line-clamp-2 mb-2">${item.descricao || ''}</p>
 
                                         <div class="flex justify-between items-center text-[10px] text-slate-600 pt-1.5 border-t border-slate-200">
-                                            <span class="font-mono-num text-slate-600 font-semibold">${item.maquina_nome}</span>
-                                            <select aria-label="Etapa da ordem ${escaparHTML(item.numero_os || item.id)}" onchange="atualizarStatusOS('${item.id}', this.value)" class="bg-slate-100 text-slate-700 border border-slate-300 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
+                                            <div class="flex flex-col">
+                                                <span class="font-mono-num text-slate-900 font-bold">${item.maquina_nome}</span>
+                                                ${dtFmt ? `<span class="text-[9px] text-slate-400 font-mono">${dtFmt}</span>` : ''}
+                                            </div>
+                                            <select onclick="event.stopPropagation()" aria-label="Etapa da ordem ${escaparHTML(item.numero_os || item.id)}" onchange="atualizarStatusOS('${item.id}', this.value)" class="bg-slate-100 text-slate-700 border border-slate-300 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
                                                 <option value="pendente" ${item.status === 'pendente' ? 'selected' : ''}>Pendente</option>
                                                 <option value="analise_pecas" ${item.status === 'analise_pecas' ? 'selected' : ''}>Análise Peças</option>
                                                 <option value="em_manutencao" ${item.status === 'em_manutencao' ? 'selected' : ''}>Em Manutenção</option>
                                                 <option value="concluido" ${item.status === 'concluido' ? 'selected' : ''}>Concluído</option>
                                             </select>
                                         </div>
-                                    </div>
-                                `).join('')}
+                                    </div>`;
+                                }).join('')}
                             </div>
                         </div>`;
                     }).join('')}
@@ -2127,6 +2400,7 @@
                             <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Emergencial/Corretiva</span>
                             <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Preventiva Agendada</span>
                             <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Concluída</span>
+                            <span class="flex items-center gap-1.5 text-slate-400">| Toque no dia para inspecionar</span>
                         </div>
                     </div>
 
@@ -2141,7 +2415,7 @@
                     <!-- GRID DOS DIAS DO MÊS -->
                     <div class="grid grid-cols-7 gap-1">
                         ${Array.from({ length: primeiroDia }).map(() => `
-                            <div class="min-h-[90px] bg-slate-50/40 rounded border border-slate-200/60 p-1"></div>
+                            <div class="min-h-[95px] bg-slate-50/40 rounded-lg border border-slate-200/60 p-1"></div>
                         `).join('')}
 
                         ${Array.from({ length: totalDiasMes }).map((_, i) => {
@@ -2150,23 +2424,27 @@
                             const diaFmt = String(diaNum).padStart(2, '0');
                             const dataIso = `${anoAtualCalendario}-${mesFmt}-${diaFmt}`;
                             const eventosDoDia = eventosPorData[dataIso] || [];
+                            const checklistsDoDia = cacheGestor.checklists.filter(c => c.created_at && c.created_at.split('T')[0] === dataIso);
                             const isHoje = new Date().toISOString().split('T')[0] === dataIso;
 
                             return `
-                            <div class="min-h-[95px] bg-slate-50 border ${isHoje ? 'border-orange-500 ring-1 ring-orange-400/50' : 'border-slate-200'} rounded p-1 flex flex-col justify-between hover:border-slate-400 transition">
+                            <div onclick="abrirModalDetalhesDia('${dataIso}')" class="min-h-[100px] bg-slate-50 border ${isHoje ? 'border-orange-500 ring-2 ring-orange-400/40 bg-orange-50/20' : 'border-slate-200'} rounded-lg p-1.5 flex flex-col justify-between hover:border-orange-500 hover:shadow-md cursor-pointer transition" title="Clique para ver o que ocorreu e agendar manutenção">
                                 <div class="flex justify-between items-center mb-1">
-                                    <span class="text-xs font-mono-num font-bold ${isHoje ? 'text-orange-700 font-bold' : 'text-slate-600'}">${diaNum}</span>
-                                    ${eventosDoDia.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-slate-100 text-slate-700 px-1 rounded">${eventosDoDia.length}</span>` : ''}
+                                    <span class="text-xs font-mono-num font-bold ${isHoje ? 'text-orange-700 font-black' : 'text-slate-700'}">${diaNum}</span>
+                                    <div class="flex items-center gap-1">
+                                        ${checklistsDoDia.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-emerald-100 text-emerald-800 px-1 rounded" title="${checklistsDoDia.length} checklist(s)"><i class="fa-solid fa-check text-[8px]"></i> ${checklistsDoDia.length}</span>` : ''}
+                                        ${eventosDoDia.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-orange-100 text-orange-800 px-1 rounded" title="${eventosDoDia.length} manutenção(ões)"><i class="fa-solid fa-wrench text-[8px]"></i> ${eventosDoDia.length}</span>` : ''}
+                                    </div>
                                 </div>
 
                                 <div class="space-y-1 overflow-y-auto max-h-[65px] flex-1 pr-0.5">
                                     ${eventosDoDia.map(ev => {
-                                        let corPill = 'bg-amber-500/20 text-amber-700 border-amber-500/30';
-                                        if (ev.status === 'concluido') corPill = 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30';
-                                        else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-500/20 text-red-700 border-red-500/30';
+                                        let corPill = 'bg-amber-100 text-amber-800 border-amber-300';
+                                        if (ev.status === 'concluido') corPill = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                                        else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-100 text-red-800 border-red-300';
 
                                         return `
-                                        <div class="text-[10px] font-mono-num font-bold p-1 rounded border ${corPill} truncate" title="${ev.maquina_nome}: ${ev.titulo}">
+                                        <div class="text-[10px] font-mono-num font-bold p-0.5 px-1 rounded border ${corPill} truncate" title="${ev.maquina_nome}: ${ev.titulo}">
                                             ${ev.maquina_nome}
                                         </div>`;
                                     }).join('')}
@@ -2636,28 +2914,39 @@
                         <h3 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-2">
                             <i class="fa-solid fa-bell text-red-500"></i> Chamados de Emergência SOS
                         </h3>
+                        <span class="text-xs text-slate-500 font-semibold">Total: ${chamados.length} (${chamados.filter(c => c.status === 'pendente').length} pendentes)</span>
                     </div>
 
                     <div class="space-y-2">
-                        ${chamados.length > 0 ? chamados.map(c => `
-                            <div class="bg-white border-l border-red-500 border-y border-r border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-700 font-mono-num">${c.gravidade}</span>
-                                        <h4 class="font-mono-num text-sm font-bold text-slate-900">${c.maquina_nome}</h4>
-                                        <span class="text-xs text-slate-600">• Operador: ${c.operador}</span>
+                        ${chamados.length > 0 ? chamados.map(c => {
+                            const dtCriado = c.created_at ? new Date(c.created_at) : null;
+                            const dtFmt = dtCriado ? (dtCriado.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' às ' + dtCriado.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })) : 'Data não informada';
+
+                            return `
+                            <div onclick="abrirModalDetalhesSOS('${c.id}')" class="bg-white border-l-4 border-red-500 border-y border-r border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer hover:border-red-600 hover:shadow-md transition" title="Toque para ver os detalhes completos deste SOS">
+                                <div class="space-y-1.5 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-700 font-mono-num">${escaparHTML(c.gravidade || 'CRÍTICA')}</span>
+                                        <h4 class="font-mono-num text-sm font-bold text-slate-900">${escaparHTML(c.maquina_nome || 'Equipamento')}</h4>
+                                        <span class="text-xs text-slate-600 font-medium">• Operador: ${escaparHTML(c.operador || 'Não informado')}</span>
+                                        <span class="text-xs font-mono-num text-slate-500 flex items-center gap-1 ml-auto md:ml-2">
+                                            <i class="fa-regular fa-clock text-slate-400"></i> ${dtFmt}
+                                        </span>
                                     </div>
-                                    <p class="text-xs text-slate-600">${c.texto_transcrito || 'Áudio relatando quebra mecânica.'}</p>
-                                    ${c.audio_url ? `<audio controls src="${c.audio_url}" class="h-6 mt-1.5"></audio>` : ''}
+                                    <p class="text-xs text-slate-700 font-medium">${escaparHTML(c.texto_transcrito || 'Áudio relatando quebra mecânica.')}</p>
+                                    ${c.audio_url ? `<audio controls src="${c.audio_url}" onclick="event.stopPropagation()" class="h-7 mt-1"></audio>` : ''}
                                 </div>
 
                                 <div class="flex items-center gap-2 shrink-0">
-                                    ${c.status === 'pendente' ? `<button onclick="resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-slate-900 font-bold text-xs px-3.5 py-1.5 rounded-lg transition">
+                                    <button onclick="event.stopPropagation(); abrirModalDetalhesSOS('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg transition border border-slate-300">
+                                        <i class="fa-solid fa-eye mr-1"></i> Detalhes
+                                    </button>
+                                    ${c.status === 'pendente' ? `<button onclick="event.stopPropagation(); resolverSOS('${c.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition shadow-sm">
                                         <i class="fa-solid fa-check mr-1"></i> Concluir Reparo
-                                    </button>` : `<span class="text-emerald-700 text-xs font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> ${c.status === 'resolvido' ? 'Resolvido' : escaparHTML(c.status || 'Sem status')}</span>`}
+                                    </button>` : `<span class="text-emerald-700 text-xs font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ${c.status === 'resolvido' ? 'Resolvido' : escaparHTML(c.status || 'Sem status')}</span>`}
                                 </div>
-                            </div>
-                        `).join('') : `
+                            </div>`;
+                        }).join('') : `
                             <div class="p-8 text-center text-slate-600 bg-white rounded-xl border border-slate-200">
                                 <i class="fa-solid fa-shield-cat text-3xl mb-2 text-emerald-700"></i>
                                 <p class="text-xs font-bold text-slate-600">Nenhum chamado de emergência encontrado.</p>
@@ -2676,10 +2965,674 @@
                     .from('chamados_emergencia')
                     .update({ status: 'resolvido', resolvido_em: new Date() })
                     .eq('id', id);
-                carregarDadosGestor();
+                await carregarDadosGestor();
             } catch(e) {
                 alert("Erro ao concluir chamado.");
             }
+        }
+
+        // ==================== MODAL DE EVENTOS DO DIA (CALENDÁRIO) ====================
+        let diaAtivoInspecionado = null;
+
+        function abrirModalDetalhesDia(dataIso) {
+            diaAtivoInspecionado = dataIso;
+            const modal = document.getElementById('modal-detalhes-dia');
+            const titulo = document.getElementById('detalhes-dia-titulo');
+            const subtitulo = document.getElementById('detalhes-dia-subtitulo');
+            const conteudo = document.getElementById('detalhes-dia-conteudo');
+
+            if (!modal) return;
+
+            // Formatar data em português: e.g. "12 de Setembro de 2026"
+            const [ano, mes, dia] = dataIso.split('-');
+            const dataObj = new Date(Number(ano), Number(mes) - 1, Number(dia));
+            const mesesNomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const diaSemanaNomes = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+            
+            titulo.textContent = `${dia} de ${mesesNomes[Number(mes) - 1]} de ${ano} (${diaSemanaNomes[dataObj.getDay()]})`;
+            subtitulo.textContent = `Resumo operacional e manutenções programadas para ${dia}/${mes}/${ano}`;
+
+            // Filtrar manutenções do dia
+            const ordensDoDia = cacheGestor.ordens.filter(o => {
+                const dPrev = o.data_prevista ? o.data_prevista.split('T')[0] : '';
+                const dCria = o.created_at ? o.created_at.split('T')[0] : '';
+                return dPrev === dataIso || (!dPrev && dCria === dataIso);
+            });
+
+            // Filtrar checklists do dia
+            const checklistsDoDia = cacheGestor.checklists.filter(c => {
+                return c.created_at && c.created_at.split('T')[0] === dataIso;
+            });
+
+            // Filtrar SOS do dia
+            const sosDoDia = cacheGestor.chamados.filter(s => {
+                return s.created_at && s.created_at.split('T')[0] === dataIso;
+            });
+
+            let html = '';
+
+            // Seção 1: Manutenções Agendadas / O.S.
+            html += `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-wrench text-orange-600"></i> Manutenções Programadas (${ordensDoDia.length})
+                        </h4>
+                        <button onclick="abrirAgendamentoParaDia('${dataIso}')" class="text-xs text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Agendar Neste Dia
+                        </button>
+                    </div>
+            `;
+
+            if (ordensDoDia.length > 0) {
+                html += `<div class="space-y-2">`;
+                ordensDoDia.forEach(ordem => {
+                    const dtHora = ordem.created_at ? new Date(ordem.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                    let statusClass = 'bg-amber-100 text-amber-800';
+                    let statusLabel = 'Pendente';
+                    if (ordem.status === 'analise_pecas') { statusClass = 'bg-orange-100 text-orange-800'; statusLabel = 'Análise Peças'; }
+                    else if (ordem.status === 'em_manutencao') { statusClass = 'bg-blue-100 text-blue-800'; statusLabel = 'Em Manutenção'; }
+                    else if (ordem.status === 'concluido') { statusClass = 'bg-emerald-100 text-emerald-800'; statusLabel = 'Concluído'; }
+
+                    html += `
+                        <div onclick="abrirModalDetalhesOS('${ordem.id}')" class="bg-white border border-slate-200 hover:border-orange-500 rounded-lg p-3 cursor-pointer shadow-sm hover:shadow-md transition">
+                            <div class="flex justify-between items-start gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(ordem.maquina_nome || 'Equipamento')}</span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusClass}">${statusLabel}</span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${ordem.prioridade === 'urgente' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'}">${escaparHTML(ordem.prioridade || 'Média').toUpperCase()}</span>
+                                    </div>
+                                    <p class="text-xs font-semibold text-slate-800 mt-1">${escaparHTML(ordem.titulo || 'Manutenção programada')}</p>
+                                    ${ordem.descricao ? `<p class="text-[11px] text-slate-500 mt-0.5">${escaparHTML(ordem.descricao)}</p>` : ''}
+                                    ${ordem.responsavel_mecanico ? `<p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-user-gear mr-1"></i> Resp: ${escaparHTML(ordem.responsavel_mecanico)}</p>` : ''}
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-[10px] font-mono-num text-slate-400">O.S. #${escaparHTML(ordem.numero_os || ordem.id.substring(0,6))}</span>
+                                    ${dtHora ? `<p class="text-[10px] text-slate-400 font-mono">${dtHora}</p>` : ''}
+                                    <span class="text-[11px] font-bold text-orange-600 block mt-2 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } else {
+                html += `
+                    <div class="p-3 bg-white rounded-lg border border-dashed border-slate-300 text-center text-slate-500 text-xs">
+                        Nenhuma manutenção agendada para este dia.
+                        <button onclick="abrirAgendamentoParaDia('${dataIso}')" class="text-orange-600 font-bold ml-1 hover:underline">Agendar agora</button>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+
+            // Seção 2: Checklists Realizados no Dia
+            html += `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check text-emerald-600"></i> Checklists Realizados (${checklistsDoDia.length})
+                        </h4>
+                        <button onclick="navegarDoDiaPara('checklists')" class="text-xs text-slate-500 hover:text-slate-800 font-bold">
+                            Ver todos no Histórico
+                        </button>
+                    </div>
+            `;
+
+            if (checklistsDoDia.length > 0) {
+                html += `<div class="space-y-2">`;
+                checklistsDoDia.forEach(chk => {
+                    const dtHora = chk.created_at ? new Date(chk.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                    const defs = extrairDefeitosChecklist(chk);
+                    const temProblema = chk.tem_problema || defs.length > 0;
+
+                    html += `
+                        <div onclick="abrirModalDetalhesChecklist('${chk.id}')" class="bg-white border border-slate-200 hover:border-emerald-500 rounded-lg p-3 cursor-pointer shadow-sm hover:shadow-md transition">
+                            <div class="flex justify-between items-start gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(chk.maquina_nome || chk.maquina_id || 'Equipamento')}</span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${temProblema ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                                            ${temProblema ? 'COM DEFEITO' : 'CONFORME'}
+                                        </span>
+                                        <span class="text-[10px] text-slate-500">• Operador: ${escaparHTML(chk.operador || 'Não informado')}</span>
+                                    </div>
+                                    ${defs.length > 0 ? `
+                                        <p class="text-[11px] text-red-700 font-semibold mt-1">
+                                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Defeitos: ${defs.map(d => escaparHTML(d.rotulo)).join(', ')}
+                                        </p>
+                                    ` : `
+                                        <p class="text-[11px] text-emerald-700 font-medium mt-1">
+                                            <i class="fa-solid fa-check mr-1"></i> Todos os 16 itens inspecionados conforme.
+                                        </p>
+                                    `}
+                                    ${chk.observacao_texto ? `<p class="text-[10px] text-slate-500 mt-0.5 line-clamp-1 italic">"${escaparHTML(chk.observacao_texto)}"</p>` : ''}
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-[10px] font-mono-num text-slate-500 font-bold">${dtHora}</span>
+                                    <span class="text-[11px] font-bold text-emerald-600 block mt-2 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } else {
+                html += `
+                    <div class="p-3 bg-white rounded-lg border border-dashed border-slate-300 text-center text-slate-500 text-xs">
+                        Nenhum checklist registrado para esta data.
+                    </div>
+                `;
+            }
+            html += `</div>`;
+
+            // Seção 3: SOS / Emergências no Dia (se houver)
+            if (sosDoDia.length > 0) {
+                html += `
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 space-y-2">
+                        <h4 class="text-xs font-bold text-red-900 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-bell text-red-600"></i> Chamados de Emergência SOS (${sosDoDia.length})
+                        </h4>
+                        <div class="space-y-2">
+                `;
+                sosDoDia.forEach(s => {
+                    const dtHora = s.created_at ? new Date(s.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                    html += `
+                        <div onclick="abrirModalDetalhesSOS('${s.id}')" class="bg-white border border-red-300 hover:border-red-500 rounded-lg p-2.5 cursor-pointer shadow-sm hover:shadow transition flex justify-between items-center">
+                            <div>
+                                <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(s.maquina_nome)}</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ml-2 ${s.status === 'pendente' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">${s.status.toUpperCase()}</span>
+                                <p class="text-[11px] text-slate-600 mt-0.5">${escaparHTML(s.texto_transcrito || 'SOS acionado pelo operador')}</p>
+                            </div>
+                            <span class="text-[10px] font-mono-num text-slate-500">${dtHora}</span>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            conteudo.innerHTML = html;
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalDetalhesDia() {
+            const modal = document.getElementById('modal-detalhes-dia');
+            if (modal) modal.classList.add('hidden');
+            diaAtivoInspecionado = null;
+        }
+
+        function navegarDoDiaPara(aba) {
+            fecharModalDetalhesDia();
+            mudarAbaGestor(aba);
+        }
+
+        // ==================== AGENDAMENTO DE MANUTENÇÃO (MÁQUINA OU VEÍCULO) ====================
+        function abrirAgendamentoParaDia(dataIso) {
+            const dataFinal = dataIso || diaAtivoInspecionado || new Date().toISOString().split('T')[0];
+            const modal = document.getElementById('modal-agendar-dia');
+            const selectEquip = document.getElementById('agendar-equipamento-select');
+            const inputData = document.getElementById('agendar-data-input');
+            const inputTitulo = document.getElementById('agendar-titulo-input');
+            const inputMecanico = document.getElementById('agendar-mecanico-input');
+            const textareaObs = document.getElementById('agendar-obs-textarea');
+
+            if (!modal) return;
+
+            if (inputData) inputData.value = dataFinal;
+            if (inputTitulo) inputTitulo.value = '';
+            if (inputMecanico) inputMecanico.value = '';
+            if (textareaObs) textareaObs.value = '';
+
+            // Preencher select de máquinas e veículos
+            if (selectEquip) {
+                let optionsHtml = '';
+                
+                const maquinasFilial = frotaTotal.filter(m => m.unidade === 'FILIAL');
+                const maquinasMatriz = frotaTotal.filter(m => m.unidade === 'MATRIZ');
+                
+                if (maquinasFilial.length > 0) {
+                    optionsHtml += `<optgroup label="Filial - Empilhadeiras & Máquinas">`;
+                    maquinasFilial.forEach(m => {
+                        optionsHtml += `<option value="${escaparHTML(m.codigo)}">[FILIAL] ${escaparHTML(m.codigo)} - ${escaparHTML(m.nome || m.modelo || '')}</option>`;
+                    });
+                    optionsHtml += `</optgroup>`;
+                }
+
+                if (maquinasMatriz.length > 0) {
+                    optionsHtml += `<optgroup label="Matriz - Empilhadeiras & Máquinas">`;
+                    maquinasMatriz.forEach(m => {
+                        optionsHtml += `<option value="${escaparHTML(m.codigo)}">[MATRIZ] ${escaparHTML(m.codigo)} - ${escaparHTML(m.nome || m.modelo || '')}</option>`;
+                    });
+                    optionsHtml += `</optgroup>`;
+                }
+
+                optionsHtml += `<optgroup label="Veículos de Apoio & Caminhões">
+                    <option value="CAM-VW1">Caminhão VW 8-150 [MATRIZ]</option>
+                    <option value="CAM-MB1">Caminhão MB Atego [FILIAL]</option>
+                    <option value="UTI-STR1">Fiat Strada Apoio 01 [FILIAL]</option>
+                    <option value="UTI-STR2">Fiat Strada Apoio 02 [MATRIZ]</option>
+                </optgroup>`;
+
+                selectEquip.innerHTML = optionsHtml;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalAgendarDia() {
+            const modal = document.getElementById('modal-agendar-dia');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function salvarAgendamentoDia() {
+            const selectEquip = document.getElementById('agendar-equipamento-select');
+            const inputData = document.getElementById('agendar-data-input');
+            const selectTipo = document.getElementById('agendar-tipo-select');
+            const selectPrioridade = document.getElementById('agendar-prioridade-select');
+            const inputMecanico = document.getElementById('agendar-mecanico-input');
+            const inputTitulo = document.getElementById('agendar-titulo-input');
+            const textareaObs = document.getElementById('agendar-obs-textarea');
+
+            if (!inputTitulo || !inputTitulo.value.trim()) {
+                alert("Por favor, informe o título da ordem de serviço.");
+                inputTitulo?.focus();
+                return;
+            }
+
+            if (!inputData || !inputData.value) {
+                alert("Por favor, selecione uma data válida para a manutenção.");
+                inputData?.focus();
+                return;
+            }
+
+            const equipValor = selectEquip ? selectEquip.value : 'EQUIPAMENTO';
+            const numOs = 'OS-' + Math.floor(1000 + Math.random() * 9000);
+
+            const payload = {
+                numero_os: numOs,
+                maquina_nome: equipValor,
+                tipo: selectTipo ? selectTipo.value : 'preventiva',
+                origem: 'calendario_gestor',
+                titulo: inputTitulo.value.trim(),
+                descricao: textareaObs ? textareaObs.value.trim() : '',
+                prioridade: selectPrioridade ? selectPrioridade.value : 'media',
+                responsavel_mecanico: inputMecanico ? inputMecanico.value.trim() : 'Equipe de Manutenção',
+                status: 'pendente',
+                data_prevista: inputData.value
+            };
+
+            try {
+                if (db) {
+                    const { error } = await db.from('ordens_manutencao').insert([payload]);
+                    if (error) throw error;
+                }
+
+                alert(`Manutenção programada com sucesso para ${equipValor} no dia ${inputData.value}! (${numOs})`);
+                fecharModalAgendarDia();
+                await carregarDadosGestor();
+
+                if (diaAtivoInspecionado) {
+                    abrirModalDetalhesDia(diaAtivoInspecionado);
+                }
+            } catch (err) {
+                console.error("Erro ao agendar manutenção:", err);
+                alert("Erro ao gravar agendamento: " + (err.message || "Tente novamente."));
+            }
+        }
+
+        // ==================== MODAL DE DETALHES DA O.S. ====================
+        let osAtivaInspecionada = null;
+
+        function abrirModalDetalhesOS(osId) {
+            const ordem = cacheGestor.ordens.find(o => o.id === osId || o.numero_os === osId);
+            if (!ordem) {
+                alert("Ordem de serviço não encontrada.");
+                return;
+            }
+
+            osAtivaInspecionada = ordem;
+            const modal = document.getElementById('modal-detalhes-os');
+            if (!modal) return;
+
+            document.getElementById('os-modal-num').textContent = `O.S. #${ordem.numero_os || ordem.id.substring(0,6)}`;
+            document.getElementById('os-modal-titulo').textContent = ordem.titulo || 'Sem título';
+
+            const badgePrio = document.getElementById('os-modal-prioridade');
+            badgePrio.textContent = (ordem.prioridade || 'Média').toUpperCase();
+            if (ordem.prioridade === 'urgente') {
+                badgePrio.className = 'text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-red-100 text-red-800';
+            } else {
+                badgePrio.className = 'text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-orange-100 text-orange-800';
+            }
+
+            const badgeTipo = document.getElementById('os-modal-tipo');
+            badgeTipo.textContent = (ordem.tipo || 'Preventiva').toUpperCase();
+
+            const selectStatus = document.getElementById('os-modal-select-status');
+            if (selectStatus) selectStatus.value = ordem.status || 'pendente';
+
+            const dtCriacao = ordem.created_at ? new Date(ordem.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }) : 'Não informada';
+            const dtPrevista = ordem.data_prevista ? new Date(ordem.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : 'Não agendada';
+
+            const corpo = document.getElementById('os-modal-corpo');
+            corpo.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Equipamento</span>
+                        <p class="font-mono-num font-bold text-slate-900 text-sm mt-0.5">${escaparHTML(ordem.maquina_nome || '—')}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Mecânico Responsável</span>
+                        <p class="font-semibold text-slate-800 text-xs mt-0.5">${escaparHTML(ordem.responsavel_mecanico || 'Equipe Geral')}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Data e Hora de Abertura</span>
+                        <p class="font-mono-num font-semibold text-slate-700 text-xs mt-0.5"><i class="fa-regular fa-clock mr-1 text-slate-400"></i> ${dtCriacao}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Data Prevista / Agendada</span>
+                        <p class="font-mono-num font-semibold text-slate-700 text-xs mt-0.5"><i class="fa-regular fa-calendar mr-1 text-slate-400"></i> ${dtPrevista}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Origem da O.S.</span>
+                        <p class="font-semibold text-slate-700 text-xs mt-0.5">${escaparHTML(ordem.origem || 'Checklist Operacional')}</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Etapa Atual</span>
+                        <p class="font-bold text-orange-700 text-xs mt-0.5 uppercase">${escaparHTML(ordem.status || 'pendente')}</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-slate-900 uppercase mb-1">Descrição do Serviço / Anomalia</h4>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-slate-700 leading-relaxed">
+                        ${escaparHTML(ordem.descricao || 'Nenhuma descrição técnica informada.')}
+                    </div>
+                </div>
+
+                ${ordem.checklist_id ? `
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] font-bold text-orange-800 uppercase">Vinculada a um Checklist</span>
+                            <p class="text-xs text-slate-600">Esta ordem foi aberta a partir de uma não conformidade.</p>
+                        </div>
+                        <button onclick="fecharModalDetalhesOS(); abrirModalDetalhesChecklist('${ordem.checklist_id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-sm">
+                            <i class="fa-solid fa-clipboard-check mr-1"></i> Ver Checklist
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalDetalhesOS() {
+            const modal = document.getElementById('modal-detalhes-os');
+            if (modal) modal.classList.add('hidden');
+            osAtivaInspecionada = null;
+        }
+
+        async function atualizarStatusOSModal(novoStatus) {
+            if (!osAtivaInspecionada) return;
+            const osId = osAtivaInspecionada.id;
+            await atualizarStatusOS(osId, novoStatus);
+            osAtivaInspecionada.status = novoStatus;
+        }
+
+        // ==================== MODAL DE DETALHES DO SOS ====================
+        let sosAtivoInspecionado = null;
+
+        function abrirModalDetalhesSOS(sosId) {
+            const chamado = cacheGestor.chamados.find(s => s.id === sosId);
+            if (!chamado) {
+                alert("Chamado SOS não encontrado.");
+                return;
+            }
+
+            sosAtivoInspecionado = chamado;
+            const modal = document.getElementById('modal-detalhes-sos');
+            if (!modal) return;
+
+            document.getElementById('sos-modal-maq').textContent = chamado.maquina_nome || 'Equipamento';
+            document.getElementById('sos-modal-operador').textContent = `Operador: ${chamado.operador || 'Não identificado'}`;
+
+            const badgeStatus = document.getElementById('sos-modal-status-badge');
+            if (chamado.status === 'pendente') {
+                badgeStatus.textContent = 'PENDENTE';
+                badgeStatus.className = 'text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-red-100 text-red-700';
+            } else {
+                badgeStatus.textContent = 'RESOLVIDO';
+                badgeStatus.className = 'text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700';
+            }
+
+            const badgeGravidade = document.getElementById('sos-modal-gravidade');
+            badgeGravidade.textContent = (chamado.gravidade || 'CRÍTICA').toUpperCase();
+
+            const dtCriacao = chamado.created_at ? new Date(chamado.created_at).toLocaleString('pt-BR', { dateStyle: 'full', timeStyle: 'medium' }) : 'Data não informada';
+            document.getElementById('sos-modal-data-rodape').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> Registrado em: ${dtCriacao}`;
+
+            const corpo = document.getElementById('sos-modal-corpo');
+            corpo.innerHTML = `
+                <div class="bg-red-50/60 border border-red-200 rounded-xl p-3.5 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-red-700 uppercase"><i class="fa-solid fa-bullhorn mr-1"></i> Relato de Emergência</span>
+                        <span class="text-[10px] font-mono-num text-slate-500 font-bold">${dtCriacao}</span>
+                    </div>
+                    <p class="text-xs text-slate-800 leading-relaxed font-medium bg-white p-3 rounded-lg border border-red-100">
+                        ${escaparHTML(chamado.texto_transcrito || 'Chamado de quebra mecânica imediata acionado pelo operador no painel móvel.')}
+                    </p>
+                </div>
+
+                ${chamado.audio_url ? `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1.5">
+                        <span class="text-[10px] font-bold text-slate-600 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-microphone text-orange-600"></i> Áudio Gravado pelo Operador
+                        </span>
+                        <audio controls src="${chamado.audio_url}" class="w-full mt-1"></audio>
+                    </div>
+                ` : ''}
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Equipamento</span>
+                        <p class="font-mono-num font-bold text-slate-900 mt-0.5">${escaparHTML(chamado.maquina_nome)}</p>
+                    </div>
+                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Operador Responsável</span>
+                        <p class="font-semibold text-slate-800 mt-0.5">${escaparHTML(chamado.operador || '—')}</p>
+                    </div>
+                </div>
+
+                ${chamado.resolvido_em ? `
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-xs text-emerald-800 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>Reparo concluído e chamado encerrado em: <strong>${new Date(chamado.resolvido_em).toLocaleString('pt-BR')}</strong></span>
+                    </div>
+                ` : ''}
+            `;
+
+            const acoes = document.getElementById('sos-modal-acoes');
+            if (chamado.status === 'pendente') {
+                acoes.innerHTML = `
+                    <button onclick="resolverSOS('${chamado.id}'); fecharModalDetalhesSOS();" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Concluir Reparo
+                    </button>
+                `;
+            } else {
+                acoes.innerHTML = `
+                    <span class="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i> Resolvido
+                    </span>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalDetalhesSOS() {
+            const modal = document.getElementById('modal-detalhes-sos');
+            if (modal) modal.classList.add('hidden');
+            sosAtivoInspecionado = null;
+        }
+
+        // ==================== MODAL DE DETALHES COMPLETOS DO CHECKLIST ====================
+        const ITENS_INSPECAO_CHECKLIST = [
+            { key: 'vazamento_oleo_agua', rotulo: 'Vazamento de Óleo/Água' },
+            { key: 'nivel_oleo_motor', rotulo: 'Nível de Óleo do Motor' },
+            { key: 'nivel_agua_radiador', rotulo: 'Nível da Água do Radiador' },
+            { key: 'nivel_oleo_hidraulico', rotulo: 'Nível de Óleo Hidráulico' },
+            { key: 'freio_pe', rotulo: 'Freio de Pé / Serviço' },
+            { key: 'freio_estacionamento', rotulo: 'Freio de Estacionamento' },
+            { key: 'direcao', rotulo: 'Direção / Folgas' },
+            { key: 'painel_instrumentos', rotulo: 'Painel de Instrumentos' },
+            { key: 'farois', rotulo: 'Faróis Dianteiros/Traseiros' },
+            { key: 'luz_freio', rotulo: 'Luz de Freio / Sinalização' },
+            { key: 'giroflex', rotulo: 'Giroflex / Giroled' },
+            { key: 'buzina', rotulo: 'Buzina' },
+            { key: 'alarme_re', rotulo: 'Alarme de Ré' },
+            { key: 'cinto_seguranca', rotulo: 'Cinto de Segurança' },
+            { key: 'estado_pneus', rotulo: 'Estado dos Pneus / Rodas' },
+            { key: 'garfos_torre', rotulo: 'Garfos e Torre de Elevação' }
+        ];
+
+        function abrirModalDetalhesChecklist(chkId) {
+            const c = cacheGestor.checklists.find(item => item.id === chkId);
+            if (!c) {
+                alert("Checklist não encontrado.");
+                return;
+            }
+
+            const modal = document.getElementById('modal-detalhes-checklist');
+            if (!modal) return;
+
+            const defs = extrairDefeitosChecklist(c);
+            const temProblema = c.tem_problema || defs.length > 0;
+
+            const wrapIcon = document.getElementById('chk-modal-icon-wrap');
+            const icon = document.getElementById('chk-modal-icon');
+            if (temProblema) {
+                wrapIcon.className = 'w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold';
+                icon.className = 'fa-solid fa-triangle-exclamation';
+            } else {
+                wrapIcon.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold';
+                icon.className = 'fa-solid fa-clipboard-check';
+            }
+
+            document.getElementById('chk-modal-equip').textContent = c.maquina_nome || c.maquina_id || 'Equipamento';
+            document.getElementById('chk-modal-unidade').textContent = c.unidade || 'FILIAL';
+
+            const badge = document.getElementById('chk-modal-status-badge');
+            if (temProblema) {
+                badge.textContent = 'COM DEFEITO';
+                badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-red-100 text-red-800 font-mono-num';
+            } else {
+                badge.textContent = 'CONFORME';
+                badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-mono-num';
+            }
+
+            const dtHora = c.created_at ? new Date(c.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }) : '—';
+            document.getElementById('chk-modal-meta').textContent = `Operador: ${c.operador || 'Não informado'} • Data: ${dtHora} • Horímetro: ${c.horimetro || '—'} h`;
+
+            const corpo = document.getElementById('chk-modal-corpo');
+            let corpoHtml = '';
+
+            if (defs.length > 0) {
+                corpoHtml += `
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 space-y-1.5">
+                        <h4 class="text-xs font-bold text-red-900 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-red-600"></i> ${defs.length} Item(ns) com Não Conformidade Identificada:
+                        </h4>
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                            ${defs.map(d => `
+                                <span class="bg-red-200/80 text-red-900 text-xs font-bold px-2.5 py-1 rounded-md border border-red-300">
+                                    ${escaparHTML(d.rotulo)}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                corpoHtml += `
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2.5 text-xs text-emerald-800 font-medium">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+                        <span>Inspeção 100% aprovada. Todos os 16 itens de segurança foram verificados e avaliados em conformidade.</span>
+                    </div>
+                `;
+            }
+
+            corpoHtml += `
+                <div>
+                    <h4 class="text-xs font-bold text-slate-900 uppercase mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check text-orange-600"></i> Avaliação dos 16 Itens de Inspeção 5S
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            `;
+
+            ITENS_INSPECAO_CHECKLIST.forEach(it => {
+                const isDefeito = defs.some(d => d.chave === it.key);
+
+                corpoHtml += `
+                    <div class="flex justify-between items-center p-2 rounded-lg border ${isDefeito ? 'bg-red-50/70 border-red-300' : 'bg-slate-50 border-slate-200'}">
+                        <span class="font-medium text-slate-800">${it.rotulo}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${isDefeito ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                            ${isDefeito ? '<i class="fa-solid fa-xmark mr-1"></i> NÃO CONFORME' : '<i class="fa-solid fa-check mr-1"></i> CONFORME'}
+                        </span>
+                    </div>
+                `;
+            });
+
+            corpoHtml += `
+                    </div>
+                </div>
+            `;
+
+            const obsTexto = c.observacao_texto || (c.checklist_observacoes && c.checklist_observacoes[0] ? c.checklist_observacoes[0].texto_observacao : '');
+            const audioUrl = c.audio_url || (c.checklist_observacoes && c.checklist_observacoes[0] ? c.checklist_observacoes[0].audio_url : '');
+
+            if (obsTexto || audioUrl) {
+                corpoHtml += `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                        <h4 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-comment-dots text-slate-600"></i> Observação & Relato do Operador
+                        </h4>
+                        ${obsTexto ? `<p class="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 italic">"${escaparHTML(obsTexto)}"</p>` : ''}
+                        ${audioUrl ? `
+                            <div class="pt-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Gravação de Voz do Operador</span>
+                                <audio controls src="${audioUrl}" class="w-full mt-1"></audio>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            corpo.innerHTML = corpoHtml;
+
+            const osLinkDiv = document.getElementById('chk-modal-os-link');
+            const ordemVinculada = cacheGestor.ordens.find(o => o.checklist_id === c.id);
+            if (ordemVinculada) {
+                osLinkDiv.innerHTML = `
+                    <button onclick="fecharModalDetalhesChecklist(); abrirModalDetalhesOS('${ordemVinculada.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
+                        <i class="fa-solid fa-wrench"></i> Ver O.S. Gerada (#${ordemVinculada.numero_os || ordemVinculada.id.substring(0,6)})
+                    </button>
+                `;
+            } else if (temProblema) {
+                osLinkDiv.innerHTML = `
+                    <button onclick="fecharModalDetalhesChecklist(); abrirAgendamentoParaDia('${c.created_at ? c.created_at.split('T')[0] : ''}')" class="text-xs text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Abrir O.S. para esta Não Conformidade
+                    </button>
+                `;
+            } else {
+                osLinkDiv.innerHTML = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalDetalhesChecklist() {
+            const modal = document.getElementById('modal-detalhes-checklist');
+            if (modal) modal.classList.add('hidden');
         }
 
         // ==================== SOS MODAL ====================
