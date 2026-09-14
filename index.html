@@ -1752,8 +1752,9 @@
         let filtroIndicadores = {
             categoria: 'todas', // 'todas', 'maquinas', 'veiculos'
             unidade: 'todas',    // 'todas', 'FILIAL', 'MATRIZ'
-            maquinasSelecionadas: [] // Array de códigos selecionados; se vazio, todas selecionadas
+            maquinasSelecionadas: null // null = todas do filtro ativas; array = códigos específicos
         };
+        let painelEquipamentosIndicadoresAberto = false;
 
         // Filtros da Aba de Checklists (Planilha)
         let filtroChecklist = {
@@ -1912,15 +1913,18 @@
 
         // ==================== ABA 1: INDICADORES COM MULTI-FILTRO ====================
         function renderAbaDashboard(container) {
-            let maquinasFiltradas = cacheGestor.maquinas.filter(m => {
-                if (filtroIndicadores.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroIndicadores.categoria) return false;
-                if (filtroIndicadores.unidade !== 'todas' && m.unidade !== filtroIndicadores.unidade) return false;
-                if (filtroIndicadores.maquinasSelecionadas.length > 0 && !filtroIndicadores.maquinasSelecionadas.includes(m.codigo)) return false;
-                return true;
-            });
+            const maquinasElegiveis = getMaquinasElegiveisIndicadores();
+
+            // Filtrar máquinas ativas respeitando a seleção individual (se definida)
+            let maquinasFiltradas;
+            if (filtroIndicadores.maquinasSelecionadas === null) {
+                maquinasFiltradas = maquinasElegiveis;
+            } else {
+                maquinasFiltradas = maquinasElegiveis.filter(m => filtroIndicadores.maquinasSelecionadas.includes(m.codigo));
+            }
 
             const codigosFiltrados = maquinasFiltradas.map(m => m.codigo);
-            const semRestricao = filtroIndicadores.categoria === 'todas' && filtroIndicadores.unidade === 'todas' && filtroIndicadores.maquinasSelecionadas.length === 0;
+            const semRestricao = filtroIndicadores.categoria === 'todas' && filtroIndicadores.unidade === 'todas' && filtroIndicadores.maquinasSelecionadas === null;
             const checklistsFiltrados = cacheGestor.checklists.filter(c => semRestricao || codigosFiltrados.includes(c.empilhadeira));
             const ordensFiltradas = cacheGestor.ordens.filter(o => semRestricao || codigosFiltrados.includes(o.maquina_nome));
 
@@ -1930,8 +1934,14 @@
             const totalComProblema = checklistsFiltrados.filter(c => c.tem_problema).length;
             const taxaConformidade = checklistsFiltrados.length > 0 ? Math.round(((checklistsFiltrados.length - totalComProblema) / checklistsFiltrados.length) * 100) : 100;
 
-            const maquinasFilial = cacheGestor.maquinas.filter(m => m.unidade === 'FILIAL');
-            const maquinasMatriz = cacheGestor.maquinas.filter(m => m.unidade === 'MATRIZ');
+            // Subgrupos APENAS dentro dos elegíveis (obedecendo Categoria e Unidade)
+            const maquinasFilial = maquinasElegiveis.filter(m => m.unidade === 'FILIAL');
+            const maquinasMatriz = maquinasElegiveis.filter(m => m.unidade === 'MATRIZ');
+
+            const totalSelecionadas = filtroIndicadores.maquinasSelecionadas === null ? maquinasElegiveis.length : maquinasFiltradas.length;
+            const textoStatusSel = filtroIndicadores.maquinasSelecionadas === null
+                ? `TODAS SELECIONADAS (${maquinasElegiveis.length}/${maquinasElegiveis.length})`
+                : `${totalSelecionadas} DE ${maquinasElegiveis.length} SELECIONADAS`;
 
             container.innerHTML = `
                 <div class="space-y-4">
@@ -1950,7 +1960,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                             <div>
                                 <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Categoria</label>
-                                <select onchange="setFiltroIndicador('categoria', this.value)" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-2 focus:outline-none focus:border-orange-500">
+                                <select onchange="setFiltroIndicador('categoria', this.value)" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-2 focus:outline-none focus:border-orange-500 font-semibold">
                                     <option value="todas" ${filtroIndicadores.categoria === 'todas' ? 'selected' : ''}>Todos os Equipamentos</option>
                                     <option value="maquinas" ${filtroIndicadores.categoria === 'maquinas' ? 'selected' : ''}>Só Máquinas / Empilhadeiras</option>
                                     <option value="veiculos" ${filtroIndicadores.categoria === 'veiculos' ? 'selected' : ''}>Só Veículos / Caminhões</option>
@@ -1959,7 +1969,7 @@
 
                             <div>
                                 <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Unidade</label>
-                                <select onchange="setFiltroIndicador('unidade', this.value)" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-2 focus:outline-none focus:border-orange-500">
+                                <select onchange="setFiltroIndicador('unidade', this.value)" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-2 focus:outline-none focus:border-orange-500 font-semibold">
                                     <option value="todas" ${filtroIndicadores.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
                                     <option value="FILIAL" ${filtroIndicadores.unidade === 'FILIAL' ? 'selected' : ''}>Unidade FILIAL</option>
                                     <option value="MATRIZ" ${filtroIndicadores.unidade === 'MATRIZ' ? 'selected' : ''}>Unidade MATRIZ</option>
@@ -1971,45 +1981,101 @@
                                 <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 flex items-center justify-between">
                                     <span>Exibindo <strong>${maquinasFiltradas.length}</strong> de ${cacheGestor.maquinas.length} equipamentos</span>
                                     <span class="text-[10px] text-orange-700 font-mono-num font-bold">
-                                        ${filtroIndicadores.maquinasSelecionadas.length === 0 ? 'TODAS SELECIONADAS' : filtroIndicadores.maquinasSelecionadas.length + ' SELECIONADAS'}
+                                        ${textoStatusSel}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Linha 2: Chips de Seleção Múltipla Separados por FILIAL e MATRIZ -->
+                        <!-- Linha 2: Seletor Compacto e Organizado de Equipamentos com Abrir/Fechar -->
                         <div class="pt-2 border-t border-slate-200/80 space-y-2">
-                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
-                                Selecionar equipamentos
-                            </span>
-                            
-                            <!-- Grupo FILIAL -->
-                            <div class="space-y-1">
-                                <span class="text-[10px] font-mono-num text-orange-700 font-bold uppercase">FILIAL:</span>
-                                <div class="flex flex-wrap gap-1.5">
-                                    ${maquinasFilial.map(m => {
-                                        const isSel = filtroIndicadores.maquinasSelecionadas.includes(m.codigo);
-                                        return `
-                                        <button onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-1 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-slate-900 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900'}">
-                                            ${isSel ? '✓ ' : ''}${m.codigo}
-                                        </button>`;
-                                    }).join('')}
+                            <!-- Barra de Controle Compacta (Cabeçalho do Accordion) -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 p-2 px-3 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition">
+                                <div class="flex items-center gap-2 cursor-pointer select-none" onclick="togglePainelEquipamentosIndicadores()" title="Clique para abrir ou recolher a lista de equipamentos">
+                                    <div class="w-6 h-6 rounded-md bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold">
+                                        <i class="fa-solid fa-layer-group"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-900">Selecionar equipamentos</span>
+                                        <span class="text-[11px] font-mono-num font-semibold text-slate-500 ml-1.5">
+                                            (${totalSelecionadas} de ${maquinasElegiveis.length} ativos no filtro)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="selecionarTodasMaquinasFiltro(true)" class="text-[10px] font-bold text-orange-700 hover:text-orange-800 px-2.5 py-1 rounded bg-orange-50 hover:bg-orange-100 border border-orange-300 transition flex items-center gap-1 shadow-sm" title="Marcar todos os equipamentos que obedecem a Categoria e Unidade selecionadas">
+                                        <i class="fa-solid fa-check-double"></i> Marcar todos (${maquinasElegiveis.length})
+                                    </button>
+                                    <button type="button" onclick="selecionarTodasMaquinasFiltro(false)" class="text-[10px] font-bold text-slate-600 hover:text-slate-800 px-2.5 py-1 rounded bg-white hover:bg-slate-50 border border-slate-300 transition flex items-center gap-1" title="Desmarcar todos os equipamentos deste filtro">
+                                        <i class="fa-solid fa-xmark"></i> Desmarcar todos
+                                    </button>
+                                    <button type="button" onclick="togglePainelEquipamentosIndicadores()" class="text-[10px] font-bold text-slate-700 hover:text-slate-900 px-2.5 py-1 rounded bg-white hover:bg-slate-50 border border-slate-300 transition flex items-center gap-1 shadow-sm" title="${painelEquipamentosIndicadoresAberto ? 'Recolher painel' : 'Abrir painel'}">
+                                        ${painelEquipamentosIndicadoresAberto ? '<i class="fa-solid fa-chevron-up"></i> Fechar' : '<i class="fa-solid fa-chevron-down"></i> Abrir'}
+                                    </button>
                                 </div>
                             </div>
 
-                            <!-- Grupo MATRIZ -->
-                            <div class="space-y-1 pt-1">
-                                <span class="text-[10px] font-mono-num text-amber-700 font-bold uppercase">MATRIZ:</span>
-                                <div class="flex flex-wrap gap-1.5">
-                                    ${maquinasMatriz.map(m => {
-                                        const isSel = filtroIndicadores.maquinasSelecionadas.includes(m.codigo);
-                                        return `
-                                        <button onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-1 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-slate-900 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900'}">
-                                            ${isSel ? '✓ ' : ''}${m.codigo}
-                                        </button>`;
-                                    }).join('')}
-                                </div>
+                            <!-- Painel Expansível de Chips de Equipamentos -->
+                            ${painelEquipamentosIndicadoresAberto ? `
+                            <div class="p-3 bg-slate-50/70 border border-slate-200 rounded-lg space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                                ${maquinasElegiveis.length === 0 ? `
+                                    <div class="text-center py-3 text-xs text-slate-500 font-medium">
+                                        <i class="fa-solid fa-circle-info mr-1 text-slate-400"></i> Nenhum equipamento encontrado para a Categoria e Unidade selecionadas.
+                                    </div>
+                                ` : ''}
+
+                                <!-- Grupo FILIAL (obedecendo filtros) -->
+                                ${maquinasFilial.length > 0 ? `
+                                    <div class="space-y-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono-num text-orange-700 font-bold uppercase flex items-center gap-1.5">
+                                                <span class="w-2 h-2 rounded-full bg-orange-600"></span> FILIAL (${maquinasFilial.length}):
+                                            </span>
+                                            <div class="flex items-center gap-1.5 text-[10px]">
+                                                <button type="button" onclick="selecionarMaquinasUnidade('FILIAL', true)" class="text-orange-700 hover:underline font-bold">Marcar Filial</button>
+                                                <span class="text-slate-300">|</span>
+                                                <button type="button" onclick="selecionarMaquinasUnidade('FILIAL', false)" class="text-slate-500 hover:underline font-medium">Desmarcar</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${maquinasFilial.map(m => {
+                                                const isSel = isMaquinaSelecionada(m.codigo);
+                                                return `
+                                                <button type="button" onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-0.5 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'}">
+                                                    ${isSel ? '✓ ' : ''}${m.codigo}
+                                                </button>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Grupo MATRIZ (obedecendo filtros) -->
+                                ${maquinasMatriz.length > 0 ? `
+                                    <div class="space-y-1 ${maquinasFilial.length > 0 ? 'pt-2 border-t border-slate-200/60' : ''}">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono-num text-amber-700 font-bold uppercase flex items-center gap-1.5">
+                                                <span class="w-2 h-2 rounded-full bg-amber-600"></span> MATRIZ (${maquinasMatriz.length}):
+                                            </span>
+                                            <div class="flex items-center gap-1.5 text-[10px]">
+                                                <button type="button" onclick="selecionarMaquinasUnidade('MATRIZ', true)" class="text-amber-700 hover:underline font-bold">Marcar Matriz</button>
+                                                <span class="text-slate-300">|</span>
+                                                <button type="button" onclick="selecionarMaquinasUnidade('MATRIZ', false)" class="text-slate-500 hover:underline font-medium">Desmarcar</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${maquinasMatriz.map(m => {
+                                                const isSel = isMaquinaSelecionada(m.codigo);
+                                                return `
+                                                <button type="button" onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-0.5 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'}">
+                                                    ${isSel ? '✓ ' : ''}${m.codigo}
+                                                </button>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
                             </div>
+                            ` : ''}
                         </div>
                     </div>
 
@@ -2109,17 +2175,87 @@
             `;
         }
 
+        function getMaquinasElegiveisIndicadores() {
+            return cacheGestor.maquinas.filter(m => {
+                if (filtroIndicadores.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroIndicadores.categoria) return false;
+                if (filtroIndicadores.unidade !== 'todas' && m.unidade !== filtroIndicadores.unidade) return false;
+                return true;
+            });
+        }
+
+        function isMaquinaSelecionada(codigo) {
+            if (filtroIndicadores.maquinasSelecionadas === null) return true;
+            return filtroIndicadores.maquinasSelecionadas.includes(codigo);
+        }
+
+        function togglePainelEquipamentosIndicadores() {
+            painelEquipamentosIndicadoresAberto = !painelEquipamentosIndicadoresAberto;
+            renderizarAbaAtualGestor();
+        }
+
         function setFiltroIndicador(campo, val) {
             filtroIndicadores[campo] = val;
+            // Ao alterar Categoria ou Unidade, sincronizar a seleção respeitando o novo escopo
+            if (filtroIndicadores.maquinasSelecionadas !== null) {
+                const codigosElegiveis = new Set(getMaquinasElegiveisIndicadores().map(m => m.codigo));
+                filtroIndicadores.maquinasSelecionadas = filtroIndicadores.maquinasSelecionadas.filter(cod => codigosElegiveis.has(cod));
+                // Se todas as máquinas elegíveis sobraram ou se nenhuma sobrou, restaura para todas ativas
+                if (filtroIndicadores.maquinasSelecionadas.length === 0 || filtroIndicadores.maquinasSelecionadas.length === codigosElegiveis.size) {
+                    filtroIndicadores.maquinasSelecionadas = null;
+                }
+            }
             renderizarAbaAtualGestor();
         }
 
         function toggleFiltroMaquinaMulti(codigo) {
-            const idx = filtroIndicadores.maquinasSelecionadas.indexOf(codigo);
-            if (idx >= 0) {
-                filtroIndicadores.maquinasSelecionadas.splice(idx, 1);
+            const elegiveis = getMaquinasElegiveisIndicadores().map(m => m.codigo);
+            if (filtroIndicadores.maquinasSelecionadas === null) {
+                // Estavam todas selecionadas: desseleciona o código clicado
+                filtroIndicadores.maquinasSelecionadas = elegiveis.filter(c => c !== codigo);
             } else {
-                filtroIndicadores.maquinasSelecionadas.push(codigo);
+                const idx = filtroIndicadores.maquinasSelecionadas.indexOf(codigo);
+                if (idx >= 0) {
+                    filtroIndicadores.maquinasSelecionadas.splice(idx, 1);
+                } else {
+                    filtroIndicadores.maquinasSelecionadas.push(codigo);
+                }
+                // Se selecionou todas as elegíveis, volta para o estado null (todas ativas)
+                if (filtroIndicadores.maquinasSelecionadas.length === elegiveis.length) {
+                    filtroIndicadores.maquinasSelecionadas = null;
+                }
+            }
+            renderizarAbaAtualGestor();
+        }
+
+        function selecionarTodasMaquinasFiltro(selecionar) {
+            if (selecionar) {
+                filtroIndicadores.maquinasSelecionadas = null; // todas elegíveis selecionadas
+            } else {
+                filtroIndicadores.maquinasSelecionadas = []; // nenhuma selecionada
+            }
+            renderizarAbaAtualGestor();
+        }
+
+        function selecionarMaquinasUnidade(unidade, selecionar) {
+            const elegiveis = getMaquinasElegiveisIndicadores();
+            const codigosUnidade = elegiveis.filter(m => m.unidade === unidade).map(m => m.codigo);
+
+            let listaAtual = filtroIndicadores.maquinasSelecionadas === null 
+                ? elegiveis.map(m => m.codigo) 
+                : [...filtroIndicadores.maquinasSelecionadas];
+
+            if (selecionar) {
+                codigosUnidade.forEach(cod => {
+                    if (!listaAtual.includes(cod)) listaAtual.push(cod);
+                });
+            } else {
+                listaAtual = listaAtual.filter(cod => !codigosUnidade.includes(cod));
+            }
+
+            if (listaAtual.length === elegiveis.length) {
+                filtroIndicadores.maquinasSelecionadas = null;
+            } else {
+                filtroIndicadores.maquinasSelecionadas = listaAtual;
             }
             renderizarAbaAtualGestor();
         }
@@ -2127,7 +2263,8 @@
         function limparFiltroIndicadores() {
             filtroIndicadores.categoria = 'todas';
             filtroIndicadores.unidade = 'todas';
-            filtroIndicadores.maquinasSelecionadas = [];
+            filtroIndicadores.maquinasSelecionadas = null;
+            painelEquipamentosIndicadoresAberto = false;
             renderizarAbaAtualGestor();
         }
 
