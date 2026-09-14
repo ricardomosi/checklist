@@ -212,7 +212,7 @@
             <p class="text-xs text-slate-600 mb-5">Digite a senha PIN de 4 dígitos diretamente no teclado:</p>
             
             <div class="max-w-[220px] mx-auto mb-4">
-                <input type="password" id="input-pin-fisico" maxlength="4" inputmode="numeric" placeholder="••••" autocomplete="off"
+                <input type="password" id="input-pin-fisico" maxlength="4" inputmode="numeric" placeholder="••••" autocomplete="new-password" data-lpignore="true"
                     class="w-full bg-slate-50 border-2 border-slate-300 focus:border-orange-600 rounded-xl h-14 text-center text-3xl font-mono-num font-bold tracking-[0.5em] text-slate-900 focus:outline-none focus:ring-4 focus:ring-orange-100 transition shadow-inner">
                 <p id="pin-erro-msg" class="text-red-600 text-xs font-bold mt-2 hidden">PIN incorreto. Tente novamente.</p>
             </div>
@@ -600,12 +600,12 @@
         let frotaTotal = [
             // FILIAL - EMPILHADEIRAS
             { id: '1', codigo: 'CLA-RCK1', nome: 'CLA-RCK1', modelo: 'Clark Retrátil RCK1', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 1450, horimetro_ultima_preventiva: 1250, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
-            { id: '2', codigo: 'EMP-FD70', nome: 'EMP-FD70 (ZOOMLION FD70)', modelo: 'ZOOMLION FD70 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 13339, horimetro_ultima_preventiva: 13200, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '2', codigo: 'EMP-FD70', nome: 'EMP-FD70', modelo: 'ZOOMLION FD70 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 13339, horimetro_ultima_preventiva: 13200, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
             { id: '3', codigo: 'JHC-01', nome: 'JHC-01', modelo: 'Jungheinrich JHC-01', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 3200, horimetro_ultima_preventiva: 3000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
-            { id: '4', codigo: 'CHL-7T01', nome: 'CHL-7T01 (CHLCPCD 70)', modelo: 'CHL CPCD 70 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 12004, horimetro_ultima_preventiva: 11800, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '4', codigo: 'CHL-7T01', nome: 'CHL-7T01', modelo: 'CHL CPCD 70 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 12004, horimetro_ultima_preventiva: 11800, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
             { id: '5', codigo: 'EMP-EL20', nome: 'EMP-EL20', modelo: 'Empilhadeira Elétrica 2.0T', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 890, horimetro_ultima_preventiva: 750, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
-            { id: '6', codigo: 'EMP-FD35', nome: 'EMP-FD35 (ZOOMLION FD35)', modelo: 'ZOOMLION FD35 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 7955, horimetro_ultima_preventiva: 7800, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
-            { id: '7', codigo: 'EMP-T50A', nome: 'EMP-T50A (CHINESA T50A)', modelo: 'Chinesa T50A GLP', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 1200, horimetro_ultima_preventiva: 1000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '6', codigo: 'EMP-FD35', nome: 'EMP-FD35', modelo: 'ZOOMLION FD35 Diesel', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 7955, horimetro_ultima_preventiva: 7800, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
+            { id: '7', codigo: 'EMP-T50A', nome: 'EMP-T50A', modelo: 'Chinesa T50A GLP', unidade: 'FILIAL', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 1200, horimetro_ultima_preventiva: 1000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
 
             // MATRIZ - EMPILHADEIRAS
             { id: '8', codigo: 'EMP-0402', nome: 'EMP-0402', modelo: 'Empilhadeira 0402', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 4120, horimetro_ultima_preventiva: 4000, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
@@ -615,37 +615,161 @@
             { id: '12', codigo: 'EMP-FD36', nome: 'EMP-FD36', modelo: 'Empilhadeira FD36 Diesel', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 3890, horimetro_ultima_preventiva: 3750, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
             { id: '13', codigo: 'EMP-FD72', nome: 'EMP-FD72', modelo: 'Empilhadeira FD72 Diesel', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 2450, horimetro_ultima_preventiva: 2250, intervalo_preventiva_horas: 250, status_operacional: 'operando' },
 
-            // VEÍCULOS
-            { id: '14', codigo: 'CAM-01', nome: 'CAMINHÃO MERCEDES 2428', modelo: 'Atego 2428', marca: 'Mercedes-Benz', placa: 'JPR-2024', unidade: 'MATRIZ', categoria: 'veiculos', tipo: 'caminhao', tipo_controle: 'km', km_atual: 184500, km_ultima_preventiva: 175000, intervalo_km: 10000, status_operacional: 'operando' },
-            { id: '15', codigo: 'CAM-02', nome: 'CAMINHÃO VOLVO VM 270', modelo: 'VM 270 6x2', marca: 'Volvo', placa: 'JPR-5890', unidade: 'FILIAL', categoria: 'veiculos', tipo: 'caminhao', tipo_controle: 'km', km_atual: 92300, km_ultima_preventiva: 85000, intervalo_km: 10000, status_operacional: 'operando' },
-            { id: '16', codigo: 'UTIL-01', nome: 'STRADA FREEDOM', modelo: 'Strada 1.3', marca: 'Fiat', placa: 'BRA-3E12', unidade: 'MATRIZ', categoria: 'veiculos', tipo: 'utilitario', tipo_controle: 'km', km_atual: 45200, km_ultima_preventiva: 40000, intervalo_km: 10000, status_operacional: 'operando' },
-            { id: '17', codigo: 'UTIL-02', nome: 'HILUX 4X4 CABINE DUPLA', modelo: 'Hilux D-4D 2.8', marca: 'Toyota', placa: 'HLX-7788', unidade: 'FILIAL', categoria: 'veiculos', tipo: 'utilitario', tipo_controle: 'km', km_atual: 68100, km_ultima_preventiva: 60000, intervalo_km: 10000, status_operacional: 'operando' }
+            // DOOSAN - ESCAVADEIRAS DE RODAS
+            { id: '14', codigo: 'Doosan 01', nome: 'Doosan 01', modelo: 'Escavadeira de Rodas Doosan 01', marca: 'Doosan', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'doosan', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' },
+            { id: '15', codigo: 'Doosan 02', nome: 'Doosan 02', modelo: 'Escavadeira de Rodas Doosan 02', marca: 'Doosan', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'doosan', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' },
+            { id: '16', codigo: 'Doosan 03', nome: 'Doosan 03', modelo: 'Escavadeira de Rodas Doosan 03', marca: 'Doosan', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'doosan', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' },
+
+            // HYUNDAI - ESCAVADEIRA DE ESTEIRA
+            { id: '17', codigo: 'Hyundai 01', nome: 'Hyundai 01', modelo: 'Escavadeira de Esteira Hyundai', marca: 'Hyundai', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'hyundai', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' },
+
+            // MOTOCANA
+            { id: '18', codigo: 'Motocana 01', nome: 'Motocana 01', modelo: 'Carregadeira / Garra Motocana', marca: 'Motocana', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'motocana', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' }
         ];
 
-        let listaOperadores = [
-            { nome: 'Damião Candido da Silva' },
-            { nome: 'Lázaro Antonio de Almeida' },
-            { nome: 'Ivanaldo Alves Ferreira Filho' }
+        const OPERADORES_POR_TIPO = {
+            empilhadeiras: [
+                'Damião Candido da Silva',
+                'Lázaro Antonio de Almeida',
+                'Ivanaldo Alves Ferreira Filho'
+            ],
+            doosan: [
+                'Francisco Soares de Souza',
+                'Clébio Veríssimo de Paula',
+                'Ivanaldo Alves Ferreira Filho',
+                'Jailson Edson Rosario'
+            ],
+            hyundai: [
+                'Jailson Edson Rosario',
+                'Francisco Soares de Souza',
+                'Clébio Veríssimo de Paula'
+            ],
+            motocana: [
+                'Francisco Soares de Souza',
+                'Clébio Veríssimo de Paula',
+                'Ivanaldo Alves Ferreira Filho',
+                'Jailson Edson Rosario'
+            ]
+        };
+
+        let listaOperadores = OPERADORES_POR_TIPO.empilhadeiras.map(nome => ({ nome }));
+
+        // CHECKLIST 1: EMPILHADEIRAS (16 itens)
+        const checklistItemsEmpilhadeira = [
+            { id: 'cilindros_elevacao', secao: 'Sistema Hidráulico', title: 'Cilindros de Elevação', question: 'Verifique os cilindros de elevação. Estão normais?', icon: 'fa-arrows-up-down' },
+            { id: 'cilindros_inclinacao', secao: 'Sistema Hidráulico', title: 'Cilindros de Inclinação', question: 'Verifique os cilindros de inclinação. Estão normais?', icon: 'fa-compress-arrows-alt' },
+            { id: 'mangueiras_conexoes', secao: 'Sistema Hidráulico', title: 'Mangueiras e Conexões', question: 'Como estão as mangueiras e as conexões?', icon: 'fa-bezier-curve' },
+            { id: 'estado_lanternas', secao: 'Elétrica e Sinalização', title: 'Lanternas', question: 'As lanternas estão ligando e funcionando bem?', icon: 'fa-lightbulb' },
+            { id: 'buzina_sirene', secao: 'Elétrica e Sinalização', title: 'Buzina e Sirene', question: 'A buzina e a sirene de ré estão apitando?', icon: 'fa-bullhorn' },
+            { id: 'funcionamento_painel', secao: 'Cabine e Instrumentos', title: 'Painel', question: 'O painel acende e mostra os ponteiros certinhos?', icon: 'fa-gauge-high' },
+            { id: 'nivel_oleo_motor', secao: 'Motor e Fluídos', title: 'Óleo do Motor', question: 'O nível do óleo do motor está correto?', icon: 'fa-eye-dropper' },
+            { id: 'vazamentos_motor_caixa', secao: 'Motor e Fluídos', title: 'Motor e Caixa', question: 'Tem algum vazamento no motor ou na caixa?', icon: 'fa-oil-can' },
+            { id: 'nivel_arrefecimento', secao: 'Motor e Fluídos', title: 'Água do Radiador', question: 'O nível do líquido de arrefecimento está correto?', icon: 'fa-temperature-half' },
+            { id: 'mangotes_agua', secao: 'Motor e Fluídos', title: 'Mangotes de Água', question: 'Os mangotes de água estão ressecados ou furados?', icon: 'fa-water' },
+            { id: 'radiador', secao: 'Motor e Fluídos', title: 'Radiador', question: 'O radiador está furado ou entupido?', icon: 'fa-snowflake' },
+            { id: 'freio_servico', secao: 'Freios e Direção', title: 'Freio de Pé', question: 'O freio de serviço, o freio de pé, está funcionando bem?', icon: 'fa-shoe-prints' },
+            { id: 'freio_estacionamento', secao: 'Freios e Direção', title: 'Freio de Mão', question: 'O freio de estacionamento, o freio de mão, está segurando?', icon: 'fa-parking' },
+            { id: 'parafusos_pneu', secao: 'Rodagem', title: 'Parafusos do Pneu', question: 'Os parafusos do pneu estão todos no lugar e apertados?', icon: 'fa-wrench' },
+            { id: 'estado_pneus', secao: 'Rodagem', title: 'Estado dos Pneus', question: 'Os pneus estão em bom estado, sem estarem carecas ou cortados?', icon: 'fa-circle-notch' },
+            { id: 'cilindros_direcao', secao: 'Freios e Direção', title: 'Cilindros de Direção', question: 'Como estão os cilindros da direção?', icon: 'fa-steering-wheel' }
         ];
 
-        const checklistItems = [
-            { id: 'cilindros_elevacao', title: 'Cilindros de Elevação', question: 'Verifique os cilindros de elevação. Estão normais?', icon: 'fa-arrows-up-down' },
-            { id: 'cilindros_inclinacao', title: 'Cilindros de Inclinação', question: 'Verifique os cilindros de inclinação. Estão normais?', icon: 'fa-compress-arrows-alt' },
-            { id: 'mangueiras_conexoes', title: 'Mangueiras e Conexões', question: 'Como estão as mangueiras e as conexões?', icon: 'fa-bezier-curve' },
-            { id: 'estado_lanternas', title: 'Lanternas', question: 'As lanternas estão ligando e funcionando bem?', icon: 'fa-lightbulb' },
-            { id: 'buzina_sirene', title: 'Buzina e Sirene', question: 'A buzina e a sirene de ré estão apitando?', icon: 'fa-bullhorn' },
-            { id: 'funcionamento_painel', title: 'Painel', question: 'O painel acende e mostra os ponteiros certinhos?', icon: 'fa-gauge-high' },
-            { id: 'nivel_oleo_motor', title: 'Óleo do Motor', question: 'O nível do óleo do motor está correto?', icon: 'fa-eye-dropper' },
-            { id: 'vazamentos_motor_caixa', title: 'Motor e Caixa', question: 'Tem algum vazamento no motor ou na caixa?', icon: 'fa-oil-can' },
-            { id: 'nivel_arrefecimento', title: 'Água do Radiador', question: 'O nível do líquido de arrefecimento está correto?', icon: 'fa-temperature-half' },
-            { id: 'mangotes_agua', title: 'Mangotes de Água', question: 'Os mangotes de água estão ressecados ou furados?', icon: 'fa-water' },
-            { id: 'radiador', title: 'Radiador', question: 'O radiador está furado ou entupido?', icon: 'fa-snowflake' },
-            { id: 'freio_servico', title: 'Freio de Pé', question: 'O freio de serviço, o freio de pé, está funcionando bem?', icon: 'fa-shoe-prints' },
-            { id: 'freio_estacionamento', title: 'Freio de Mão', question: 'O freio de estacionamento, o freio de mão, está segurando?', icon: 'fa-parking' },
-            { id: 'parafusos_pneu', title: 'Parafusos do Pneu', question: 'Os parafusos do pneu estão todos no lugar e apertados?', icon: 'fa-wrench' },
-            { id: 'estado_pneus', title: 'Estado dos Pneus', question: 'Os pneus estão em bom estado, sem estarem carecas ou cortados?', icon: 'fa-circle-notch' },
-            { id: 'cilindros_direcao', title: 'Cilindros de Direção', question: 'Como estão os cilindros da direção?', icon: 'fa-steering-wheel' }
+        // CHECKLIST 2: DOOSAN - ESCAVADEIRA DE RODAS (29 itens)
+        const checklistItemsDoosan = [
+            // 2. AVALIAÇÃO DO MOTOR E RADIADOR
+            { id: 'd_nivel_oleo_motor', secao: '2. Avaliação do Motor e Radiador', title: 'Nível de óleo do motor', question: 'O nível de óleo do motor está correto?', icon: 'fa-oil-can' },
+            { id: 'd_vazamentos_motor', secao: '2. Avaliação do Motor e Radiador', title: 'Vazamentos no motor', question: 'Existe algum vazamento no motor?', icon: 'fa-triangle-exclamation' },
+            { id: 'd_nivel_arrefecimento', secao: '2. Avaliação do Motor e Radiador', title: 'Nível do líquido de arrefecimento', question: 'O nível do líquido de arrefecimento está correto?', icon: 'fa-temperature-half' },
+            { id: 'd_vazamentos_arrefecimento', secao: '2. Avaliação do Motor e Radiador', title: 'Vazamentos no sistema de arrefecimento', question: 'Há vazamentos no sistema de arrefecimento?', icon: 'fa-droplet' },
+            { id: 'd_mangotes_agua', secao: '2. Avaliação do Motor e Radiador', title: 'Mangotes de água', question: 'Os mangotes de água estão íntegros e sem vazamentos?', icon: 'fa-water' },
+            { id: 'd_radiador', secao: '2. Avaliação do Motor e Radiador', title: 'Radiador', question: 'O radiador está limpo, desobstruído e sem trincas?', icon: 'fa-snowflake' },
+
+            // 3. AVALIAÇÃO DA BOMBA E COMANDO HIDRÁULICO
+            { id: 'd_nivel_oleo_hidraulico', secao: '3. Avaliação da Bomba e Comando Hidráulico', title: 'Nível do óleo hidráulico', question: 'O nível do óleo hidráulico está adequado?', icon: 'fa-oil-can' },
+            { id: 'd_vazamentos_bomba', secao: '3. Avaliação da Bomba e Comando Hidráulico', title: 'Vazamentos na bomba hidráulica', question: 'A bomba hidráulica apresenta algum vazamento?', icon: 'fa-gear' },
+            { id: 'd_vazamentos_comando', secao: '3. Avaliação da Bomba e Comando Hidráulico', title: 'Vazamentos no comando hidráulico', question: 'O bloco de comando hidráulico apresenta vazamentos?', icon: 'fa-sliders' },
+            { id: 'd_nivel_motor_giro', secao: '3. Avaliação da Bomba e Comando Hidráulico', title: 'Nível de óleo do motor de giro', question: 'O nível de óleo do motor de giro está correto?', icon: 'fa-arrows-rotate' },
+
+            // 4. AVALIAÇÃO DOS CILINDROS HIDRÁULICOS
+            { id: 'd_cilindros_elevacao', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Cilindros de elevação', question: 'Os cilindros de elevação estão em bom estado?', icon: 'fa-arrows-up-down' },
+            { id: 'd_cilindros_inclinacao', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Cilindros de inclinação', question: 'Os cilindros de inclinação operam normalmente?', icon: 'fa-compress-arrows-alt' },
+            { id: 'd_cilindros_patolas', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Cilindros das patolas', question: 'Os cilindros das patolas estão firmes e operando?', icon: 'fa-anchor' },
+            { id: 'd_cilindros_direcao', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Cilindros da direção', question: 'Os cilindros de direção respondem prontamente?', icon: 'fa-steering-wheel' },
+            { id: 'd_vazamentos_cilindros', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Vazamentos hidráulico dos cilindros', question: 'Existe vazamento nas vedações ou hastes dos cilindros?', icon: 'fa-droplet' },
+            { id: 'd_mangueiras_cilindros', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Mangueiras e conexões hidráulicas dos cilindros', question: 'Mangueiras e conexões dos cilindros estão sem vazamento e em bom estado?', icon: 'fa-bezier-curve' },
+
+            // 5. AVALIAÇÃO DA GARRA
+            { id: 'd_vazamentos_garra', secao: '5. Avaliação da Garra', title: 'Vazamentos hidráulico da garra', question: 'Há vazamentos no conjunto hidráulico da garra?', icon: 'fa-hand-back-fist' },
+            { id: 'd_mangueiras_garra', secao: '5. Avaliação da Garra', title: 'Mangueiras e conexões hidráulicas da garra', question: 'Mangueiras e conexões da garra estão íntegras?', icon: 'fa-bezier-curve' },
+            { id: 'd_cilindros_garra', secao: '5. Avaliação da Garra', title: 'Cilindros da garra', question: 'Os cilindros de fechamento e abertura da garra estão operando?', icon: 'fa-arrows-left-right' },
+            { id: 'd_motor_giro_garra', secao: '5. Avaliação da Garra', title: 'Motor de giro da garra', question: 'O motor de giro contínuo da garra funciona normalmente?', icon: 'fa-rotate' },
+
+            // 6. AVALIAÇÃO ELÉTRICA
+            { id: 'd_ar_condicionado', secao: '6. Avaliação Elétrica', title: 'Ar condicionado', question: 'O ar condicionado da cabine refrigera bem?', icon: 'fa-wind' },
+            { id: 'd_correias_alternador', secao: '6. Avaliação Elétrica', title: 'Correias do alternador', question: 'As correias do alternador estão tensionadas e sem trincas?', icon: 'fa-ring' },
+            { id: 'd_farois_lanternas', secao: '6. Avaliação Elétrica', title: 'Faróis e lanternas', question: 'Faróis dianteiros e lanternas estão funcionando perfeitamente?', icon: 'fa-lightbulb' },
+            { id: 'd_buzina_sirenes', secao: '6. Avaliação Elétrica', title: 'Buzina e sirenes', question: 'A buzina e as sirenes de aviso estão audíveis?', icon: 'fa-bullhorn' },
+            { id: 'd_painel_instrumentos', secao: '6. Avaliação Elétrica', title: 'Painel de instrumentos', question: 'O painel e todos os indicadores estão normais?', icon: 'fa-gauge-high' },
+
+            // 7. AVALIAÇÃO DOS FREIOS E RODAS
+            { id: 'd_freio_pe', secao: '7. Avaliação dos Freios e Rodas', title: 'Freio de pé', question: 'O freio de serviço/pé responde com firmeza?', icon: 'fa-shoe-prints' },
+            { id: 'd_freio_estacionamento', secao: '7. Avaliação dos Freios e Rodas', title: 'Freio de estacionamento', question: 'O freio de estacionamento trava com segurança?', icon: 'fa-parking' },
+            { id: 'd_parafusos_rodas', secao: '7. Avaliação dos Freios e Rodas', title: 'Parafusos das rodas', question: 'Todos os parafusos das rodas estão presentes e apertados?', icon: 'fa-wrench' },
+            { id: 'd_estado_pneus', secao: '7. Avaliação dos Freios e Rodas', title: 'Estado dos pneus', question: 'Os pneus estão em bom estado, sem cortes ou desgastes irregulares?', icon: 'fa-circle-notch' }
         ];
+
+        // CHECKLIST 3: HYUNDAI - ESCAVADEIRA DE ESTEIRA (28 itens)
+        const checklistItemsHyundai = [
+            // 2. AVALIAÇÃO DO MOTOR E RADIADOR
+            { id: 'h_nivel_oleo_motor', secao: '2. Avaliação do Motor e Radiador', title: 'Nível do óleo no motor', question: 'O nível de óleo do motor está correto?', icon: 'fa-oil-can' },
+            { id: 'h_vazamentos_motor', secao: '2. Avaliação do Motor e Radiador', title: 'Vazamentos no motor', question: 'Existe vazamento no bloco ou cárter do motor?', icon: 'fa-triangle-exclamation' },
+            { id: 'h_nivel_arrefecimento', secao: '2. Avaliação do Motor e Radiador', title: 'Nível do líquido de arrefecimento', question: 'O nível do líquido de arrefecimento está normal?', icon: 'fa-temperature-half' },
+            { id: 'h_vazamento_arrefecimento', secao: '2. Avaliação do Motor e Radiador', title: 'Vazamento no sistema de arrefecimento', question: 'Existe vazamento no circuito de arrefecimento?', icon: 'fa-droplet' },
+            { id: 'h_mangotes_agua', secao: '2. Avaliação do Motor e Radiador', title: 'Mangotes de água', question: 'Os mangotes estão flexíveis, sem vazamentos ou rachaduras?', icon: 'fa-water' },
+            { id: 'h_radiador', secao: '2. Avaliação do Motor e Radiador', title: 'Radiador', question: 'O radiador está desobstruído e sem vazamentos?', icon: 'fa-snowflake' },
+
+            // 3. AVALIAÇÃO HIDRÁULICA
+            { id: 'h_nivel_oleo_hidraulico', secao: '3. Avaliação Hidráulica', title: 'Nível do óleo hidráulico', question: 'O nível do tanque hidráulico está adequado?', icon: 'fa-oil-well' },
+            { id: 'h_vazamentos_bomba', secao: '3. Avaliação Hidráulica', title: 'Vazamentos na bomba hidráulica', question: 'A bomba hidráulica apresenta algum vazamento?', icon: 'fa-gear' },
+            { id: 'h_vazamentos_comando', secao: '3. Avaliação Hidráulica', title: 'Vazamentos no comando hidráulico', question: 'O comando hidráulico está limpo e sem vazamentos?', icon: 'fa-sliders' },
+            { id: 'h_nivel_motor_giro', secao: '3. Avaliação Hidráulica', title: 'Nível de óleo do motor de giro', question: 'O nível de óleo do motor de giro está correto?', icon: 'fa-arrows-rotate' },
+
+            // 4. AVALIAÇÃO DOS CILINDROS HIDRÁULICOS
+            { id: 'h_cilindros_elevacao', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Cilindros de elevação', question: 'Os cilindros de elevação do braço estão operando bem?', icon: 'fa-arrows-up-down' },
+            { id: 'h_cilindros_inclinacao', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Cilindros de inclinação', question: 'Os cilindros de inclinação da lança estão em ordem?', icon: 'fa-compress-arrows-alt' },
+            { id: 'h_vazamentos_hidraulico', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Vazamentos hidráulico', question: 'Há vazamentos hidráulicos nas hastes dos cilindros?', icon: 'fa-droplet' },
+            { id: 'h_mangueiras_conexoes', secao: '4. Avaliação dos Cilindros Hidráulicos', title: 'Mangueiras e conexões hidráulicas', question: 'As mangueiras e conexões dos cilindros estão firmes?', icon: 'fa-bezier-curve' },
+
+            // 5. AVALIAÇÃO DA GARRA
+            { id: 'h_vazamentos_garra', secao: '5. Avaliação da Garra', title: 'Vazamentos hidráulico da garra', question: 'Há vazamento hidráulico no conjunto da garra?', icon: 'fa-hand-back-fist' },
+            { id: 'h_mangueiras_garra', secao: '5. Avaliação da Garra', title: 'Mangueiras e conexões hidráulicas da garra', question: 'As conexões da garra estão íntegras?', icon: 'fa-bezier-curve' },
+            { id: 'h_cilindros_garra', secao: '5. Avaliação da Garra', title: 'Cilindros das garras', question: 'Os cilindros de abrir/fechar a garra operam normalmente?', icon: 'fa-arrows-left-right' },
+            { id: 'h_motor_giro_garra', secao: '5. Avaliação da Garra', title: 'Motor de giro da garra', question: 'O motor de rotação da garra opera perfeitamente?', icon: 'fa-rotate' },
+
+            // 6. AVALIAÇÃO ELÉTRICA
+            { id: 'h_ar_condicionado', secao: '6. Avaliação Elétrica', title: 'Ar condicionado', question: 'O ar condicionado da cabine refrigera bem?', icon: 'fa-wind' },
+            { id: 'h_correias_alternador', secao: '6. Avaliação Elétrica', title: 'Correias do alternador', question: 'As correias do alternador estão em bom estado?', icon: 'fa-ring' },
+            { id: 'h_farois_lanternas', secao: '6. Avaliação Elétrica', title: 'Faróis e lanternas', question: 'Faróis e lanternas estão funcionando perfeitamente?', icon: 'fa-lightbulb' },
+            { id: 'h_buzina_sirenes', secao: '6. Avaliação Elétrica', title: 'Buzina e sirenes', question: 'Buzina e alarmes operacionais funcionam bem?', icon: 'fa-bullhorn' },
+            { id: 'h_painel_instrumentos', secao: '6. Avaliação Elétrica', title: 'Painel de instrumentos', question: 'O painel e todos os visores estão operando?', icon: 'fa-gauge-high' },
+
+            // 7. AVALIAÇÃO DO CONJUNTO RODANTE
+            { id: 'h_esteiras', secao: '7. Avaliação do Conjunto Rodante', title: 'Esteiras', question: 'As esteiras estão com tensão correta e sapatas em bom estado?', icon: 'fa-grip-lines' },
+            { id: 'h_roletes', secao: '7. Avaliação do Conjunto Rodante', title: 'Roletes', question: 'Os roletes inferiores e superiores estão sem folgas anormais?', icon: 'fa-circle' },
+            { id: 'h_roda_guia', secao: '7. Avaliação do Conjunto Rodante', title: 'Roda guia', question: 'A roda guia está alinhada e íntegra?', icon: 'fa-circle-notch' },
+            { id: 'h_roda_motriz', secao: '7. Avaliação do Conjunto Rodante', title: 'Roda motriz', question: 'Os dentes da roda motriz estão em bom estado?', icon: 'fa-gear' },
+            { id: 'h_freio', secao: '7. Avaliação do Conjunto Rodante', title: 'Freio', question: 'O sistema de freio de translação está travando?', icon: 'fa-shoe-prints' }
+        ];
+
+        function getChecklistItemsAtuais() {
+            if (formData.tipo_maquina === 'doosan') return checklistItemsDoosan;
+            if (formData.tipo_maquina === 'hyundai') return checklistItemsHyundai;
+            if (formData.tipo_maquina === 'motocana') return checklistItemsDoosan;
+            return checklistItemsEmpilhadeira;
+        }
+
+        // Aliases globais para compatibilidade
+        const checklistItems = checklistItemsEmpilhadeira;
 
         // Estado do Formulário
         let currentStepIndex = -5;
@@ -726,15 +850,22 @@
         }
 
         // ==================== PROGRESSO E NAVEGAÇÃO ====================
+        function getOperadoresAtuais() {
+            const tipo = formData.tipo_maquina || 'empilhadeiras';
+            const nomes = OPERADORES_POR_TIPO[tipo] || OPERADORES_POR_TIPO.empilhadeiras;
+            return nomes.map(nome => ({ nome }));
+        }
+
         function updateProgress() {
-            let totalSteps = checklistItems.length + 5;
+            const itemsAtuais = getChecklistItemsAtuais();
+            let totalSteps = itemsAtuais.length + 5;
             let current = 1;
             if (currentStepIndex === -5) current = 1;
             else if (currentStepIndex === -4) current = 2;
             else if (currentStepIndex === -1) current = 3;
             else if (currentStepIndex === -2) current = 4;
             else if (currentStepIndex === -3) current = 5;
-            else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length) current = currentStepIndex + 6;
+            else if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length) current = currentStepIndex + 6;
             else if (currentStepIndex === 99) current = totalSteps;
 
             let percentage = (current / totalSteps) * 100;
@@ -748,17 +879,19 @@
         }
 
         function goBack() {
+            const itemsAtuais = getChecklistItemsAtuais();
             if (currentStepIndex === -5) return;
             if (currentStepIndex === -4) goToStep(-5);
             else if (currentStepIndex === -1) goToStep(-4);
             else if (currentStepIndex === -2) goToStep(-1);
             else if (currentStepIndex === -3) goToStep(-2);
             else if (currentStepIndex === 0) goToStep(-3);
-            else if (currentStepIndex > 0 && currentStepIndex < checklistItems.length) goToStep(currentStepIndex - 1);
-            else if (currentStepIndex === 99) goToStep(checklistItems.length - 1);
+            else if (currentStepIndex > 0 && currentStepIndex < itemsAtuais.length) goToStep(currentStepIndex - 1);
+            else if (currentStepIndex === 99) goToStep(itemsAtuais.length - 1);
         }
 
         function goNext() {
+            const itemsAtuais = getChecklistItemsAtuais();
             if (currentStepIndex === -5) {
                 if (formData.categoria === 'veiculos') {
                     alert("O módulo de Veículos (Caminhões e Utilitários) está em parametrização técnica. Selecione 'Máquinas' para continuar.");
@@ -775,15 +908,16 @@
                 if (!formData.horimetro) formData.horimetro = '0';
                 goToStep(0);
             }
-            else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length - 1) {
-                if (formData[checklistItems[currentStepIndex].id]) goToStep(currentStepIndex + 1);
+            else if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length - 1) {
+                if (formData[itemsAtuais[currentStepIndex].id]) goToStep(currentStepIndex + 1);
             }
-            else if (currentStepIndex === checklistItems.length - 1) {
-                if (formData[checklistItems[currentStepIndex].id]) goToStep(99);
+            else if (currentStepIndex === itemsAtuais.length - 1) {
+                if (formData[itemsAtuais[currentStepIndex].id]) goToStep(99);
             }
         }
 
         function renderNavButtons() {
+            const itemsAtuais = getChecklistItemsAtuais();
             if (currentStepIndex === 99) {
                 return `
                 <div class="w-full flex justify-start mt-3 shrink-0">
@@ -802,7 +936,7 @@
             if (currentStepIndex === -1 && formData.empilhadeira) canAdvance = true;
             if (currentStepIndex === -2 && formData.operador) canAdvance = true;
             if (currentStepIndex === -3 && (formData.horimetro !== '')) canAdvance = true;
-            if (currentStepIndex >= 0 && formData[checklistItems[currentStepIndex].id]) canAdvance = true;
+            if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length && formData[itemsAtuais[currentStepIndex].id]) canAdvance = true;
 
             let nextDisabled = !canAdvance ? 'opacity-40 cursor-not-allowed' : '';
             let nextAction = canAdvance ? 'onclick="goNext()"' : '';
@@ -832,6 +966,11 @@
 
         function selectTipoMaquina(tipo) {
             formData.tipo_maquina = tipo;
+            formData.empilhadeira = '';
+            formData.maquina_id = null;
+            formData.operador = '';
+            formData.horimetro = '';
+            formData.ultimo_horimetro = 0;
             renderCurrentStep();
         }
 
@@ -886,6 +1025,7 @@
         // ==================== RENDERIZADOR OPERADOR ====================
         function renderCurrentStep() {
             appOperador.innerHTML = '';
+            const itemsAtuais = getChecklistItemsAtuais();
 
             // PASSO -5: MÁQUINAS OU VEÍCULOS
             if (currentStepIndex === -5) {
@@ -945,8 +1085,8 @@
             else if (currentStepIndex === -4) {
                 const tipos = [
                     { id: 'empilhadeiras', nome: 'Empilhadeiras', desc: 'Frota Matriz & Filial', icon: 'fa-truck-ramp-box' },
-                    { id: 'doosan', nome: 'DOOSAN', desc: 'Pá Carregadeira / Escavadeira', icon: 'fa-cubes-stacked' },
-                    { id: 'hyundai', nome: 'HYUNDAI', desc: 'Pá Carregadeira / Trator', icon: 'fa-tractor' },
+                    { id: 'doosan', nome: 'DOOSAN', desc: 'Escavadeira de Rodas', icon: 'fa-cubes-stacked' },
+                    { id: 'hyundai', nome: 'HYUNDAI', desc: 'Escavadeira de Esteira', icon: 'fa-tractor' },
                     { id: 'motocana', nome: 'MOTOCANA', desc: 'Carregadeira de Cana', icon: 'fa-wheat-awn' }
                 ];
 
@@ -982,67 +1122,125 @@
                     </div>
                 `;
             }
-            // PASSO -1: ESCOLHER EMPILHADEIRA (FILIAL OU MATRIZ)
+            // PASSO -1: ESCOLHER MÁQUINA / PLACA CONFORME O TIPO SELECIONADO
             else if (currentStepIndex === -1) {
-                const maquinasDaUnidade = frotaTotal.filter(m => m.categoria === 'maquinas' && m.tipo === 'empilhadeira' && m.unidade === formData.unidade);
+                const isEmpilhadeira = formData.tipo_maquina === 'empilhadeiras' || !formData.tipo_maquina;
 
-                appOperador.innerHTML = `
-                    <div class="w-full flex flex-col h-full items-center justify-between">
-                        <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
-                            <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 3/5</span>
-                            <button onclick="speakText('Escolha se a máquina é da Filial ou da Matriz e toque nela.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
-                                <i class="fa-solid fa-volume-high text-base"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="text-center my-1 shrink-0">
-                            <h2 class="text-2xl font-bold text-slate-900">Qual Empilhadeira?</h2>
-                            <p class="text-xs text-slate-600">Escolha a Unidade e toque no código da máquina</p>
-                        </div>
+                if (isEmpilhadeira) {
+                    const maquinasDaUnidade = frotaTotal.filter(m => m.categoria === 'maquinas' && m.tipo === 'empilhadeira' && m.unidade === formData.unidade);
 
-                        <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ -->
-                        <div class="w-full grid grid-cols-2 gap-2 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
-                            <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                <i class="fa-solid fa-building"></i> FILIAL (${frotaTotal.filter(m => m.unidade === 'FILIAL' && m.tipo === 'empilhadeira').length})
-                            </button>
-                            <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                <i class="fa-solid fa-industry"></i> MATRIZ (${frotaTotal.filter(m => m.unidade === 'MATRIZ' && m.tipo === 'empilhadeira').length})
-                            </button>
-                        </div>
+                    appOperador.innerHTML = `
+                        <div class="w-full flex flex-col h-full items-center justify-between">
+                            <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                                <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 3/5</span>
+                                <button onclick="speakText('Escolha se a máquina é da Filial ou da Matriz e toque nela.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                    <i class="fa-solid fa-volume-high text-base"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="text-center my-1 shrink-0">
+                                <h2 class="text-2xl font-bold text-slate-900">Qual Empilhadeira?</h2>
+                                <p class="text-xs text-slate-600">Escolha a Unidade e toque no código da máquina</p>
+                            </div>
 
-                        <!-- LISTA DE MÁQUINAS -->
-                        <div class="flex flex-col gap-2 w-full flex-1 overflow-y-auto pr-0.5 py-1">
-                            ${maquinasDaUnidade.map(maq => {
-                                const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
-                                return `
-                                <button onclick="selectEmpilhadeira('${maq.codigo}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50/70 ring-4 ring-orange-200 scale-[1.01]' : 'border-slate-300 hover:border-slate-400'} rounded-xl p-3 text-left shadow-sm flex items-center justify-between transition-all">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-lg ${sel ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-lg font-bold">
-                                            <i class="fa-solid fa-truck-ramp-box"></i>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2">
-                                                <span class="font-mono-num font-bold text-base text-slate-900">${maq.codigo}</span>
-                                                <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono-num font-semibold">${formData.unidade}</span>
+                            <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ -->
+                            <div class="w-full grid grid-cols-2 gap-2 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
+                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-building"></i> FILIAL (${frotaTotal.filter(m => m.unidade === 'FILIAL' && m.tipo === 'empilhadeira').length})
+                                </button>
+                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-industry"></i> MATRIZ (${frotaTotal.filter(m => m.unidade === 'MATRIZ' && m.tipo === 'empilhadeira').length})
+                                </button>
+                            </div>
+
+                            <!-- LISTA DE EMPILHADEIRAS -->
+                            <div class="flex flex-col gap-2 w-full flex-1 overflow-y-auto pr-0.5 py-1">
+                                ${maquinasDaUnidade.map(maq => {
+                                    const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
+                                    return `
+                                    <button onclick="selectEmpilhadeira('${maq.codigo}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50/70 ring-4 ring-orange-200 scale-[1.01]' : 'border-slate-300 hover:border-slate-400'} rounded-xl p-3 text-left shadow-sm flex items-center justify-between transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg ${sel ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-lg font-bold">
+                                                <i class="fa-solid fa-truck-ramp-box"></i>
                                             </div>
-                                            <span class="text-xs text-slate-600 font-medium block truncate max-w-[200px]">${maq.modelo || maq.nome}</span>
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-mono-num font-bold text-base text-slate-900">${maq.codigo}</span>
+                                                    <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono-num font-semibold">${formData.unidade}</span>
+                                                </div>
+                                                <span class="text-xs text-slate-600 font-medium block truncate max-w-[200px]">${maq.modelo || maq.nome}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="text-[10px] text-slate-600 block font-bold uppercase">Último</span>
-                                        <span class="font-mono-num text-xs font-bold text-slate-800">${maq.horimetro_atual || 0} h</span>
-                                    </div>
-                                </button>`;
-                            }).join('')}
-                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[10px] text-slate-600 block font-bold uppercase">Último</span>
+                                            <span class="font-mono-num text-xs font-bold text-slate-800">${maq.horimetro_atual || 0} h</span>
+                                        </div>
+                                    </button>`;
+                                }).join('')}
+                            </div>
 
-                        ${renderNavButtons()}
-                    </div>
-                `;
+                            ${renderNavButtons()}
+                        </div>
+                    `;
+                } else {
+                    // DOOSAN, HYUNDAI OU MOTOCANA
+                    const tipoConfig = {
+                        doosan: { titulo: 'Escavadeira Doosan', icone: 'fa-cubes-stacked', desc: 'Escavadeira de Rodas' },
+                        hyundai: { titulo: 'Escavadeira Hyundai', icone: 'fa-tractor', desc: 'Escavadeira de Esteira' },
+                        motocana: { titulo: 'Carregadeira Motocana', icone: 'fa-wheat-awn', desc: 'Carregadeira de Cana' }
+                    }[formData.tipo_maquina] || { titulo: 'Máquina', icone: 'fa-truck-ramp-box', desc: 'Equipamento' };
+
+                    const maquinasDoTipo = frotaTotal.filter(m => m.tipo === formData.tipo_maquina);
+
+                    appOperador.innerHTML = `
+                        <div class="w-full flex flex-col h-full items-center justify-between">
+                            <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                                <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 3/5</span>
+                                <button onclick="speakText('Informe a máquina ${tipoConfig.titulo}')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                    <i class="fa-solid fa-volume-high text-base"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="text-center my-1 shrink-0">
+                                <h2 class="text-2xl font-bold text-slate-900">${tipoConfig.titulo}</h2>
+                                <p class="text-xs text-slate-600">${tipoConfig.desc} - Selecione a máquina correspondente</p>
+                            </div>
+
+                            <!-- LISTA DE MÁQUINAS DO TIPO ESPECÍFICO -->
+                            <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2 max-w-sm">
+                                ${maquinasDoTipo.map(maq => {
+                                    const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
+                                    return `
+                                    <button onclick="selectEmpilhadeira('${maq.codigo}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-4 text-left shadow-sm flex items-center justify-between transition-all">
+                                        <div class="flex items-center gap-3.5">
+                                            <div class="w-12 h-12 rounded-xl ${sel ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-xl font-bold shadow-inner">
+                                                <i class="fa-solid ${tipoConfig.icone}"></i>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-mono-num font-bold text-base text-slate-900">${maq.codigo}</span>
+                                                    <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono-num font-semibold">${maq.unidade || 'MATRIZ'}</span>
+                                                </div>
+                                                <span class="text-xs text-slate-600 font-medium block">${maq.modelo || maq.nome}</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[10px] text-slate-600 block font-bold uppercase">Último</span>
+                                            <span class="font-mono-num text-xs font-bold text-slate-800">${maq.horimetro_atual || 0} h</span>
+                                        </div>
+                                    </button>`;
+                                }).join('')}
+                            </div>
+
+                            ${renderNavButtons()}
+                        </div>
+                    `;
+                }
             }
             // PASSO -2: ESCOLHER OPERADOR (+ OUTRO)
             else if (currentStepIndex === -2) {
-                const nomesPadrao = listaOperadores.map(o => o.nome);
+                const listaOps = getOperadoresAtuais();
+                const nomesPadrao = listaOps.map(o => o.nome);
                 const isOutro = formData.operador && !nomesPadrao.includes(formData.operador);
 
                 appOperador.innerHTML = `
@@ -1060,7 +1258,7 @@
                         </div>
 
                         <div class="flex flex-col gap-2.5 w-full flex-1 justify-center py-2 max-w-sm">
-                            ${listaOperadores.map(op => {
+                            ${listaOps.map(op => {
                                 const sel = formData.operador === op.nome;
                                 return `
                                 <button onclick="selectOperador('${op.nome}')" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300'} rounded-2xl p-4 flex items-center gap-3.5 shadow-sm text-left transition-all">
@@ -1105,7 +1303,7 @@
                         
                         <div class="text-center my-1 shrink-0">
                             <h2 class="text-2xl font-bold text-slate-900">Horímetro Atual</h2>
-                            <p class="text-xs text-slate-600">Veja o número no painel da empilhadeira</p>
+                            <p class="text-xs text-slate-600">Veja o número no painel da máquina</p>
                             
                             <!-- BADGE DE ÚLTIMO HORÍMETRO HISTÓRICO -->
                             <div class="mt-2 inline-flex items-center gap-2 bg-slate-200/80 border border-slate-300 px-3 py-1 rounded-full text-xs text-slate-700 font-bold">
@@ -1142,9 +1340,9 @@
                     </div>
                 `;
             }
-            // PASSOS 0 A 15: AS 16 PERGUNTAS 5S COM BOTÕES GIGANTES
-            else if (currentStepIndex >= 0 && currentStepIndex < checklistItems.length) {
-                const item = checklistItems[currentStepIndex];
+            // PASSOS 0 A N: AS PERGUNTAS ESPECÍFICAS DA MÁQUINA
+            else if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length) {
+                const item = itemsAtuais[currentStepIndex];
                 const val = formData[item.id];
                 const okSelected = val === 'CONFORME';
                 const nokSelected = val === 'NÃO CONFORME';
@@ -1153,7 +1351,7 @@
                     <div class="w-full flex flex-col h-full items-center justify-between">
                         <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
                             <span class="text-[10px] font-mono-num font-bold text-slate-600 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">
-                                ITEM ${currentStepIndex + 1}/${checklistItems.length}
+                                ITEM ${currentStepIndex + 1}/${itemsAtuais.length}
                             </span>
                             <button onclick="speakText('${item.question}')" class="bg-orange-100 text-orange-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
                                 <i class="fa-solid fa-volume-high text-xl"></i>
@@ -1161,6 +1359,13 @@
                         </div>
                         
                         <div class="text-center flex-1 flex flex-col justify-center my-1">
+                            ${item.secao ? `
+                                <div class="mb-2">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-orange-700 bg-orange-100/90 border border-orange-200 px-3 py-1 rounded-full inline-block shadow-sm">
+                                        ${item.secao}
+                                    </span>
+                                </div>
+                            ` : ''}
                             <div class="w-20 h-20 rounded-3xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-2 shadow-inner">
                                 <i class="fa-solid ${item.icon} text-4xl"></i>
                             </div>
@@ -1435,38 +1640,45 @@
             btnEnviar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Salvando no Supabase...</span>';
             btnEnviar.disabled = true;
 
+            const itemsAtuais = getChecklistItemsAtuais();
             const horimetroNum = parseFloat(formData.horimetro) || 0;
-            const temProblema = checklistItems.some(item => formData[item.id] === 'NÃO CONFORME');
+            const temProblema = itemsAtuais.some(item => formData[item.id] === 'NÃO CONFORME');
             const textoObsGeral = observacoesList.map(o => o.text).join(' | ');
+
+            const respostasCustomizadas = {};
+            itemsAtuais.forEach(it => {
+                if (formData[it.id]) respostasCustomizadas[it.id] = formData[it.id];
+            });
 
             const checklistPayload = {
                 empilhadeira: formData.empilhadeira,
                 operador: formData.operador,
                 horimetro: horimetroNum,
                 maquina_id: formData.maquina_id || null,
-                tipo_checklist: 'empilhadeira',
+                tipo_checklist: formData.tipo_maquina || 'empilhadeiras',
                 categoria: formData.categoria || 'maquinas',
                 tipo_maquina: formData.tipo_maquina || 'empilhadeiras',
                 unidade: formData.unidade || 'FILIAL',
                 observacao_texto: textoObsGeral || null,
-                cilindros_elevacao: formData.cilindros_elevacao || 'CONFORME',
-                cilindros_inclinacao: formData.cilindros_inclinacao || 'CONFORME',
-                mangueiras_conexoes: formData.mangueiras_conexoes || 'CONFORME',
-                estado_lanternas: formData.estado_lanternas || 'CONFORME',
-                buzina_sirene: formData.buzina_sirene || 'CONFORME',
-                funcionamento_painel: formData.funcionamento_painel || 'CONFORME',
-                nivel_oleo_motor: formData.nivel_oleo_motor || 'CONFORME',
-                vazamentos_motor_caixa: formData.vazamentos_motor_caixa || 'CONFORME',
-                nivel_arrefecimento: formData.nivel_arrefecimento || 'CONFORME',
-                mangotes_agua: formData.mangotes_agua || 'CONFORME',
-                radiador: formData.radiador || 'CONFORME',
-                freio_servico: formData.freio_servico || 'CONFORME',
-                freio_estacionamento: formData.freio_estacionamento || 'CONFORME',
-                parafusos_pneu: formData.parafusos_pneu || 'CONFORME',
-                estado_pneus: formData.estado_pneus || 'CONFORME',
-                cilindros_direcao: formData.cilindros_direcao || 'CONFORME',
+                cilindros_elevacao: formData.cilindros_elevacao || formData.d_cilindros_elevacao || formData.h_cilindros_elevacao || 'CONFORME',
+                cilindros_inclinacao: formData.cilindros_inclinacao || formData.d_cilindros_inclinacao || formData.h_cilindros_inclinacao || 'CONFORME',
+                mangueiras_conexoes: formData.mangueiras_conexoes || formData.d_mangueiras_cilindros || formData.h_mangueiras_conexoes || 'CONFORME',
+                estado_lanternas: formData.estado_lanternas || formData.d_farois_lanternas || formData.h_farois_lanternas || 'CONFORME',
+                buzina_sirene: formData.buzina_sirene || formData.d_buzina_sirenes || formData.h_buzina_sirenes || 'CONFORME',
+                funcionamento_painel: formData.funcionamento_painel || formData.d_painel_instrumentos || formData.h_painel_instrumentos || 'CONFORME',
+                nivel_oleo_motor: formData.nivel_oleo_motor || formData.d_nivel_oleo_motor || formData.h_nivel_oleo_motor || 'CONFORME',
+                vazamentos_motor_caixa: formData.vazamentos_motor_caixa || formData.d_vazamentos_motor || formData.h_vazamentos_motor || 'CONFORME',
+                nivel_arrefecimento: formData.nivel_arrefecimento || formData.d_nivel_arrefecimento || formData.h_nivel_arrefecimento || 'CONFORME',
+                mangotes_agua: formData.mangotes_agua || formData.d_mangotes_agua || formData.h_mangotes_agua || 'CONFORME',
+                radiador: formData.radiador || formData.d_radiador || formData.h_radiador || 'CONFORME',
+                freio_servico: formData.freio_servico || formData.d_freio_pe || formData.h_freio || 'CONFORME',
+                freio_estacionamento: formData.freio_estacionamento || formData.d_freio_estacionamento || formData.h_freio || 'CONFORME',
+                parafusos_pneu: formData.parafusos_pneu || formData.d_parafusos_rodas || 'CONFORME',
+                estado_pneus: formData.estado_pneus || formData.d_estado_pneus || formData.h_esteiras || 'CONFORME',
+                cilindros_direcao: formData.cilindros_direcao || formData.d_cilindros_direcao || 'CONFORME',
                 tem_problema: temProblema,
-                resumo_ia: textoObsGeral || (temProblema ? 'Avarias apontadas no checklist operacional' : 'Checklist 100% em conformidade.')
+                resumo_ia: textoObsGeral || (temProblema ? 'Avarias apontadas no checklist operacional' : 'Checklist 100% em conformidade.'),
+                respostas_customizadas: respostasCustomizadas
             };
 
             try {
@@ -1541,18 +1753,18 @@
                         }]);
                 }
 
-                // Tela de Conclusão com Sucesso
+                // Tela de Conclusão com Sucesso & Retorno à tela inicial
                 appOperador.innerHTML = `
                     <div class="text-center w-full my-auto p-4">
                         <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                             <i class="fa-solid fa-circle-check text-5xl"></i>
                         </div>
                         <h2 class="text-2xl font-bold text-slate-900 mb-1">Relatório Enviado!</h2>
-                        <p class="text-xs text-slate-600 mb-5 font-medium">Sincronizado no Supabase com sucesso.</p>
+                        <p class="text-xs text-slate-600 mb-4 font-medium">Sincronizado no sistema com sucesso.</p>
                         
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xs mx-auto mb-5 text-left">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xs mx-auto mb-4 text-left">
                             <div class="text-[10px] text-slate-600 font-bold uppercase mb-1">Resumo do Checklist</div>
-                            <div class="text-sm font-bold text-slate-800">${formData.empilhadeira} (${formData.unidade})</div>
+                            <div class="text-sm font-bold text-slate-800">${formData.empilhadeira} (${formData.unidade || 'MATRIZ'})</div>
                             <div class="text-xs text-slate-600 mt-0.5">👤 ${formData.operador}</div>
                             <div class="text-xs text-slate-600 mt-0.5">⏱️ ${horimetroNum} Horas</div>
                             <div class="mt-2 text-xs font-bold ${temProblema ? 'text-red-600' : 'text-emerald-600'}">
@@ -1560,13 +1772,21 @@
                             </div>
                         </div>
 
-                        <button onclick="reiniciarChecklist()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-slate-900 rounded-2xl py-3.5 px-6 text-lg font-bold shadow-lg w-full max-w-xs mx-auto block">
-                            Novo Checklist
+                        <button onclick="reiniciarChecklist()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-slate-900 rounded-2xl py-3.5 px-6 text-base font-bold shadow-lg w-full max-w-xs mx-auto block mb-2">
+                            <i class="fa-solid fa-rotate-left mr-2"></i> Iniciar Novo Checklist
                         </button>
+                        <p class="text-[11px] text-slate-400">Retornando ao início para o próximo checklist...</p>
                     </div>
                 `;
                 progressBar.style.width = '100%';
-                speakText("Tudo pronto! Seu relatório foi enviado com sucesso para o sistema.");
+                speakText("Checklist finalizado com sucesso!");
+
+                // Retorno automático à tela inicial após 3.5 segundos para agilizar novos checklists
+                setTimeout(() => {
+                    if (currentStepIndex === 99) {
+                        reiniciarChecklist();
+                    }
+                }, 3500);
 
             } catch (err) {
                 console.error("Erro ao salvar no Supabase:", err);
@@ -1632,10 +1852,17 @@
             const modal = document.getElementById('modal-pin-gestor');
             if (modal) modal.classList.add('hidden');
             const inp = document.getElementById('input-pin-fisico');
-            if (inp) inp.value = '';
+            if (inp) {
+                inp.value = '';
+                inp.blur();
+            }
         }
 
         function confirmarPin() {
+            const modal = document.getElementById('modal-pin-gestor');
+            if (!modal || modal.classList.contains('hidden')) {
+                return; // Impede qualquer execução se o modal não estiver aberto
+            }
             const inp = document.getElementById('input-pin-fisico');
             const err = document.getElementById('pin-erro-msg');
             const val = inp ? inp.value.trim() : '';
@@ -1658,6 +1885,11 @@
             const inp = document.getElementById('input-pin-fisico');
             if (inp) {
                 inp.addEventListener('input', () => {
+                    const modal = document.getElementById('modal-pin-gestor');
+                    if (!modal || modal.classList.contains('hidden')) {
+                        inp.value = '';
+                        return;
+                    }
                     if (inp.value.length === 4) {
                         confirmarPin();
                     }
@@ -1932,23 +2164,79 @@
             return String(valor ?? '').replace(/[&<>"']/g, caractere => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[caractere]));
         }
 
+        function getNomeOuPlacaChecklist(chk) {
+            if (!chk) return 'Equipamento';
+            if (chk.empilhadeira && chk.empilhadeira !== chk.maquina_id) return chk.empilhadeira;
+            if (chk.maquina_nome && chk.maquina_nome !== chk.maquina_id) return chk.maquina_nome;
+            if (chk.maquina_id) {
+                const maq = (cacheGestor.maquinas || frotaTotal || []).find(m => m.id === chk.maquina_id);
+                if (maq) return maq.codigo || maq.nome;
+            }
+            return chk.empilhadeira || chk.maquina_nome || 'Equipamento';
+        }
+
         function extrairDefeitosChecklist(c) {
             if (!c) return [];
             const defeitos = [];
-            checklistItems.forEach(item => {
-                const val = String(c[item.id] || '').toUpperCase();
+            
+            // Dicionário de títulos legíveis para todos os itens possíveis
+            const mapaTitulos = {};
+            checklistItemsEmpilhadeira.forEach(it => { mapaTitulos[it.id] = it.title; });
+            checklistItemsDoosan.forEach(it => { mapaTitulos[it.id] = it.title; });
+            checklistItemsHyundai.forEach(it => { mapaTitulos[it.id] = it.title; });
+
+            // Mapeamentos legados e de compatibilidade
+            mapaTitulos['vazamento_oleo_agua'] = 'Vazamento de Óleo/Água';
+            mapaTitulos['nivel_agua_radiador'] = 'Nível da Água do Radiador';
+            mapaTitulos['nivel_oleo_hidraulico'] = 'Nível de Óleo Hidráulico';
+            mapaTitulos['freio_pe'] = 'Freio de Pé / Serviço';
+            mapaTitulos['direcao'] = 'Direção / Folgas';
+            mapaTitulos['farois'] = 'Faróis Dianteiros/Traseiros';
+            mapaTitulos['luz_freio'] = 'Luz de Freio / Sinalização';
+            mapaTitulos['giroflex'] = 'Giroflex / Giroled';
+            mapaTitulos['buzina'] = 'Buzina';
+            mapaTitulos['alarme_re'] = 'Alarme de Ré';
+            mapaTitulos['cinto_seguranca'] = 'Cinto de Segurança';
+            mapaTitulos['garfos_torre'] = 'Garfos e Torre de Elevação';
+
+            // Itens relevantes conforme o tipo de checklist
+            let itensChecklist = checklistItemsEmpilhadeira;
+            if (c.tipo_maquina === 'doosan' || c.tipo_checklist === 'doosan' || (c.empilhadeira && c.empilhadeira.toLowerCase().includes('doosan'))) {
+                itensChecklist = checklistItemsDoosan;
+            } else if (c.tipo_maquina === 'hyundai' || c.tipo_checklist === 'hyundai' || (c.empilhadeira && c.empilhadeira.toLowerCase().includes('hyundai'))) {
+                itensChecklist = checklistItemsHyundai;
+            }
+
+            itensChecklist.forEach(item => {
+                const val = String(c[item.id] || (c.respostas_customizadas && c.respostas_customizadas[item.id]) || '').toUpperCase();
                 if (val.includes('NÃO') || val.includes('NAO') || val.includes('DEFEITO') || val === 'NOK' || c[item.id] === false) {
-                    defeitos.push(item.title);
+                    defeitos.push({
+                        chave: item.id,
+                        rotulo: item.title,
+                        valor: c[item.id] || (c.respostas_customizadas && c.respostas_customizadas[item.id]),
+                        toString() { return this.rotulo; }
+                    });
                 }
             });
+
+            // Respostas adicionais salvas em respostas_customizadas
             if (c.respostas_customizadas && typeof c.respostas_customizadas === 'object') {
                 Object.entries(c.respostas_customizadas).forEach(([k, v]) => {
                     const val = String(v || '').toUpperCase();
                     if (val.includes('NÃO') || val.includes('NAO') || val.includes('DEFEITO') || val === 'NOK' || v === false) {
-                        defeitos.push(k);
+                        if (!defeitos.some(d => d.chave === k)) {
+                            const rotulo = mapaTitulos[k] || k.replace(/_/g, ' ');
+                            defeitos.push({
+                                chave: k,
+                                rotulo: rotulo,
+                                valor: v,
+                                toString() { return this.rotulo; }
+                            });
+                        }
                     }
                 });
             }
+
             return defeitos;
         }
 
@@ -2451,6 +2739,11 @@
         }
 
         // ==================== ABA 3: KANBAN COM VISÃO DE CALENDÁRIO ====================
+        function alternarVisualizacaoManutencao(modo) {
+            visualizacaoManutencao = modo;
+            renderizarAbaAtualGestor();
+        }
+
         function renderAbaKanban(container) {
             container.innerHTML = `
                 <div class="space-y-3">
@@ -2469,10 +2762,10 @@
 
                         <!-- TOGGLE VISÃO: KANBAN vs CALENDÁRIO -->
                         <div class="flex items-center bg-slate-50 p-1 rounded-lg border border-slate-200">
-                            <button onclick="visualizacaoManutencao = 'kanban'; renderizarAbaAtualGestor();" class="px-3 py-1 text-xs font-bold rounded ${visualizacaoManutencao === 'kanban' ? 'bg-orange-600 text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'} transition">
+                            <button type="button" onclick="alternarVisualizacaoManutencao('kanban')" class="px-3.5 py-1.5 text-xs font-bold rounded-md ${visualizacaoManutencao === 'kanban' ? 'bg-orange-600 text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer">
                                 <i class="fa-solid fa-table-columns mr-1"></i> Kanban
                             </button>
-                            <button onclick="visualizacaoManutencao = 'calendario'; renderizarAbaAtualGestor();" class="px-3 py-1 text-xs font-bold rounded ${visualizacaoManutencao === 'calendario' ? 'bg-orange-600 text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'} transition">
+                            <button type="button" onclick="alternarVisualizacaoManutencao('calendario')" class="px-3.5 py-1.5 text-xs font-bold rounded-md ${visualizacaoManutencao === 'calendario' ? 'bg-orange-600 text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer">
                                 <i class="fa-solid fa-calendar-days mr-1"></i> Calendário Mensal
                             </button>
                         </div>
@@ -3277,7 +3570,7 @@
                             <div class="flex justify-between items-start gap-2">
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(chk.maquina_nome || chk.maquina_id || 'Equipamento')}</span>
+                                        <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(getNomeOuPlacaChecklist(chk))}</span>
                                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${temProblema ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
                                             ${temProblema ? 'COM DEFEITO' : 'CONFORME'}
                                         </span>
@@ -3285,11 +3578,11 @@
                                     </div>
                                     ${defs.length > 0 ? `
                                         <p class="text-[11px] text-red-700 font-semibold mt-1">
-                                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Defeitos: ${defs.map(d => escaparHTML(d.rotulo)).join(', ')}
+                                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Defeitos: ${defs.map(d => escaparHTML(d.rotulo || d.chave || String(d))).join(', ')}
                                         </p>
                                     ` : `
                                         <p class="text-[11px] text-emerald-700 font-medium mt-1">
-                                            <i class="fa-solid fa-check mr-1"></i> Todos os 16 itens inspecionados conforme.
+                                            <i class="fa-solid fa-check mr-1"></i> Todos os itens inspecionados em conformidade.
                                         </p>
                                     `}
                                     ${chk.observacao_texto ? `<p class="text-[10px] text-slate-500 mt-0.5 line-clamp-1 italic">"${escaparHTML(chk.observacao_texto)}"</p>` : ''}
@@ -3704,7 +3997,7 @@
                 icon.className = 'fa-solid fa-clipboard-check';
             }
 
-            document.getElementById('chk-modal-equip').textContent = c.maquina_nome || c.maquina_id || 'Equipamento';
+            document.getElementById('chk-modal-equip').textContent = getNomeOuPlacaChecklist(c);
             document.getElementById('chk-modal-unidade').textContent = c.unidade || 'FILIAL';
 
             const badge = document.getElementById('chk-modal-status-badge');
@@ -3731,7 +4024,7 @@
                         <div class="flex flex-wrap gap-1.5 pt-1">
                             ${defs.map(d => `
                                 <span class="bg-red-200/80 text-red-900 text-xs font-bold px-2.5 py-1 rounded-md border border-red-300">
-                                    ${escaparHTML(d.rotulo)}
+                                    <i class="fa-solid fa-triangle-exclamation text-red-600 mr-1"></i>${escaparHTML(d.rotulo || d.chave || String(d))}
                                 </span>
                             `).join('')}
                         </div>
@@ -3741,26 +4034,41 @@
                 corpoHtml += `
                     <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2.5 text-xs text-emerald-800 font-medium">
                         <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
-                        <span>Inspeção 100% aprovada. Todos os 16 itens de segurança foram verificados e avaliados em conformidade.</span>
+                        <span>Inspeção 100% aprovada. Todos os itens de segurança foram verificados e avaliados em conformidade.</span>
                     </div>
                 `;
+            }
+
+            let itensExibicao = checklistItemsEmpilhadeira;
+            let nomeChecklist = '16 Itens de Inspeção 5S';
+            if (c.tipo_maquina === 'doosan' || c.tipo_checklist === 'doosan' || (c.empilhadeira && c.empilhadeira.toLowerCase().includes('doosan'))) {
+                itensExibicao = checklistItemsDoosan;
+                nomeChecklist = `${checklistItemsDoosan.length} Itens de Inspeção DOOSAN`;
+            } else if (c.tipo_maquina === 'hyundai' || c.tipo_checklist === 'hyundai' || (c.empilhadeira && c.empilhadeira.toLowerCase().includes('hyundai'))) {
+                itensExibicao = checklistItemsHyundai;
+                nomeChecklist = `${checklistItemsHyundai.length} Itens de Inspeção HYUNDAI`;
             }
 
             corpoHtml += `
                 <div>
                     <h4 class="text-xs font-bold text-slate-900 uppercase mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-check text-orange-600"></i> Avaliação dos 16 Itens de Inspeção 5S
+                        <i class="fa-solid fa-list-check text-orange-600"></i> Avaliação dos ${nomeChecklist}
                     </h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             `;
 
-            ITENS_INSPECAO_CHECKLIST.forEach(it => {
-                const isDefeito = defs.some(d => d.chave === it.key);
+            itensExibicao.forEach(it => {
+                const valSalvo = c[it.id] || (c.respostas_customizadas && c.respostas_customizadas[it.id]);
+                const isDefeito = defs.some(d => d.chave === it.id || (d.rotulo && d.rotulo.toLowerCase() === it.title.toLowerCase())) ||
+                                  (valSalvo && (String(valSalvo).toUpperCase().includes('NÃO') || String(valSalvo).toUpperCase().includes('NAO') || String(valSalvo).toUpperCase().includes('DEFEITO') || valSalvo === false));
 
                 corpoHtml += `
-                    <div class="flex justify-between items-center p-2 rounded-lg border ${isDefeito ? 'bg-red-50/70 border-red-300' : 'bg-slate-50 border-slate-200'}">
-                        <span class="font-medium text-slate-800">${it.rotulo}</span>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${isDefeito ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                    <div class="flex justify-between items-center p-2.5 rounded-lg border ${isDefeito ? 'bg-red-50/80 border-red-300 ring-1 ring-red-300' : 'bg-slate-50 border-slate-200'}">
+                        <div>
+                            <span class="font-medium text-slate-800 block">${it.title}</span>
+                            ${it.secao ? `<span class="text-[9px] text-slate-600 font-semibold uppercase">${it.secao}</span>` : ''}
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ml-2 ${isDefeito ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
                             ${isDefeito ? '<i class="fa-solid fa-xmark mr-1"></i> NÃO CONFORME' : '<i class="fa-solid fa-check mr-1"></i> CONFORME'}
                         </span>
                     </div>
