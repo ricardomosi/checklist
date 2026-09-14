@@ -169,13 +169,13 @@
             </div>
             
 <nav class="manager-nav" aria-label="Áreas de gestão">
-                <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
+                <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-orange-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-calendar-days"></i> Manutenções (<span id="count-os">0</span>)
                 </button>
                 <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-bell text-red-700"></i> SOS (<span id="count-sos">0</span>)
                 </button>
-                <button onclick="mudarAbaGestor('dashboard')" id="tab-btn-dashboard" class="tab-gestor-btn bg-orange-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
+                <button onclick="mudarAbaGestor('dashboard')" id="tab-btn-dashboard" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-chart-pie"></i> Indicadores
                 </button>
                 <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
@@ -1697,7 +1697,7 @@
             progressWrapper.classList.add('hidden');
             badgeModo.innerText = "Gestor";
             badgeModo.className = "text-[11px] uppercase tracking-wider font-semibold bg-amber-400 text-slate-950 px-2 py-0.5 rounded";
-            carregarDadosGestor();
+            mudarAbaGestor(abaAtualGestor || 'kanban');
         }
 
         function voltarParaOperador() {
@@ -1714,6 +1714,7 @@
         // ==================== PAINEL DO GESTOR & ABAS ====================
         let abaAtualGestor = 'kanban';
         let dadosGestorCarregados = false;
+        let carregandoGestor = false;
 
         function alternarTamanhoTexto() {
             const ampliado = document.documentElement.classList.toggle('texto-ampliado');
@@ -1778,11 +1779,22 @@
         let anoAtualCalendario = new Date().getFullYear();
 
         async function carregarDadosGestor() {
+            if (carregandoGestor) return;
+            carregandoGestor = true;
+
             const container = document.getElementById('gestor-conteudo');
-            container.innerHTML = '<div class="flex items-center justify-center h-48 text-orange-700 text-sm font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Atualizando dados em tempo real...</div>';
+            const btnRefreshIcon = document.querySelector('.refresh-button i');
+            if (btnRefreshIcon) btnRefreshIcon.classList.add('fa-spin');
+
+            // Exibe spinner apenas na primeira carga para evitar tela piscando
+            if (!dadosGestorCarregados && container) {
+                container.innerHTML = '<div class="flex items-center justify-center h-48 text-orange-700 text-sm font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Atualizando dados em tempo real...</div>';
+            }
 
             if (!db) {
-                container.innerHTML = '<div class="p-6 text-amber-700 text-center">Conectando ao banco de dados...</div>';
+                if (container) container.innerHTML = '<div class="p-6 text-amber-700 text-center">Conectando ao banco de dados...</div>';
+                carregandoGestor = false;
+                if (btnRefreshIcon) btnRefreshIcon.classList.remove('fa-spin');
                 return;
             }
 
@@ -1803,19 +1815,30 @@
                 cacheGestor.chamados = resSOS.data || [];
                 dadosGestorCarregados = true;
 
-                document.getElementById('count-checklists').innerText = cacheGestor.checklists.length;
-                document.getElementById('count-os').innerText = cacheGestor.ordens.filter(o => o.status !== 'concluido').length;
-                document.getElementById('count-sos').innerText = cacheGestor.chamados.filter(c => c.status === 'pendente').length;
-                document.getElementById('count-maquinas').innerText = cacheGestor.maquinas.length;
+                const elCountChk = document.getElementById('count-checklists');
+                const elCountOS = document.getElementById('count-os');
+                const elCountSOS = document.getElementById('count-sos');
+                const elCountMaq = document.getElementById('count-maquinas');
+                if (elCountChk) elCountChk.innerText = cacheGestor.checklists.length;
+                if (elCountOS) elCountOS.innerText = cacheGestor.ordens.filter(o => o.status !== 'concluido').length;
+                if (elCountSOS) elCountSOS.innerText = cacheGestor.chamados.filter(c => c.status === 'pendente').length;
+                if (elCountMaq) elCountMaq.innerText = cacheGestor.maquinas.length;
 
                 renderizarAbaAtualGestor();
             } catch (err) {
-                container.innerHTML = `<div role="alert" class="p-6 text-red-700 bg-white rounded-xl border border-red-200"><h3 class="font-semibold">Não foi possível atualizar os dados</h3><p class="mt-2">${escaparHTML(err.message || 'Verifique a conexão e tente novamente.')}</p><button class="filter-reset" onclick="carregarDadosGestor()">Tentar novamente</button></div>`;
+                console.error("Erro ao carregar dados do gestor:", err);
+                if (!dadosGestorCarregados && container) {
+                    container.innerHTML = `<div role="alert" class="p-6 text-red-700 bg-white rounded-xl border border-red-200"><h3 class="font-semibold">Não foi possível atualizar os dados</h3><p class="mt-2">${escaparHTML(err.message || 'Verifique a conexão e tente novamente.')}</p><button class="filter-reset" onclick="carregarDadosGestor()">Tentar novamente</button></div>`;
+                }
+            } finally {
+                carregandoGestor = false;
+                if (btnRefreshIcon) btnRefreshIcon.classList.remove('fa-spin');
             }
         }
 
         function renderizarAbaAtualGestor() {
             const container = document.getElementById('gestor-conteudo');
+            if (!container) return;
             const titulos = {
                 kanban: ['Manutenções', 'Acompanhe pendências e avance as ordens de serviço.'],
                 chamados: ['Chamados SOS', 'Priorize os equipamentos que precisam de atendimento.'],
@@ -1823,14 +1846,27 @@
                 checklists: ['Histórico de checklists', 'Consulte inspeções, observações e áudios dos operadores.'],
                 maquinas: ['Frota e equipamentos', 'Consulte leituras, revisões e detalhes técnicos.']
             };
-            document.getElementById('gestor-titulo').textContent = titulos[abaAtualGestor][0];
-            document.getElementById('gestor-descricao').textContent = titulos[abaAtualGestor][1];
+            const infoTitulo = titulos[abaAtualGestor] || titulos.kanban;
+            const elTitulo = document.getElementById('gestor-titulo');
+            const elDesc = document.getElementById('gestor-descricao');
+            if (elTitulo) elTitulo.textContent = infoTitulo[0];
+            if (elDesc) elDesc.textContent = infoTitulo[1];
             document.querySelectorAll('.tab-gestor-btn').forEach(botao => {
-                if (botao.id === `tab-btn-${abaAtualGestor}`) botao.setAttribute('aria-current', 'page');
-                else botao.removeAttribute('aria-current');
+                if (botao.id === `tab-btn-${abaAtualGestor}`) {
+                    botao.setAttribute('aria-current', 'page');
+                    botao.classList.add('bg-orange-600', 'text-slate-900');
+                    botao.classList.remove('bg-slate-100', 'text-slate-600');
+                } else {
+                    botao.removeAttribute('aria-current');
+                    botao.classList.remove('bg-orange-600', 'text-slate-900');
+                    botao.classList.add('bg-slate-100', 'text-slate-600');
+                }
             });
-            // Keep the search controls mounted while updating results.
-            const buscaAtiva = container.contains(document.activeElement) && document.activeElement.matches('input[data-busca]');
+
+            // Preserva controles de busca em abas que possuem busca de texto
+            const buscaAtiva = (abaAtualGestor === 'checklists' || abaAtualGestor === 'maquinas') &&
+                               container.contains(document.activeElement) &&
+                               document.activeElement.matches('input[data-busca]');
             const destino = buscaAtiva ? document.createElement('div') : container;
             if (abaAtualGestor === 'dashboard') {
                 renderAbaDashboard(destino);
@@ -1846,10 +1882,15 @@
             if (buscaAtiva) {
                 const atual = container.firstElementChild;
                 const novo = destino.firstElementChild;
-                while (atual.children.length > 1) atual.lastElementChild.remove();
-                while (novo.children.length > 1) atual.append(novo.children[1]);
-                const contagem = container.querySelector('[data-contagem]');
-                if (contagem) contagem.replaceChildren(...destino.querySelector('[data-contagem]').childNodes);
+                if (atual && novo) {
+                    while (atual.children.length > 1) atual.lastElementChild.remove();
+                    while (novo.children.length > 1) atual.append(novo.children[1]);
+                    const contagemAtual = container.querySelector('[data-contagem]');
+                    const contagemNova = destino.querySelector('[data-contagem]');
+                    if (contagemAtual && contagemNova) {
+                        contagemAtual.replaceChildren(...contagemNova.childNodes);
+                    }
+                }
             }
             prepararControlesGestor(container);
         }
@@ -2475,7 +2516,7 @@
                                             <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-700' : 'bg-orange-500/20 text-orange-700'}">
                                                 ${item.prioridade}
                                             </span>
-                                            <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || item.id.substring(0, 5)}</span>
+                                            <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || (item.id ? String(item.id).substring(0, 5) : '—')}</span>
                                         </div>
 
                                         <h5 class="text-xs font-bold text-slate-900 mb-0.5 leading-snug">${item.titulo}</h5>
@@ -2486,7 +2527,7 @@
                                                 <span class="font-mono-num text-slate-900 font-bold">${item.maquina_nome}</span>
                                                 ${dtFmt ? `<span class="text-[9px] text-slate-400 font-mono">${dtFmt}</span>` : ''}
                                             </div>
-                                            <select onclick="event.stopPropagation()" aria-label="Etapa da ordem ${escaparHTML(item.numero_os || item.id)}" onchange="atualizarStatusOS('${item.id}', this.value)" class="bg-slate-100 text-slate-700 border border-slate-300 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
+                                            <select onclick="event.stopPropagation()" aria-label="Etapa da ordem ${escaparHTML(item.numero_os || item.id)}" onchange="if (this.value !== '${item.status}') atualizarStatusOS('${item.id}', this.value)" class="bg-slate-100 text-slate-700 border border-slate-300 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
                                                 <option value="pendente" ${item.status === 'pendente' ? 'selected' : ''}>Pendente</option>
                                                 <option value="analise_pecas" ${item.status === 'analise_pecas' ? 'selected' : ''}>Análise Peças</option>
                                                 <option value="em_manutencao" ${item.status === 'em_manutencao' ? 'selected' : ''}>Em Manutenção</option>
@@ -2609,14 +2650,21 @@
 
         async function atualizarStatusOS(osId, novoStatus) {
             if (!db) return;
+            const os = cacheGestor.ordens.find(o => String(o.id) === String(osId));
+            if (os && os.status === novoStatus) return;
             try {
+                if (os) os.status = novoStatus;
+                renderizarAbaAtualGestor();
                 await db
                     .from('ordens_manutencao')
-                    .update({ status: novoStatus, updated_at: new Date() })
+                    .update({ status: novoStatus, updated_at: new Date().toISOString() })
                     .eq('id', osId);
-                carregarDadosGestor();
+                const elCount = document.getElementById('count-os');
+                if (elCount) elCount.innerText = cacheGestor.ordens.filter(o => o.status !== 'concluido').length;
             } catch (err) {
+                console.error("Erro ao mover status da O.S.", err);
                 alert("Erro ao mover status da O.S.");
+                carregarDadosGestor();
             }
         }
 
