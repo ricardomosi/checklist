@@ -2052,6 +2052,7 @@
         let filtroFrota = {
             categoria: 'todas',
             unidade: 'todas',
+            tipo: 'todos',
             busca: ''
         };
 
@@ -2194,7 +2195,7 @@
                     limpar.type = 'button'; limpar.className = 'filter-reset'; limpar.textContent = 'Limpar filtros';
                     limpar.onclick = () => {
                         if (abaAtualGestor === 'checklists') Object.assign(filtroChecklist, { unidade: 'todas', equipamento: 'todos', status: 'todos', busca: '' });
-                        else Object.assign(filtroFrota, { categoria: 'todas', unidade: 'todas', busca: '' });
+                        else Object.assign(filtroFrota, { categoria: 'todas', unidade: 'todas', tipo: 'todos', busca: '' });
                         renderizarAbaAtualGestor();
                     };
                     barra.append(limpar);
@@ -3011,14 +3012,70 @@
             }
         }
 
+        // Helpers visuais da frota
+        function obterIconeEquipamento(m) {
+            const cod = (m.codigo || '').toLowerCase();
+            const mod = (m.modelo || '').toLowerCase();
+            const tipo = (m.tipo || '').toLowerCase();
+            if (tipo.includes('doosan') || mod.includes('doosan') || cod.includes('doosan')) return 'fa-snowplow';
+            if (tipo.includes('hyundai') || mod.includes('hyundai') || cod.includes('hyundai')) return 'fa-tractor';
+            if (tipo.includes('motocana') || mod.includes('motocana') || cod.includes('motocana')) return 'fa-gear';
+            if (m.categoria === 'veiculos' || m.placa) return 'fa-truck';
+            return 'fa-truck-ramp-box';
+        }
+
+        function obterNomeSubtipo(m) {
+            const cod = (m.codigo || '').toLowerCase();
+            const mod = (m.modelo || '').toLowerCase();
+            const tipo = (m.tipo || '').toLowerCase();
+            if (tipo.includes('doosan') || mod.includes('doosan') || cod.includes('doosan')) return 'Doosan';
+            if (tipo.includes('hyundai') || mod.includes('hyundai') || cod.includes('hyundai')) return 'Hyundai';
+            if (tipo.includes('motocana') || mod.includes('motocana') || cod.includes('motocana')) return 'Motocana';
+            if (m.categoria === 'veiculos' || m.placa) return 'Veículo';
+            return 'Empilhadeira';
+        }
+
+        function agendarTrocaRapida(codigo) {
+            abrirPerfilEquipamento(codigo);
+            setTimeout(() => {
+                mudarSubAbaPerfil('agendar');
+                const m = (cacheGestor.maquinas || []).find(maq => maq.codigo === codigo) || (frotaTotal || []).find(maq => maq.codigo === codigo);
+                const inputTitulo = document.getElementById('agendar-titulo');
+                if (inputTitulo && m) inputTitulo.value = `Troca de Óleo e Filtros - ${m.codigo}`;
+                const selectTipo = document.getElementById('agendar-tipo');
+                if (selectTipo) selectTipo.value = 'troca_oleo';
+                puxarInsumosParaAgendarPerfil();
+            }, 100);
+        }
+
         // ==================== ABA 4: FROTAS & PERFIL DETALHADO DO EQUIPAMENTO ====================
         function renderAbaMaquinas(container) {
             let lista = cacheGestor.maquinas.filter(m => {
                 if (filtroFrota.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroFrota.categoria) return false;
                 if (filtroFrota.unidade !== 'todas' && m.unidade !== filtroFrota.unidade) return false;
+                if (filtroFrota.tipo && filtroFrota.tipo !== 'todos') {
+                    const t = filtroFrota.tipo.toLowerCase();
+                    const maqTipo = (m.tipo || '').toLowerCase();
+                    const maqModelo = (m.modelo || '').toLowerCase();
+                    const maqMarca = (m.marca || '').toLowerCase();
+                    const maqCod = (m.codigo || '').toLowerCase();
+
+                    if (t === 'empilhadeira') {
+                        const isEmp = maqTipo.includes('empilhadeira') || maqModelo.includes('empilhadeira') || maqCod.startsWith('emp') || maqCod.startsWith('cla') || maqCod.startsWith('jhc') || maqCod.startsWith('chl') || maqCod.startsWith('hys') || maqCod.startsWith('toy');
+                        if (!isEmp) return false;
+                    } else if (t === 'doosan') {
+                        if (!maqTipo.includes('doosan') && !maqMarca.includes('doosan') && !maqCod.includes('doosan') && !maqModelo.includes('doosan')) return false;
+                    } else if (t === 'hyundai') {
+                        if (!maqTipo.includes('hyundai') && !maqMarca.includes('hyundai') && !maqCod.includes('hyundai') && !maqModelo.includes('hyundai')) return false;
+                    } else if (t === 'motocana') {
+                        if (!maqTipo.includes('motocana') && !maqMarca.includes('motocana') && !maqCod.includes('motocana') && !maqModelo.includes('motocana')) return false;
+                    } else if (t === 'veiculos') {
+                        if (m.categoria !== 'veiculos' && !m.placa) return false;
+                    }
+                }
                 if (filtroFrota.busca) {
                     const q = normalizarBusca(filtroFrota.busca);
-                    const texto = normalizarBusca([m.codigo, m.nome, m.placa, m.modelo, m.marca].filter(Boolean).join(' '));
+                    const texto = normalizarBusca([m.codigo, m.nome, m.placa, m.modelo, m.marca, m.operador_atual].filter(Boolean).join(' '));
                     if (!texto.includes(q)) return false;
                 }
                 return true;
@@ -3029,9 +3086,19 @@
                     <!-- BARRA DE FILTROS DE FROTAS -->
                     <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex flex-wrap gap-2.5 items-center justify-between">
                         <div class="flex flex-wrap gap-2 items-center flex-1">
+                            <!-- Filtro Tipo Específico de Máquina -->
+                            <select onchange="filtroFrota.tipo = this.value; renderizarAbaAtualGestor();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none focus:border-orange-500 font-bold">
+                                <option value="todos" ${filtroFrota.tipo === 'todos' ? 'selected' : ''}>Todos os Tipos de Máquina</option>
+                                <option value="empilhadeira" ${filtroFrota.tipo === 'empilhadeira' ? 'selected' : ''}>🚜 Empilhadeiras</option>
+                                <option value="doosan" ${filtroFrota.tipo === 'doosan' ? 'selected' : ''}>🏗️ Doosan (Escavadeiras)</option>
+                                <option value="hyundai" ${filtroFrota.tipo === 'hyundai' ? 'selected' : ''}>🚜 Hyundai (Esteira)</option>
+                                <option value="motocana" ${filtroFrota.tipo === 'motocana' ? 'selected' : ''}>🏗️ Motocana (Carregadeira)</option>
+                                <option value="veiculos" ${filtroFrota.tipo === 'veiculos' ? 'selected' : ''}>🚛 Veículos & Caminhões</option>
+                            </select>
+
                             <!-- Filtro Categoria -->
                             <select onchange="filtroFrota.categoria = this.value; renderizarAbaAtualGestor();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none">
-                                <option value="todas" ${filtroFrota.categoria === 'todas' ? 'selected' : ''}>Todos os Tipos</option>
+                                <option value="todas" ${filtroFrota.categoria === 'todas' ? 'selected' : ''}>Todas Categorias</option>
                                 <option value="maquinas" ${filtroFrota.categoria === 'maquinas' ? 'selected' : ''}>Só Máquinas</option>
                                 <option value="veiculos" ${filtroFrota.categoria === 'veiculos' ? 'selected' : ''}>Só Veículos</option>
                             </select>
@@ -3046,7 +3113,7 @@
                             <!-- Busca por código ou placa -->
                             <div class="relative flex-1 min-w-[160px]">
                                 <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-slate-600"></i>
-                                <input type="text" data-busca="frota" aria-label="Buscar frota por código, placa, modelo ou marca" placeholder="Código, placa, modelo ou marca" value="${escaparHTML(filtroFrota.busca)}" oninput="filtroFrota.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
+                                <input type="text" data-busca="frota" aria-label="Buscar frota por código, placa, modelo ou marca" placeholder="Código, placa, modelo, operador..." value="${escaparHTML(filtroFrota.busca)}" oninput="filtroFrota.busca = this.value; renderizarAbaAtualGestor();" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg pl-7 p-1.5 focus:outline-none focus:border-orange-500">
                             </div>
                         </div>
 
@@ -3056,7 +3123,7 @@
                     </div>
 
                     <!-- GRID DE EQUIPAMENTOS (CLIQUE PARA ABRIR PERFIL) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                         ${lista.map(m => {
                             const isHoras = m.tipo_controle !== 'km';
                             const valorAtual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
@@ -3065,47 +3132,145 @@
                             const intervalo = isHoras ? (m.intervalo_preventiva_horas || 250) : (m.intervalo_km || 10000);
                             const proximaPreventiva = ultPreventiva + intervalo;
                             const faltam = proximaPreventiva - valorAtual;
+                            const horasTrabalhadas = Math.max(0, valorAtual - ultPreventiva);
 
-                            const pctUso = Math.min(100, Math.max(0, Math.round(((valorAtual - ultPreventiva) / intervalo) * 100)));
+                            const pctConsumido = Math.round((horasTrabalhadas / intervalo) * 100);
+                            const pctVidaUtil = Math.max(0, Math.min(100, Math.round((faltam / intervalo) * 100)));
                             const venceu = faltam <= 0;
+                            const proximoTroca = faltam > 0 && faltam <= 50;
+
+                            // Gradientes dinâmicos da "tela de carregamento" conforme o horímetro avança
+                            let gradienteBarra = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+                            let textoStatus = `Faltam ${faltam} ${isHoras ? 'h' : 'km'}`;
+                            let badgeClass = 'bg-emerald-500/15 text-emerald-800 border-emerald-300';
+                            let pulseClass = '';
+
+                            if (venceu) {
+                                gradienteBarra = 'linear-gradient(90deg, #ef4444 0%, #dc2626 50%, #991b1b 100%)';
+                                textoStatus = `VENCIDA (${Math.abs(faltam)} ${isHoras ? 'h' : 'km'} excedido!)`;
+                                badgeClass = 'bg-red-600 text-white font-black border-red-700';
+                                pulseClass = 'animate-pulse';
+                            } else if (proximoTroca) {
+                                gradienteBarra = 'linear-gradient(90deg, #f59e0b 0%, #ea580c 50%, #ef4444 100%)';
+                                textoStatus = `PRÓXIMA DA TROCA (Faltam ${faltam} ${isHoras ? 'h' : 'km'})`;
+                                badgeClass = 'bg-amber-500/20 text-amber-900 border-amber-400 font-bold';
+                            } else if (pctConsumido > 50) {
+                                gradienteBarra = 'linear-gradient(90deg, #10b981 0%, #84cc16 50%, #eab308 100%)';
+                                textoStatus = `Faltam ${faltam} ${isHoras ? 'h' : 'km'} (${pctVidaUtil}% vida)`;
+                                badgeClass = 'bg-lime-500/15 text-lime-900 border-lime-300';
+                            } else {
+                                textoStatus = `Em dia (${pctVidaUtil}% vida útil)`;
+                            }
+
+                            const larguraBarra = venceu ? 100 : Math.min(100, Math.max(6, pctConsumido));
 
                             return `
-                            <div onclick="abrirPerfilEquipamento('${m.codigo}')" class="bg-white border ${venceu ? 'border-red-500/50 hover:border-red-400' : 'border-slate-200 hover:border-orange-500'} rounded-xl p-4 shadow-sm cursor-pointer transition flex flex-col justify-between">
+                            <div onclick="abrirPerfilEquipamento('${m.codigo}')" class="group bg-white border ${venceu ? 'border-red-400 ring-1 ring-red-300 hover:border-red-500' : 'border-slate-200 hover:border-orange-500'} rounded-2xl shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col justify-between overflow-hidden">
                                 <div>
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <div class="flex items-center gap-1.5">
-                                                <span class="text-[9px] font-mono-num font-bold bg-slate-100 text-orange-700 px-1.5 py-0.2 rounded">${m.unidade || 'FILIAL'}</span>
-                                                <span class="text-[9px] uppercase font-bold text-slate-600">${m.categoria || 'MÁQUINAS'}</span>
+                                    <!-- 1. ESPAÇO VISUAL DA FOTO DO EQUIPAMENTO -->
+                                    <div class="relative w-full h-36 bg-slate-900 overflow-hidden border-b border-slate-200">
+                                        ${m.foto_url ? `
+                                            <img src="${escaparHTML(m.foto_url)}" alt="${escaparHTML(m.codigo)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-black/20 to-black/30"></div>
+                                        ` : `
+                                            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 text-slate-300 relative overflow-hidden">
+                                                <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl font-black font-mono-num select-none">${escaparHTML(m.codigo)}</div>
+                                                <i class="fa-solid ${obterIconeEquipamento(m)} text-4xl mb-1 text-orange-500/85 drop-shadow-md"></i>
+                                                <span class="text-[11px] font-bold text-slate-200 uppercase tracking-wide drop-shadow">${obterNomeSubtipo(m)}</span>
+                                                <span class="text-[9px] text-orange-400/90 font-mono-num mt-0.5 flex items-center gap-1"><i class="fa-solid fa-camera"></i> Toque para cadastrar foto</span>
                                             </div>
-                                            <h4 class="font-mono-num font-bold text-slate-900 text-base mt-1">${m.codigo}</h4>
-                                            <p class="text-xs text-slate-600 truncate">${m.modelo || m.nome} ${m.placa ? '• Placa: ' + m.placa : ''}</p>
+                                        `}
+                                        
+                                        <!-- Badges superiores sobre a imagem -->
+                                        <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 z-10">
+                                            <span class="text-[10px] font-mono-num font-black bg-slate-950/80 backdrop-blur-md text-white px-2 py-0.5 rounded shadow-sm border border-white/20">
+                                                ${escaparHTML(m.unidade || 'FILIAL')}
+                                            </span>
+                                            <span class="text-[9px] uppercase font-bold bg-orange-600/90 backdrop-blur-md text-white px-1.5 py-0.5 rounded shadow-sm">
+                                                ${obterNomeSubtipo(m)}
+                                            </span>
                                         </div>
-                                        <div class="text-right">
-                                            <span class="text-[10px] text-slate-600 block uppercase font-bold">${isHoras ? 'Horímetro' : 'Quilometragem'}</span>
-                                            <span class="font-mono-num text-lg font-bold text-slate-900">${valorAtual} ${isHoras ? 'h' : 'km'}</span>
+
+                                        <div class="absolute top-2.5 right-2.5 z-10">
+                                            <span class="text-[11px] font-mono-num font-black bg-slate-950/85 backdrop-blur-md text-orange-400 px-2.5 py-0.5 rounded-md shadow-sm border border-orange-500/30 flex items-center gap-1">
+                                                <i class="fa-solid fa-gauge-high text-[10px] text-orange-400"></i> ${valorAtual} ${isHoras ? 'h' : 'km'}
+                                            </span>
+                                        </div>
+
+                                        <!-- Overlay inferior com Operador Atual -->
+                                        <div class="absolute bottom-0 inset-x-0 p-2.5 text-white flex items-center justify-between text-[11px] z-10">
+                                            <span class="flex items-center gap-1.5 font-medium truncate max-w-[70%] text-slate-100 drop-shadow">
+                                                <i class="fa-solid fa-user-gear text-orange-400 text-xs"></i>
+                                                <strong class="truncate font-semibold">${escaparHTML(m.operador_atual || 'Operador não definido')}</strong>
+                                            </span>
+                                            ${m.placa ? `<span class="font-mono-num font-bold text-[10px] bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded border border-white/20 text-slate-200">${escaparHTML(m.placa)}</span>` : ''}
                                         </div>
                                     </div>
 
-                                    <!-- BARRA DE CONTROLE DE TROCA DE ÓLEO & FILTROS -->
-                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 mt-2 space-y-1.5">
-                                        <div class="flex justify-between items-center text-[10px] font-mono-num font-bold">
-                                            <span class="text-slate-600 flex items-center gap-1">
-                                                <i class="fa-solid fa-oil-can text-orange-700"></i> Troca Óleo/Filtro (${intervalo} ${isHoras ? 'h' : 'km'}):
-                                            </span>
-                                            <span class="${venceu ? 'text-red-700 font-bold' : 'text-slate-600'}">
-                                                ${venceu ? 'VENCIDA!' : 'Faltam ' + faltam + ' ' + (isHoras ? 'h' : 'km')}
-                                            </span>
+                                    <!-- 2. DADOS PRINCIPAIS DO EQUIPAMENTO -->
+                                    <div class="p-4 pb-2">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-mono-num font-black text-slate-900 text-lg group-hover:text-orange-600 transition">${escaparHTML(m.codigo)}</h4>
+                                                <p class="text-xs text-slate-600 font-medium truncate">${escaparHTML(m.modelo || m.nome)}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="text-[9px] text-slate-500 uppercase font-bold block">${isHoras ? 'Horímetro Atual' : 'KM Atual'}</span>
+                                                <span class="font-mono-num font-bold text-sm text-slate-900">${valorAtual} ${isHoras ? 'h' : 'km'}</span>
+                                            </div>
                                         </div>
-                                        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                                            <div class="h-full rounded-full transition-all ${venceu ? 'bg-red-500' : (pctUso > 80 ? 'bg-amber-400' : 'bg-emerald-500')}" style="width: ${pctUso}%"></div>
+
+                                        <!-- 3. TELA DE CARREGAMENTO EM GRADIENTE PARA TROCA DE ÓLEO & FILTROS -->
+                                        <div class="p-3 rounded-xl border ${venceu ? 'border-red-400 bg-red-500/5' : (proximoTroca ? 'border-amber-400 bg-amber-500/5' : 'border-slate-200 bg-slate-50/80')} space-y-2 mt-3">
+                                            <!-- Topo do bloco com status -->
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-oil-can ${venceu ? 'text-red-600 animate-bounce' : (proximoTroca ? 'text-amber-600' : 'text-orange-600')}"></i>
+                                                    Troca Óleo/Filtro (${intervalo} ${isHoras ? 'h' : 'km'})
+                                                </span>
+                                                <span class="text-[10px] font-mono-num uppercase px-2 py-0.5 rounded-full border font-bold ${badgeClass}">
+                                                    ${textoStatus}
+                                                </span>
+                                            </div>
+
+                                            <!-- Barra de Carregamento em Gradiente Dinâmico -->
+                                            <div class="space-y-1">
+                                                <div class="relative w-full h-3 bg-slate-200/90 rounded-full overflow-hidden p-0.5 shadow-inner">
+                                                    <div class="h-full rounded-full transition-all duration-700 shadow-sm ${pulseClass}" style="width: ${larguraBarra}%; background: ${gradienteBarra};"></div>
+                                                </div>
+                                                <div class="flex justify-between items-center text-[10px] font-mono-num text-slate-600 font-semibold px-0.5">
+                                                    <span>Última: <strong>${ultPreventiva} ${isHoras ? 'h' : 'km'}</strong></span>
+                                                    <span>Ciclo: <strong>${pctConsumido}%</strong></span>
+                                                    <span>Próxima: <strong>${proximaPreventiva} ${isHoras ? 'h' : 'km'}</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <!-- ALERTA E AÇÃO RÁPIDA DE AGENDAMENTO -->
+                                            ${(venceu || proximoTroca) ? `
+                                                <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between gap-2">
+                                                    <div class="flex items-center gap-1 text-[11px] font-bold ${venceu ? 'text-red-700' : 'text-amber-800'}">
+                                                        <i class="fa-solid fa-triangle-exclamation ${venceu ? 'text-red-600 animate-bounce' : 'text-amber-600'}"></i>
+                                                        <span>${venceu ? 'Troca vencida!' : 'Próxima do limite:'}</span>
+                                                    </div>
+                                                    <button type="button" onclick="event.stopPropagation(); agendarTrocaRapida('${m.codigo}')" class="btn-industrial px-3 py-1.5 ${venceu ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'} text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition shrink-0">
+                                                        <i class="fa-solid fa-calendar-plus"></i> Agendar Troca
+                                                    </button>
+                                                </div>
+                                            ` : `
+                                                <div class="pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-slate-600">
+                                                    <span class="flex items-center gap-1 text-emerald-700 font-bold"><i class="fa-solid fa-circle-check text-emerald-600"></i> Óleo & Filtros em dia</span>
+                                                    <button type="button" onclick="event.stopPropagation(); agendarTrocaRapida('${m.codigo}')" class="text-orange-700 hover:text-orange-800 font-bold hover:underline flex items-center gap-1">
+                                                        <i class="fa-regular fa-calendar-plus"></i> Programar troca
+                                                    </button>
+                                                </div>
+                                            `}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="mt-3 pt-2 border-t border-slate-200/80 flex justify-between items-center text-[11px] text-orange-700 font-bold">
+                                <div class="px-4 py-2.5 bg-slate-50/90 border-t border-slate-100 flex justify-between items-center text-[11px] text-orange-700 font-bold group-hover:bg-orange-50/50 transition">
                                     <span>Ver detalhes técnicos & perfil</span>
-                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                    <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
                                 </div>
                             </div>`;
                         }).join('')}
@@ -3779,6 +3944,52 @@
                             localStorage.setItem('perfil_foto_' + equipamentoSelecionado.codigo, dataUrl);
                         } catch(err){}
                         atualizarHeaderPerfil(equipamentoSelecionado);
+
+                        // Sincronização Global no Supabase (Storage + Tabela maquinas)
+                        canvas.toBlob(async function(blob) {
+                            if (!blob) return;
+                            let finalUrl = dataUrl;
+                            const codAtual = equipamentoSelecionado ? equipamentoSelecionado.codigo : '';
+                            if (db && codAtual) {
+                                try {
+                                    const cleanCode = codAtual.replace(/[^a-zA-Z0-9_-]/g, '_');
+                                    const fileName = `${cleanCode}_${Date.now()}.jpg`;
+                                    const { error: upErr } = await db.storage
+                                        .from('fotos-equipamentos')
+                                        .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+
+                                    if (!upErr) {
+                                        const { data: pubData } = db.storage.from('fotos-equipamentos').getPublicUrl(fileName);
+                                        if (pubData && pubData.publicUrl) {
+                                            finalUrl = pubData.publicUrl;
+                                        }
+                                    }
+                                } catch(errStorage) {
+                                    console.warn("Storage upload aviso:", errStorage);
+                                }
+
+                                try {
+                                    await db.from('maquinas').update({
+                                        foto_url: finalUrl,
+                                        updated_at: new Date()
+                                    }).eq('codigo', codAtual);
+                                    console.log("Foto sincronizada globalmente no Supabase:", finalUrl);
+                                } catch(dbErr) {
+                                    console.warn("Aviso ao salvar foto_url no Supabase:", dbErr);
+                                }
+                            }
+
+                            if (equipamentoSelecionado && equipamentoSelecionado.codigo === codAtual) {
+                                equipamentoSelecionado.foto_url = finalUrl;
+                                if (inputUrl) inputUrl.value = finalUrl;
+                                try {
+                                    localStorage.setItem('perfil_foto_' + codAtual, finalUrl);
+                                } catch(err){}
+                                const mInCache = (cacheGestor.maquinas || []).find(m => m.codigo === codAtual);
+                                if (mInCache) mInCache.foto_url = finalUrl;
+                                atualizarHeaderPerfil(equipamentoSelecionado);
+                            }
+                        }, 'image/jpeg', 0.82);
                     }
                 };
                 img.src = e.target.result;
@@ -3786,7 +3997,7 @@
             reader.readAsDataURL(file);
         }
 
-        function removerFotoEquipamento() {
+        async function removerFotoEquipamento() {
             const preview = document.getElementById('preview-foto-equipamento');
             const placeholder = document.getElementById('preview-foto-placeholder');
             const inputUrl = document.getElementById('dados-foto-url');
@@ -3801,29 +4012,48 @@
             if (inputFile) inputFile.value = '';
 
             if (equipamentoSelecionado) {
+                const cod = equipamentoSelecionado.codigo;
                 equipamentoSelecionado.foto_url = '';
                 try {
-                    localStorage.removeItem('perfil_foto_' + equipamentoSelecionado.codigo);
+                    localStorage.removeItem('perfil_foto_' + cod);
                 } catch(err){}
+                const mInCache = (cacheGestor.maquinas || []).find(m => m.codigo === cod);
+                if (mInCache) mInCache.foto_url = '';
                 atualizarHeaderPerfil(equipamentoSelecionado);
+
+                if (db) {
+                    try {
+                        await db.from('maquinas').update({ foto_url: null, updated_at: new Date() }).eq('codigo', cod);
+                    } catch(e){}
+                }
             }
         }
 
-        function atualizarPreviewFotoUrl(url) {
+        async function atualizarPreviewFotoUrl(url) {
             const preview = document.getElementById('preview-foto-equipamento');
             const placeholder = document.getElementById('preview-foto-placeholder');
             if (url && url.trim()) {
+                const urlLimpa = url.trim();
                 if (preview) {
-                    preview.src = url.trim();
+                    preview.src = urlLimpa;
                     preview.classList.remove('hidden');
                 }
                 if (placeholder) placeholder.classList.add('hidden');
                 if (equipamentoSelecionado) {
-                    equipamentoSelecionado.foto_url = url.trim();
+                    const cod = equipamentoSelecionado.codigo;
+                    equipamentoSelecionado.foto_url = urlLimpa;
                     try {
-                        localStorage.setItem('perfil_foto_' + equipamentoSelecionado.codigo, url.trim());
+                        localStorage.setItem('perfil_foto_' + cod, urlLimpa);
                     } catch(err){}
+                    const mInCache = (cacheGestor.maquinas || []).find(m => m.codigo === cod);
+                    if (mInCache) mInCache.foto_url = urlLimpa;
                     atualizarHeaderPerfil(equipamentoSelecionado);
+
+                    if (db) {
+                        try {
+                            await db.from('maquinas').update({ foto_url: urlLimpa, updated_at: new Date() }).eq('codigo', cod);
+                        } catch(e){}
+                    }
                 }
             } else {
                 removerFotoEquipamento();
@@ -4190,11 +4420,19 @@
                     placa: placa || null,
                     chassi: chassi || null,
                     operador_atual: operador || null,
+                    foto_url: m.foto_url || fotoUrl || null,
                     updated_at: new Date()
                 };
 
                 await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
-                alert("Dados técnicos, operador e foto atualizados com sucesso!");
+                const mInCache = (cacheGestor.maquinas || []).find(maq => maq.codigo === m.codigo);
+                if (mInCache) {
+                    mInCache.operador_atual = operador;
+                    mInCache.foto_url = updatePayload.foto_url;
+                    mInCache.modelo = modelo;
+                    mInCache.placa = placa;
+                }
+                alert("Dados técnicos, operador e foto atualizados com sucesso para todos os usuários!");
                 atualizarHeaderPerfil(m);
                 fecharModalPerfil();
                 carregarDadosGestor();
