@@ -51,7 +51,19 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 #gestor-conteudo .shadow-sm, #gestor-conteudo .shadow-md { box-shadow: none; }
 #gestor-conteudo .uppercase { text-transform: none; letter-spacing: normal; }
 #gestor-conteudo .font-mono-num { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
-#app-gestor .text-xs, #app-gestor [class*="text-["] { font-size: var(--ui-small); line-height: 1.5; }
+#app-gestor .text-xs:not(.badge-compact):not(.btn-compacto):not(.card-frota-compact *) { font-size: var(--ui-small); line-height: 1.5; }
+.badge-compact {
+    font-size: 9px !important;
+    line-height: 1 !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+.btn-compacto {
+    min-height: unset !important;
+    height: auto !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+}
 #gestor-conteudo h3, #gestor-conteudo h4 { font-size: .9375rem; }
 #gestor-conteudo h3.text-2xl { font-size: 1.5rem; }
 .kanban-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -66,9 +78,9 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .filter-toolbar { align-items: flex-end; }
 .filter-toolbar > div:first-child { align-items: flex-end; }
 .filter-toolbar .relative { min-width: 240px; }
-#gestor-conteudo [onclick^="abrirPerfilEquipamento"] .space-y-1\.5 > .flex { flex-wrap: wrap; gap: 6px; }
+#gestor-conteudo [onclick^="abrirPerfilEquipamento"] .space-y-1\.5 > .flex { flex-wrap: nowrap; gap: 6px; }
 @media (min-width: 1440px) { .kanban-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-#gestor-conteudo select, #gestor-conteudo input, #gestor-conteudo button { min-height: 38px; }
+#gestor-conteudo select, #gestor-conteudo input, #gestor-conteudo button:not(.btn-compacto) { min-height: 38px; }
 #gestor-conteudo select, #gestor-conteudo input { background-color: white; border-color: #cbd5e1; font-size: .8125rem; padding-top: 8px; padding-bottom: 8px; }
 #gestor-conteudo .relative > .fa-magnifying-glass { top: 13px; }
 #gestor-conteudo .border-t-4 { border-top-width: 2px; }
