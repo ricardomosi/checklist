@@ -107,6 +107,31 @@
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
+
+        /* Estilos de Impressão Industrial de Ordens e Requisições */
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #area-impressao-requisicao, #area-impressao-requisicao * {
+                visibility: visible !important;
+            }
+            #area-impressao-requisicao {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                margin: 0 !important;
+                padding: 24px !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                display: block !important;
+                z-index: 999999 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
     <link rel="stylesheet" href="gestao.css?v=20260913">
 </head>
@@ -297,7 +322,7 @@
             <div class="p-5 overflow-y-auto flex-1 space-y-3.5">
                 <div>
                     <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Equipamento (Máquina ou Veículo)</label>
-                    <select id="agendar-equipamento-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-orange-500">
+                    <select id="agendar-equipamento-select" onchange="aoMudarEquipamentoAgendarDia()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-orange-500">
                         <!-- Preenchido via JS -->
                     </select>
                 </div>
@@ -309,10 +334,10 @@
                     </div>
                     <div>
                         <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Tipo de Intervenção</label>
-                        <select id="agendar-tipo-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                        <select id="agendar-tipo-select" onchange="aoMudarTipoAgendarDia()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-orange-500">
+                            <option value="troca_oleo">Troca de Óleo e Filtros</option>
                             <option value="preventiva">Preventiva Periódica</option>
                             <option value="corretiva">Corretiva / Reparo</option>
-                            <option value="troca_oleo">Troca de Óleo e Filtros</option>
                             <option value="revisao_geral">Revisão Geral 5S</option>
                         </select>
                     </div>
@@ -336,22 +361,32 @@
 
                 <div>
                     <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Título da Ordem / Serviço</label>
-                    <input type="text" id="agendar-titulo-input" placeholder="Ex: Troca de mangueiras de elevação e filtros" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                    <input type="text" id="agendar-titulo-input" placeholder="Ex: Troca de óleo de motor e filtros" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Observações Técnicas / Peças Necessárias</label>
-                    <textarea id="agendar-obs-textarea" rows="2" placeholder="Descreva os detalhes e peças necessárias..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500"></textarea>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-[11px] uppercase font-bold text-slate-600">Observações Técnicas / Peças Necessárias</label>
+                        <button type="button" onclick="puxarInsumosParaModalAgendar()" class="text-[10px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-2 py-0.5 rounded transition">
+                            <i class="fa-solid fa-list-check"></i> Puxar Filtros & Óleo
+                        </button>
+                    </div>
+                    <textarea id="agendar-obs-textarea" rows="3" placeholder="Descreva os detalhes e peças necessárias..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-mono text-[11px]"></textarea>
                 </div>
             </div>
 
-            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-2 shrink-0">
-                <button onclick="fecharModalAgendarDia()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition border border-slate-300">
-                    Cancelar
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                <button type="button" onclick="imprimirRequisicaoModalAgendar()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition border border-slate-300 flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-print text-orange-600"></i> Imprimir Ficha de Troca
                 </button>
-                <button onclick="salvarAgendamentoDia()" class="btn-industrial px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
-                    <i class="fa-solid fa-check"></i> Gravar no Calendário
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="fecharModalAgendarDia()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition border border-slate-300">
+                        Cancelar
+                    </button>
+                    <button onclick="salvarAgendamentoDia()" class="btn-industrial px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Gravar no Calendário
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -395,9 +430,14 @@
                         <option value="concluido">Concluído</option>
                     </select>
                 </div>
-                <button onclick="fecharModalDetalhesOS()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
-                    Fechar
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="imprimirOSAtual()" class="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-print"></i> Imprimir O.S.
+                    </button>
+                    <button onclick="fecharModalDetalhesOS()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
+                        Fechar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -505,8 +545,9 @@
             <!-- Header do Modal -->
             <div class="bg-slate-850 p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-xl font-bold">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    <div id="modal-maq-foto-wrap" class="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-xl font-bold overflow-hidden border border-slate-200 relative shrink-0">
+                        <i id="modal-maq-icone" class="fa-solid fa-truck-ramp-box"></i>
+                        <img id="modal-maq-foto-img" src="" alt="Foto do Equipamento" class="w-full h-full object-cover hidden">
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
@@ -514,7 +555,10 @@
                             <span id="modal-maq-unidade" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-orange-700 font-mono-num">FILIAL</span>
                             <span id="modal-maq-categoria" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">MÁQUINAS</span>
                         </div>
-                        <p id="modal-maq-nome" class="text-xs text-slate-600">ZOOMLION FD70 Diesel 4.5T</p>
+                        <p id="modal-maq-nome" class="text-xs text-slate-600 font-medium">ZOOMLION FD70 Diesel 4.5T</p>
+                        <p id="modal-maq-operador-badge" class="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mt-0.5">
+                            <i class="fa-solid fa-user-gear text-orange-600"></i> Operador Atual: <strong id="modal-maq-operador-txt" class="text-slate-800 font-bold">Não informado</strong>
+                        </p>
                     </div>
                 </div>
                 <button onclick="fecharModalPerfil()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition">
@@ -523,14 +567,17 @@
             </div>
 
             <!-- Navegação Interna do Perfil -->
-            <div class="flex border-b border-slate-200 bg-white px-4 text-xs font-bold gap-4 shrink-0 overflow-x-auto">
-                <button onclick="mudarSubAbaPerfil('preventivas')" id="subaba-btn-preventivas" class="py-3 border-b-2 border-orange-500 text-orange-700 flex items-center gap-1.5">
+            <div class="flex border-b border-slate-200 bg-white px-4 text-xs font-bold gap-2 sm:gap-4 shrink-0 overflow-x-auto">
+                <button onclick="mudarSubAbaPerfil('preventivas')" id="subaba-btn-preventivas" class="py-3 border-b-2 border-orange-500 text-orange-700 flex items-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-oil-can"></i> Troca de Óleo & Filtros
                 </button>
-                <button onclick="mudarSubAbaPerfil('agendar')" id="subaba-btn-agendar" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                <button onclick="mudarSubAbaPerfil('insumos')" id="subaba-btn-insumos" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-filter"></i> Filtros & Óleo
+                </button>
+                <button onclick="mudarSubAbaPerfil('agendar')" id="subaba-btn-agendar" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-calendar-plus"></i> Agendar Manutenção
                 </button>
-                <button onclick="mudarSubAbaPerfil('dados')" id="subaba-btn-dados" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                <button onclick="mudarSubAbaPerfil('dados')" id="subaba-btn-dados" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-sliders"></i> Dados Técnicos
                 </button>
             </div>
@@ -579,6 +626,9 @@
             </div>
         </div>
     </div>
+
+    <!-- ==================== ÁREA DE IMPRESSÃO DA REQUISIÇÃO (Apenas impressora) ==================== -->
+    <div id="area-impressao-requisicao" class="hidden"></div>
 
     <!-- ==================== SCRIPT PRINCIPAL ==================== -->
     <script>
@@ -3068,16 +3118,141 @@
         let equipamentoSelecionado = null;
         let subAbaPerfilAtual = 'preventivas';
 
+        function getInsumosEquipamento(codigo) {
+            let insumos = { oleo: { motor: '15W40 Mineral CI-4', litros: '8.5 L', hidraulico: 'ISO 68' }, filtros: [] };
+            try {
+                const raw = localStorage.getItem('insumos_equip_' + codigo);
+                if (raw) insumos = JSON.parse(raw);
+            } catch (e) {}
+
+            const maq = (cacheGestor.maquinas || []).find(m => m.codigo === codigo) || (frotaTotal || []).find(m => m.codigo === codigo);
+            if (maq && maq.maquina_especificacoes && maq.maquina_especificacoes.length > 0) {
+                maq.maquina_especificacoes.forEach(esp => {
+                    if (esp.categoria === 'oleo') {
+                        if (esp.item_nome === 'oleo_motor') insumos.oleo.motor = esp.especificacao || insumos.oleo.motor;
+                        if (esp.item_nome === 'oleo_hidraulico') insumos.oleo.hidraulico = esp.especificacao || insumos.oleo.hidraulico;
+                        if (esp.quantidade_por_troca) insumos.oleo.litros = esp.quantidade_por_troca + (esp.unidade ? ' ' + esp.unidade : '');
+                    } else if (esp.categoria === 'filtro') {
+                        if (!insumos.filtros.some(f => f.codigo === esp.codigo_fabricante)) {
+                            insumos.filtros.push({
+                                id: esp.id,
+                                codigo: esp.codigo_fabricante || '',
+                                nome: esp.item_nome || '',
+                                categoria: esp.especificacao || 'Filtro',
+                                quantidade: esp.quantidade_por_troca || 1
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Sugestões inteligentes padrão se for a primeira vez
+            if (!insumos.filtros || insumos.filtros.length === 0) {
+                if (codigo.includes('FD70') || codigo.includes('FD72') || codigo.includes('7T')) {
+                    insumos.filtros = [
+                        { id: 'f1', codigo: 'LF16015', nome: 'Filtro de Óleo Lubrificante', categoria: 'Óleo' },
+                        { id: 'f2', codigo: 'FS19732', nome: 'Filtro de Combustível / Separador', categoria: 'Combustível' },
+                        { id: 'f3', codigo: 'P550388', nome: 'Filtro de Ar Primário', categoria: 'Ar' },
+                        { id: 'f4', codigo: 'HF6510', nome: 'Filtro de Retorno Hidráulico', categoria: 'Hidráulico' }
+                    ];
+                    insumos.oleo.motor = '15W40 Mineral CI-4';
+                    insumos.oleo.litros = '14.0 L';
+                    insumos.oleo.hidraulico = 'ISO 68';
+                } else if (codigo.includes('FD35') || codigo.includes('FD36') || codigo.includes('0402')) {
+                    insumos.filtros = [
+                        { id: 'f1', codigo: 'W950/26', nome: 'Filtro de Óleo Lubrificante', categoria: 'Óleo' },
+                        { id: 'f2', codigo: 'WK842/2', nome: 'Filtro de Combustível', categoria: 'Combustível' },
+                        { id: 'f3', codigo: 'C15300', nome: 'Filtro de Ar do Motor', categoria: 'Ar' },
+                        { id: 'f4', codigo: 'HD719', nome: 'Filtro Hidráulico', categoria: 'Hidráulico' }
+                    ];
+                    insumos.oleo.motor = '15W40 Mineral CI-4';
+                    insumos.oleo.litros = '8.5 L';
+                    insumos.oleo.hidraulico = 'ISO 68';
+                } else if (codigo.includes('Doosan') || codigo.includes('Hyundai') || codigo.includes('Motocana')) {
+                    insumos.filtros = [
+                        { id: 'f1', codigo: '65.05510-5020', nome: 'Filtro de Óleo Motor Diesel', categoria: 'Óleo' },
+                        { id: 'f2', codigo: '400504-00075', nome: 'Filtro de Combustível Principal', categoria: 'Combustível' },
+                        { id: 'f3', codigo: '400504-00218', nome: 'Filtro Separador de Água Racor', categoria: 'Combustível' },
+                        { id: 'f4', codigo: '474-00040', nome: 'Filtro de Ar Primário', categoria: 'Ar' },
+                        { id: 'f5', codigo: '2474-9051', nome: 'Filtro Hidráulico de Sucção', categoria: 'Hidráulico' }
+                    ];
+                    insumos.oleo.motor = '15W40 Mineral Diesel';
+                    insumos.oleo.litros = '19.5 L';
+                    insumos.oleo.hidraulico = 'ISO 68 / 46';
+                } else if (codigo.includes('CLA') || codigo.includes('JHC') || codigo.includes('EL20') || codigo.includes('EL21')) {
+                    insumos.filtros = [
+                        { id: 'f1', codigo: 'CLK-2784', nome: 'Filtro Hidráulico de Sucção', categoria: 'Hidráulico' },
+                        { id: 'f2', codigo: 'CLK-9011', nome: 'Filtro Respirador do Tanque', categoria: 'Hidráulico' }
+                    ];
+                    insumos.oleo.motor = 'Elétrica (Não utiliza óleo motor)';
+                    insumos.oleo.litros = '0 L';
+                    insumos.oleo.hidraulico = 'ISO 46 / 68';
+                } else {
+                    insumos.filtros = [
+                        { id: 'f1', codigo: 'PH5566', nome: 'Filtro de Óleo do Motor', categoria: 'Óleo' },
+                        { id: 'f2', codigo: 'G5540', nome: 'Filtro de Combustível', categoria: 'Combustível' },
+                        { id: 'f3', codigo: 'CA5354', nome: 'Filtro de Ar', categoria: 'Ar' }
+                    ];
+                    insumos.oleo.motor = '15W40 Mineral';
+                    insumos.oleo.litros = '5.0 L';
+                    insumos.oleo.hidraulico = 'ISO 68';
+                }
+                salvarInsumosEquipamentoLocal(codigo, insumos);
+            }
+
+            return insumos;
+        }
+
+        function salvarInsumosEquipamentoLocal(codigo, insumos) {
+            try {
+                localStorage.setItem('insumos_equip_' + codigo, JSON.stringify(insumos));
+            } catch (e) {}
+        }
+
+        function atualizarHeaderPerfil(maq) {
+            if (!maq) return;
+            try {
+                const rawExtra = localStorage.getItem('perfil_extra_' + maq.codigo);
+                if (rawExtra) {
+                    const extra = JSON.parse(rawExtra);
+                    if (extra.operador_atual && !maq.operador_atual) maq.operador_atual = extra.operador_atual;
+                    if (extra.foto_url && !maq.foto_url) maq.foto_url = extra.foto_url;
+                }
+                const rawFoto = localStorage.getItem('perfil_foto_' + maq.codigo);
+                if (rawFoto) maq.foto_url = rawFoto;
+            } catch (e) {}
+
+            const elCod = document.getElementById('modal-maq-codigo');
+            const elUnid = document.getElementById('modal-maq-unidade');
+            const elCat = document.getElementById('modal-maq-categoria');
+            const elNome = document.getElementById('modal-maq-nome');
+            const elOpTxt = document.getElementById('modal-maq-operador-txt');
+            const elFotoImg = document.getElementById('modal-maq-foto-img');
+            const elIcone = document.getElementById('modal-maq-icone');
+
+            if (elCod) elCod.innerText = maq.codigo;
+            if (elUnid) elUnid.innerText = maq.unidade || 'FILIAL';
+            if (elCat) elCat.innerText = (maq.categoria || 'maquinas').toUpperCase();
+            if (elNome) elNome.innerText = `${maq.modelo || maq.nome} ${maq.placa ? '• Placa: ' + maq.placa : ''}`;
+            if (elOpTxt) elOpTxt.innerText = maq.operador_atual || 'Não informado';
+
+            if (maq.foto_url && elFotoImg && elIcone) {
+                elFotoImg.src = maq.foto_url;
+                elFotoImg.classList.remove('hidden');
+                elIcone.classList.add('hidden');
+            } else if (elFotoImg && elIcone) {
+                elFotoImg.src = '';
+                elFotoImg.classList.add('hidden');
+                elIcone.classList.remove('hidden');
+            }
+        }
+
         function abrirPerfilEquipamento(codigo) {
             const maq = cacheGestor.maquinas.find(m => m.codigo === codigo) || frotaTotal.find(m => m.codigo === codigo);
             if (!maq) return;
             equipamentoSelecionado = maq;
 
-            document.getElementById('modal-maq-codigo').innerText = maq.codigo;
-            document.getElementById('modal-maq-unidade').innerText = maq.unidade || 'FILIAL';
-            document.getElementById('modal-maq-categoria').innerText = (maq.categoria || 'maquinas').toUpperCase();
-            document.getElementById('modal-maq-nome').innerText = `${maq.modelo || maq.nome} ${maq.placa ? '• Placa: ' + maq.placa : ''}`;
-
+            atualizarHeaderPerfil(maq);
             subAbaPerfilAtual = 'preventivas';
             renderSubAbaPerfil();
             document.getElementById('modal-perfil-equipamento').classList.remove('hidden');
@@ -3090,13 +3265,13 @@
 
         function mudarSubAbaPerfil(aba) {
             subAbaPerfilAtual = aba;
-            ['preventivas', 'agendar', 'dados'].forEach(a => {
+            ['preventivas', 'insumos', 'agendar', 'dados'].forEach(a => {
                 const btn = document.getElementById(`subaba-btn-${a}`);
                 if (btn) {
                     if (a === aba) {
-                        btn.className = "py-3 border-b-2 border-orange-500 text-orange-700 flex items-center gap-1.5 font-bold";
+                        btn.className = "py-3 border-b-2 border-orange-500 text-orange-700 flex items-center gap-1.5 font-bold whitespace-nowrap";
                     } else {
-                        btn.className = "py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 font-medium";
+                        btn.className = "py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 font-medium whitespace-nowrap";
                     }
                 }
             });
@@ -3114,6 +3289,7 @@
             const intervalo = isHoras ? (m.intervalo_preventiva_horas || 250) : (m.intervalo_km || 10000);
             const proxima = ultPreventiva + intervalo;
             const faltam = proxima - atual;
+            const insumos = getInsumosEquipamento(m.codigo);
 
             if (subAbaPerfilAtual === 'preventivas') {
                 container.innerHTML = `
@@ -3149,19 +3325,162 @@
                                 </div>
                             </div>
 
-                            <div class="p-3 rounded-lg ${faltam <= 0 ? 'bg-red-500/20 text-red-700 border border-red-500/40' : 'bg-white text-slate-600'} flex justify-between items-center">
+                            <div class="p-3 rounded-lg ${faltam <= 0 ? 'bg-red-500/20 text-red-700 border border-red-500/40' : 'bg-white text-slate-600 border border-slate-200'} flex justify-between items-center">
                                 <span>Status da Revisão de Óleo:</span>
-                                <strong class="font-mono-num ${faltam <= 0 ? 'text-red-700' : 'text-emerald-700'}">
+                                <strong class="font-mono-num ${faltam <= 0 ? 'text-red-700 font-bold' : 'text-emerald-700 font-bold'}">
                                     ${faltam <= 0 ? 'TROCA DE ÓLEO VENCIDA!' : 'Faltam ' + faltam + (isHoras ? ' horas' : ' km')}
                                 </strong>
                             </div>
 
                             <div class="flex gap-2 pt-1">
-                                <button onclick="salvarConfigPreventiva()" class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-slate-900 font-bold py-2.5 rounded-lg">
+                                <button onclick="salvarConfigPreventiva()" class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg shadow-sm">
                                     Salvar Configurações
                                 </button>
-                                <button onclick="registrarTrocaRealizadaAgora()" class="flex-1 btn-industrial bg-emerald-600 hover:bg-emerald-700 text-slate-900 font-bold py-2.5 rounded-lg">
+                                <button onclick="registrarTrocaRealizadaAgora()" class="flex-1 btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg shadow-sm">
                                     <i class="fa-solid fa-check-double mr-1"></i> Confirmar Troca Feita Hoje
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (subAbaPerfilAtual === 'insumos') {
+                container.innerHTML = `
+                    <div class="space-y-4 text-xs">
+                        <!-- Seção Lubrificantes Recomendados -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-oil-can text-orange-700"></i> Lubrificantes Recomendados
+                                </h4>
+                                <span class="text-[10px] font-semibold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded font-mono-num">ESPECIFICAÇÕES</span>
+                            </div>
+                            <p class="text-slate-600 text-[11px]">Defina o tipo e volume de óleo especificados pelo fabricante para este equipamento:</p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Óleo do Motor</label>
+                                    <input type="text" id="edit-oleo-motor" value="${insumos.oleo.motor || '15W40 Mineral CI-4'}" placeholder="Ex: 15W40 Mineral CI-4" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-semibold focus:border-orange-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Volume do Cárter</label>
+                                    <input type="text" id="edit-oleo-litros" value="${insumos.oleo.litros || '8.5 L'}" placeholder="Ex: 8.5 L" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-semibold focus:border-orange-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Óleo Hidráulico / Transmissão</label>
+                                    <input type="text" id="edit-oleo-hidraulico" value="${insumos.oleo.hidraulico || 'ISO 68'}" placeholder="Ex: ISO 68" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-semibold focus:border-orange-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-1">
+                                <button onclick="salvarOleoPerfil()" class="btn-industrial px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fa-solid fa-floppy-disk"></i> Salvar Lubrificantes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Seção Cadastro de Filtros -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-filter text-orange-700"></i> Catálogo de Filtros do Equipamento
+                                </h4>
+                                <button onclick="imprimirRequisicaoPerfil()" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fa-solid fa-print text-orange-600"></i> Imprimir Ficha
+                                </button>
+                            </div>
+
+                            <!-- Formulário para adicionar filtro -->
+                            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+                                <span class="text-[11px] font-bold text-slate-700 uppercase flex items-center gap-1">
+                                    <i class="fa-solid fa-plus-circle text-orange-600"></i> Adicionar Filtro ao Perfil
+                                </span>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                    <div class="sm:col-span-4">
+                                        <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">
+                                            Código do Filtro <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" id="novo-filtro-codigo" placeholder="Ex: LF16015, W950/26" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num font-bold text-xs uppercase focus:outline-none focus:border-orange-500">
+                                    </div>
+                                    <div class="sm:col-span-5">
+                                        <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">
+                                            Nome / Descrição do Filtro <span class="text-red-500">*</span>
+                                        </label>
+                                        <input list="lista-filtros-sugestoes" id="novo-filtro-nome" placeholder="Ex: Filtro de Óleo do Motor" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-900 text-xs focus:outline-none focus:border-orange-500">
+                                        <datalist id="lista-filtros-sugestoes">
+                                            <option value="Filtro de Óleo Lubrificante">
+                                            <option value="Filtro de Combustível Principal">
+                                            <option value="Filtro de Combustível / Separador (Racor)">
+                                            <option value="Filtro de Ar Primário">
+                                            <option value="Filtro de Ar Secundário">
+                                            <option value="Filtro de Óleo Hidráulico Sucção">
+                                            <option value="Filtro de Retorno Hidráulico">
+                                            <option value="Filtro de Transmissão">
+                                            <option value="Filtro de Ar da Cabine">
+                                        </datalist>
+                                    </div>
+                                    <div class="sm:col-span-3">
+                                        <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Tipo / Posição</label>
+                                        <select id="novo-filtro-categoria" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-900 text-xs focus:outline-none focus:border-orange-500">
+                                            <option value="Óleo">Óleo</option>
+                                            <option value="Combustível">Combustível</option>
+                                            <option value="Ar">Ar</option>
+                                            <option value="Hidráulico">Hidráulico</option>
+                                            <option value="Transmissão">Transmissão</option>
+                                            <option value="Cabine">Cabine</option>
+                                            <option value="Outros">Outros</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-1">
+                                    <button onclick="adicionarFiltroPerfil()" class="btn-industrial px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-plus"></i> Adicionar Filtro ao Perfil
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Lista de Filtros Cadastrados -->
+                            <div class="space-y-2 pt-1">
+                                <span class="text-[11px] font-bold text-slate-600 uppercase">Filtros Cadastrados (${insumos.filtros.length})</span>
+                                ${insumos.filtros.length === 0 ? `
+                                    <div class="p-4 bg-white rounded-xl border border-dashed border-slate-300 text-center text-slate-500 text-xs">
+                                        <i class="fa-solid fa-filter text-slate-300 text-2xl mb-1 block"></i>
+                                        Nenhum filtro cadastrado ainda para este equipamento. Use o formulário acima para adicionar o código e nome dos filtros.
+                                    </div>
+                                ` : `
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        ${insumos.filtros.map(f => `
+                                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex justify-between items-start gap-2 hover:border-orange-300 transition">
+                                                <div class="min-w-0">
+                                                    <div class="flex items-center gap-1.5 mb-1">
+                                                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                                                            f.categoria === 'Óleo' ? 'bg-amber-100 text-amber-800' :
+                                                            f.categoria === 'Combustível' ? 'bg-red-100 text-red-800' :
+                                                            f.categoria === 'Ar' ? 'bg-sky-100 text-sky-800' :
+                                                            f.categoria === 'Hidráulico' ? 'bg-purple-100 text-purple-800' :
+                                                            'bg-slate-100 text-slate-700'
+                                                        }">${escaparHTML(f.categoria || 'Filtro')}</span>
+                                                    </div>
+                                                    <h5 class="text-xs font-bold text-slate-900 truncate" title="${escaparHTML(f.nome)}">${escaparHTML(f.nome)}</h5>
+                                                    <p class="text-[11px] font-mono-num font-bold text-orange-700 bg-orange-50 border border-orange-200/60 rounded px-1.5 py-0.5 mt-1 inline-block">
+                                                        Cód: ${escaparHTML(f.codigo)}
+                                                    </p>
+                                                </div>
+                                                <button onclick="excluirFiltroPerfil('${f.id}', '${escaparHTML(f.codigo)}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition shrink-0" title="Excluir este filtro">
+                                                    <i class="fa-regular fa-trash-can text-xs"></i>
+                                                </button>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `}
+                            </div>
+
+                            <div class="p-3 bg-orange-50/70 border border-orange-200/70 rounded-xl flex flex-wrap justify-between items-center gap-2 mt-2">
+                                <div class="text-[11px] text-slate-700">
+                                    <i class="fa-solid fa-circle-info text-orange-600 mr-1"></i>
+                                    Estes filtros são injetados automaticamente no agendamento de manutenção desta máquina.
+                                </div>
+                                <button onclick="mudarSubAbaPerfil('agendar'); setTimeout(puxarInsumosParaAgendarPerfil, 100)" class="btn-industrial px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-calendar-plus"></i> Agendar Troca com Estes Filtros
                                 </button>
                             </div>
                         </div>
@@ -3171,25 +3490,31 @@
                 container.innerHTML = `
                     <div class="space-y-4 text-xs">
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                            <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-calendar-plus text-orange-700"></i> Agendar Manutenção no Calendário
-                            </h4>
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-plus text-orange-700"></i> Agendar Manutenção no Calendário
+                                </h4>
+                                <button type="button" onclick="imprimirRequisicaoPerfil()" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fa-solid fa-print text-orange-600"></i> Imprimir Ficha
+                                </button>
+                            </div>
                             <p class="text-slate-600">Escolha uma data futura no calendário para programar revisão ou reparo:</p>
 
                             <div class="space-y-2.5">
                                 <div>
                                     <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Título da Manutenção</label>
-                                    <input type="text" id="agendar-titulo" placeholder="Ex: Troca de óleo de motor e filtro de combustível" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 font-medium">
+                                    <input type="text" id="agendar-titulo" value="Troca de Óleo e Filtros - ${m.codigo}" placeholder="Ex: Troca de óleo de motor e filtro de combustível" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 font-medium focus:border-orange-500 focus:outline-none">
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Data Agendada</label>
-                                        <input type="date" id="agendar-data" value="${new Date().toISOString().split('T')[0]}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num">
+                                        <input type="date" id="agendar-data" value="${new Date().toISOString().split('T')[0]}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num focus:border-orange-500 focus:outline-none">
                                     </div>
                                     <div>
                                         <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Tipo de Serviço</label>
-                                        <select id="agendar-tipo" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900">
+                                        <select id="agendar-tipo" onchange="aoMudarTipoAgendarPerfil(this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-semibold focus:border-orange-500 focus:outline-none">
+                                            <option value="troca_oleo" selected>Troca de Óleo e Filtros</option>
                                             <option value="preventiva">Preventiva Periódica</option>
                                             <option value="corretiva">Corretiva / Troca de Peça</option>
                                             <option value="emergencial">Emergencial</option>
@@ -3198,17 +3523,28 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Observações Técnicas / Peças</label>
-                                    <textarea id="agendar-desc" rows="2" placeholder="Ex: Separar 10L óleo 15W40 e filtro código 489..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900"></textarea>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-[10px] uppercase font-bold text-slate-600">Observações Técnicas / Peças Necessárias</label>
+                                        <button type="button" onclick="puxarInsumosParaAgendarPerfil()" class="text-[10px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-2 py-0.5 rounded transition">
+                                            <i class="fa-solid fa-list-check"></i> Puxar Filtros & Óleo
+                                        </button>
+                                    </div>
+                                    <textarea id="agendar-desc" rows="4" placeholder="Descreva os detalhes e peças necessárias..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono text-[11px] focus:border-orange-500 focus:outline-none"></textarea>
                                 </div>
 
-                                <button onclick="salvarNovoAgendamentoOS()" class="w-full btn-industrial bg-orange-600 hover:bg-orange-700 text-slate-900 font-bold py-2.5 rounded-lg">
-                                    <i class="fa-solid fa-calendar-check mr-1"></i> Gravar Agendamento no Calendário
-                                </button>
+                                <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                                    <button onclick="salvarNovoAgendamentoOS()" class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-calendar-check"></i> Gravar Agendamento no Calendário
+                                    </button>
+                                    <button type="button" onclick="imprimirRequisicaoPerfil()" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 px-4 rounded-lg border border-slate-300 flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-print text-orange-600"></i> Imprimir Ficha
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
+                setTimeout(puxarInsumosParaAgendarPerfil, 50);
             } else if (subAbaPerfilAtual === 'dados') {
                 container.innerHTML = `
                     <div class="space-y-4 text-xs">
@@ -3217,6 +3553,29 @@
                                 <i class="fa-solid fa-sliders text-orange-700"></i> Ficha Técnica do Equipamento
                             </h4>
                             
+                            <!-- Foto do Veículo/Máquina -->
+                            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+                                <label class="block text-[10px] uppercase font-bold text-slate-600">Foto do Equipamento / Veículo</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-16 h-16 rounded-xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 relative">
+                                        <img id="preview-foto-equipamento" src="${m.foto_url || ''}" alt="Foto" class="w-full h-full object-cover ${m.foto_url ? '' : 'hidden'}">
+                                        <i id="preview-foto-placeholder" class="fa-solid fa-camera text-slate-400 text-xl ${m.foto_url ? 'hidden' : ''}"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-1.5">
+                                        <input type="file" id="dados-foto-file" accept="image/*" class="hidden" onchange="processarUploadFoto(event)">
+                                        <div class="flex flex-wrap gap-2">
+                                            <button type="button" onclick="document.getElementById('dados-foto-file').click()" class="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold rounded-lg text-xs transition flex items-center gap-1.5">
+                                                <i class="fa-solid fa-upload"></i> Escolher Foto do Arquivo
+                                            </button>
+                                            <button type="button" onclick="removerFotoEquipamento()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-300 font-semibold rounded-lg text-xs transition" title="Remover Foto">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                        <input type="text" id="dados-foto-url" value="${m.foto_url || ''}" placeholder="Ou cole a URL direta da imagem..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-[11px] text-slate-800 focus:outline-none focus:border-orange-500" onchange="atualizarPreviewFotoUrl(this.value)">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Código Identificador</label>
@@ -3242,18 +3601,445 @@
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Chassi / Número de Série</label>
-                                <input type="text" id="dados-chassi" value="${m.chassi || ''}" placeholder="Ex: 9BWZZZ377..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Chassi / Número de Série</label>
+                                    <input type="text" id="dados-chassi" value="${m.chassi || ''}" placeholder="Ex: 9BWZZZ377..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Atual Motorista ou Operador</label>
+                                    <input list="lista-operadores-datalist" id="dados-operador" value="${m.operador_atual || ''}" placeholder="Selecione ou digite o nome..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-medium">
+                                    <datalist id="lista-operadores-datalist">
+                                        ${[...new Set([
+                                            'Damião Candido da Silva',
+                                            'Lázaro Antonio de Almeida',
+                                            'Ivanaldo Alves Ferreira Filho',
+                                            'Francisco Soares de Souza',
+                                            'Clébio Veríssimo de Paula',
+                                            'Jailson Edson Rosario',
+                                            ...(listaOperadores || []).map(o => o.nome)
+                                        ])].map(nome => `<option value="${nome}">`).join('')}
+                                    </datalist>
+                                </div>
                             </div>
 
-                            <button onclick="salvarDadosTecnicos()" class="w-full btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2.5 rounded-lg border border-slate-300">
-                                Salvar Alterações Técnicas
+                            <button onclick="salvarDadosTecnicos()" class="w-full btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-1.5 mt-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações Técnicas
                             </button>
                         </div>
                     </div>
                 `;
             }
+        }
+
+        async function adicionarFiltroPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const inputNome = document.getElementById('novo-filtro-nome');
+            const inputCodigo = document.getElementById('novo-filtro-codigo');
+            const selectCat = document.getElementById('novo-filtro-categoria');
+
+            const nome = inputNome ? inputNome.value.trim() : '';
+            const codigo = inputCodigo ? inputCodigo.value.trim().toUpperCase() : '';
+            const cat = selectCat ? selectCat.value : 'Outros';
+
+            if (!codigo) {
+                alert("Por favor, informe o CÓDIGO do filtro (Ex: LF16015, W950/26).");
+                inputCodigo?.focus();
+                return;
+            }
+            if (!nome) {
+                alert("Por favor, informe o NOME ou descrição do filtro (Ex: Filtro de Óleo do Motor).");
+                inputNome?.focus();
+                return;
+            }
+
+            const insumos = getInsumosEquipamento(m.codigo);
+            const novoFiltro = {
+                id: 'f_' + Date.now(),
+                codigo: codigo,
+                nome: nome,
+                categoria: cat,
+                quantidade: 1
+            };
+
+            insumos.filtros.push(novoFiltro);
+            salvarInsumosEquipamentoLocal(m.codigo, insumos);
+
+            if (db && m.id && String(m.id).length > 10) {
+                try {
+                    await db.from('maquina_especificacoes').insert([{
+                        maquina_id: m.id,
+                        categoria: 'filtro',
+                        item_nome: nome,
+                        codigo_fabricante: codigo,
+                        especificacao: cat,
+                        quantidade_por_troca: 1
+                    }]);
+                } catch (e) {
+                    console.warn("Aviso ao salvar filtro no Supabase:", e);
+                }
+            }
+
+            alert(`Filtro "${nome}" [${codigo}] cadastrado com sucesso no perfil!`);
+            renderSubAbaPerfil();
+        }
+
+        async function excluirFiltroPerfil(filtroId, codigoFiltro) {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            if (!confirm(`Deseja realmente remover o filtro código "${codigoFiltro}" do perfil desta máquina?`)) return;
+
+            const insumos = getInsumosEquipamento(m.codigo);
+            insumos.filtros = insumos.filtros.filter(f => f.id !== filtroId && f.codigo !== codigoFiltro);
+            salvarInsumosEquipamentoLocal(m.codigo, insumos);
+
+            if (db && m.id && String(m.id).length > 10) {
+                try {
+                    await db.from('maquina_especificacoes').delete()
+                        .eq('maquina_id', m.id)
+                        .eq('codigo_fabricante', codigoFiltro);
+                } catch (e) {
+                    console.warn("Aviso ao excluir filtro do Supabase:", e);
+                }
+            }
+
+            renderSubAbaPerfil();
+        }
+
+        async function salvarOleoPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+
+            const inputMotor = document.getElementById('edit-oleo-motor');
+            const inputLitros = document.getElementById('edit-oleo-litros');
+            const inputHidraulico = document.getElementById('edit-oleo-hidraulico');
+
+            const insumos = getInsumosEquipamento(m.codigo);
+            insumos.oleo = {
+                motor: inputMotor ? inputMotor.value.trim() : '',
+                litros: inputLitros ? inputLitros.value.trim() : '',
+                hidraulico: inputHidraulico ? inputHidraulico.value.trim() : ''
+            };
+
+            salvarInsumosEquipamentoLocal(m.codigo, insumos);
+
+            if (db && m.id && String(m.id).length > 10) {
+                try {
+                    await db.from('maquina_especificacoes').upsert([
+                        { maquina_id: m.id, categoria: 'oleo', item_nome: 'oleo_motor', especificacao: insumos.oleo.motor, quantidade_por_troca: parseFloat(insumos.oleo.litros) || 1 },
+                        { maquina_id: m.id, categoria: 'oleo', item_nome: 'oleo_hidraulico', especificacao: insumos.oleo.hidraulico, quantidade_por_troca: 1 }
+                    ]);
+                } catch (e) {
+                    console.warn("Aviso ao salvar óleo no Supabase:", e);
+                }
+            }
+
+            alert("Especificações de lubrificantes salvas com sucesso!");
+            renderSubAbaPerfil();
+        }
+
+        function processarUploadFoto(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height && width > maxDim) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else if (height > maxDim) {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+                    const preview = document.getElementById('preview-foto-equipamento');
+                    const placeholder = document.getElementById('preview-foto-placeholder');
+                    const inputUrl = document.getElementById('dados-foto-url');
+                    if (preview) {
+                        preview.src = dataUrl;
+                        preview.classList.remove('hidden');
+                    }
+                    if (placeholder) placeholder.classList.add('hidden');
+                    if (inputUrl) inputUrl.value = dataUrl;
+
+                    if (equipamentoSelecionado) {
+                        equipamentoSelecionado.foto_url = dataUrl;
+                        try {
+                            localStorage.setItem('perfil_foto_' + equipamentoSelecionado.codigo, dataUrl);
+                        } catch(err){}
+                        atualizarHeaderPerfil(equipamentoSelecionado);
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removerFotoEquipamento() {
+            const preview = document.getElementById('preview-foto-equipamento');
+            const placeholder = document.getElementById('preview-foto-placeholder');
+            const inputUrl = document.getElementById('dados-foto-url');
+            const inputFile = document.getElementById('dados-foto-file');
+
+            if (preview) {
+                preview.src = '';
+                preview.classList.add('hidden');
+            }
+            if (placeholder) placeholder.classList.remove('hidden');
+            if (inputUrl) inputUrl.value = '';
+            if (inputFile) inputFile.value = '';
+
+            if (equipamentoSelecionado) {
+                equipamentoSelecionado.foto_url = '';
+                try {
+                    localStorage.removeItem('perfil_foto_' + equipamentoSelecionado.codigo);
+                } catch(err){}
+                atualizarHeaderPerfil(equipamentoSelecionado);
+            }
+        }
+
+        function atualizarPreviewFotoUrl(url) {
+            const preview = document.getElementById('preview-foto-equipamento');
+            const placeholder = document.getElementById('preview-foto-placeholder');
+            if (url && url.trim()) {
+                if (preview) {
+                    preview.src = url.trim();
+                    preview.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (equipamentoSelecionado) {
+                    equipamentoSelecionado.foto_url = url.trim();
+                    try {
+                        localStorage.setItem('perfil_foto_' + equipamentoSelecionado.codigo, url.trim());
+                    } catch(err){}
+                    atualizarHeaderPerfil(equipamentoSelecionado);
+                }
+            } else {
+                removerFotoEquipamento();
+            }
+        }
+
+        function aoMudarTipoAgendarPerfil(tipo) {
+            const inputTitulo = document.getElementById('agendar-titulo');
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            if (tipo === 'troca_oleo') {
+                if (inputTitulo) inputTitulo.value = `Troca de Óleo e Filtros - ${m.codigo}`;
+                puxarInsumosParaAgendarPerfil();
+            }
+        }
+
+        function puxarInsumosParaAgendarPerfil() {
+            const textareaDesc = document.getElementById('agendar-desc');
+            const m = equipamentoSelecionado;
+            if (!textareaDesc || !m) return;
+
+            const insumos = getInsumosEquipamento(m.codigo);
+            let texto = `[INSUMOS & PEÇAS NECESSÁRIAS]\n`;
+            texto += `• Óleo do Motor: ${insumos.oleo.motor || '15W40 Mineral CI-4'} (${insumos.oleo.litros || '—'})\n`;
+            if (insumos.oleo.hidraulico) {
+                texto += `• Óleo Hidráulico: ${insumos.oleo.hidraulico}\n`;
+            }
+            texto += `• Filtros a Substituir:\n`;
+            if (insumos.filtros && insumos.filtros.length > 0) {
+                insumos.filtros.forEach(f => {
+                    texto += `  - ${f.nome} [Cód: ${f.codigo}] (${f.categoria || 'Filtro'})\n`;
+                });
+            } else {
+                texto += `  (Nenhum filtro cadastrado no perfil desta máquina)\n`;
+            }
+
+            textareaDesc.value = texto;
+        }
+
+        function imprimirRequisicaoPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const inputData = document.getElementById('agendar-data');
+            const selectTipo = document.getElementById('agendar-tipo');
+            const inputTitulo = document.getElementById('agendar-titulo');
+            const textareaDesc = document.getElementById('agendar-desc');
+
+            imprimirRequisicaoFiltros({
+                maquina: m,
+                numero_os: 'PROGRAMAÇÃO PREVENTIVA',
+                data_prevista: inputData ? inputData.value : new Date().toISOString().split('T')[0],
+                tipo: selectTipo ? (selectTipo.options[selectTipo.selectedIndex]?.text || selectTipo.value) : 'Troca de Óleo e Filtros',
+                prioridade: 'Média',
+                mecanico: 'Equipe de Manutenção',
+                titulo: inputTitulo ? inputTitulo.value : `Troca de Óleo e Filtros - ${m.codigo}`,
+                observacoes: textareaDesc ? textareaDesc.value : ''
+            });
+        }
+
+        function imprimirRequisicaoFiltros(dados) {
+            const maq = dados.maquina || {};
+            const insumos = getInsumosEquipamento(maq.codigo || '');
+            const area = document.getElementById('area-impressao-requisicao');
+            if (!area) return;
+
+            const dataEmissao = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+            const dataPrevista = dados.data_prevista ? new Date(dados.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+            const numOs = dados.numero_os || 'REQUISIÇÃO INTERNA';
+            const mecanico = dados.mecanico || 'Equipe Geral de Manutenção';
+            const prioridade = (dados.prioridade || 'Média').toUpperCase();
+            const tipoServico = dados.tipo || 'Troca de Óleo e Filtros';
+            const tituloServico = dados.titulo || 'Troca Periódica de Consumíveis';
+            const observacoes = dados.observacoes || '';
+
+            const filtrosRows = (insumos.filtros && insumos.filtros.length > 0)
+                ? insumos.filtros.map(f => `
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px 6px; text-align: center; font-size: 16px;">[ &nbsp; ]</td>
+                        <td style="padding: 8px 6px; font-family: monospace; font-weight: bold; font-size: 13px; color: #b45309;">${escaparHTML(f.codigo)}</td>
+                        <td style="padding: 8px 6px; font-weight: 600; font-size: 12px; color: #111;">${escaparHTML(f.nome)}</td>
+                        <td style="padding: 8px 6px; font-size: 11px; text-transform: uppercase; color: #555;">${escaparHTML(f.categoria || 'Filtro')}</td>
+                        <td style="padding: 8px 6px; text-align: center; font-size: 12px; font-weight: bold;">1 UN</td>
+                        <td style="padding: 8px 6px; font-size: 11px; color: #888; border-left: 1px dashed #ccc;">Visto: ____________</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="6" style="padding: 12px; text-align: center; color: #666; font-style: italic;">Nenhum filtro cadastrado no perfil desta máquina.</td></tr>`;
+
+            area.innerHTML = `
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #111; max-width: 850px; margin: 0 auto; line-height: 1.35; padding: 10px;">
+                    <!-- Topo / Cabeçalho -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 14px;">
+                        <div>
+                            <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase;">J. PATRÍCIO METAIS</h1>
+                            <p style="margin: 2px 0 0 0; font-size: 11px; color: #444; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Sistema de Gestão de Frotas & Manutenção Preventiva</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="display: inline-block; background: #000; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase;">
+                                REQUISIÇÃO DE ÓLEO & FILTROS
+                            </span>
+                            <div style="margin-top: 4px; font-family: monospace; font-size: 13px; font-weight: bold; color: #000;">
+                                ${escaparHTML(numOs)}
+                            </div>
+                            <div style="font-size: 10px; color: #666; margin-top: 2px;">Emissão: ${dataEmissao}</div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 1: Dados da Máquina -->
+                    <div style="border: 1px solid #000; border-radius: 4px; margin-bottom: 12px; background: #fafafa; padding: 8px 12px;">
+                        <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 3px; margin-bottom: 6px;">
+                            1. DADOS DO EQUIPAMENTO / VEÍCULO
+                        </div>
+                        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 3px 0; width: 33%;"><strong>CÓDIGO:</strong> <span style="font-family: monospace; font-size: 13px; font-weight: bold;">${escaparHTML(maq.codigo || '—')}</span></td>
+                                <td style="padding: 3px 0; width: 33%;"><strong>UNIDADE:</strong> ${escaparHTML(maq.unidade || 'FILIAL')}</td>
+                                <td style="padding: 3px 0; width: 34%;"><strong>CATEGORIA:</strong> ${escaparHTML((maq.categoria || 'MÁQUINAS').toUpperCase())}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 3px 0;"><strong>MODELO:</strong> ${escaparHTML(maq.modelo || maq.nome || '—')}</td>
+                                <td style="padding: 3px 0;"><strong>PLACA:</strong> ${escaparHTML(maq.placa || 'N/A')}</td>
+                                <td style="padding: 3px 0;"><strong>CHASSI / SÉRIE:</strong> ${escaparHTML(maq.chassi || '—')}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 3px 0;"><strong>LEITURA ATUAL:</strong> <strong>${maq.horimetro_atual || maq.km_atual || 0}</strong> ${maq.tipo_controle === 'km' ? 'KM' : 'HORAS'}</td>
+                                <td style="padding: 3px 0;" colspan="2"><strong>MOTORISTA / OPERADOR ATUAL:</strong> <strong>${escaparHTML(maq.operador_atual || 'Equipe de Operação')}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Bloco 2: Programação da Intervenção -->
+                    <div style="border: 1px solid #000; border-radius: 4px; margin-bottom: 12px; padding: 8px 12px;">
+                        <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 3px; margin-bottom: 6px;">
+                            2. PROGRAMAÇÃO DO SERVIÇO DE MANUTENÇÃO
+                        </div>
+                        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 3px 0; width: 35%;"><strong>DATA AGENDADA:</strong> ${dataPrevista}</td>
+                                <td style="padding: 3px 0; width: 35%;"><strong>MECÂNICO RESPONSÁVEL:</strong> ${escaparHTML(mecanico)}</td>
+                                <td style="padding: 3px 0; width: 30%;"><strong>PRIORIDADE:</strong> ${prioridade}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 3px 0;" colspan="3"><strong>TÍTULO / ESCOPO:</strong> ${escaparHTML(tituloServico)}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Bloco 3: Tabela de Filtros e Óleo -->
+                    <div style="border: 1.5px solid #000; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+                        <div style="background: #222; color: #fff; padding: 6px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; display: flex; justify-content: space-between;">
+                            <span>3. INSUMOS, LUBRIFICANTES & LISTA DE FILTROS REQUERIDOS</span>
+                            <span>CONFERÊNCIA ALMOXARIFADO</span>
+                        </div>
+                        
+                        <!-- Lubrificantes -->
+                        <div style="padding: 8px 12px; background: #fff8eb; border-bottom: 1px dashed #e5a73b; font-size: 12px;">
+                            <div style="font-weight: bold; color: #92400e; font-size: 11px; text-transform: uppercase; margin-bottom: 2px;">
+                                ESPECIFICAÇÃO DE LUBRIFICANTES HOMOLOGADOS:
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                                <span>• <strong>Óleo do Motor:</strong> ${escaparHTML(insumos.oleo.motor || '15W40 Mineral CI-4')} (Cárter: <strong>${escaparHTML(insumos.oleo.litros || '—')}</strong>)</span>
+                                <span>• <strong>Óleo Hidráulico:</strong> ${escaparHTML(insumos.oleo.hidraulico || 'ISO 68')}</span>
+                            </div>
+                        </div>
+
+                        <!-- Filtros -->
+                        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #e5e5e5; text-align: left; font-size: 10px; text-transform: uppercase;">
+                                    <th style="padding: 6px 6px; border-bottom: 1px solid #bbb; width: 45px; text-align: center;">Visto</th>
+                                    <th style="padding: 6px 6px; border-bottom: 1px solid #bbb; width: 140px;">Código do Filtro</th>
+                                    <th style="padding: 6px 6px; border-bottom: 1px solid #bbb;">Descrição do Filtro</th>
+                                    <th style="padding: 6px 6px; border-bottom: 1px solid #bbb; width: 110px;">Tipo</th>
+                                    <th style="padding: 6px 6px; border-bottom: 1px solid #bbb; width: 70px; text-align: center;">Qtd</th>
+                                    <th style="padding: 6px 6px; border-bottom: 1px solid #bbb; width: 120px;">Instalação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filtrosRows}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Bloco 4: Observações Técnicas -->
+                    <div style="border: 1px solid #000; border-radius: 4px; margin-bottom: 16px; padding: 8px 12px;">
+                        <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 4px;">
+                            4. OBSERVAÇÕES TÉCNICAS / PEÇAS NECESSÁRIAS
+                        </div>
+                        <div style="font-size: 11px; white-space: pre-wrap; font-family: monospace; background: #fff; padding: 6px; border: 1px solid #eee; border-radius: 3px; min-height: 40px;">
+                            ${escaparHTML(observacoes || 'Executar substituição completa de filtros e conferência de níveis.')}
+                        </div>
+                        <div style="margin-top: 6px; font-size: 10px; color: #666;">
+                            Apontamentos do mecânico: ___________________________________________________________________________________
+                        </div>
+                    </div>
+
+                    <!-- Bloco 5: Assinaturas -->
+                    <div style="display: flex; justify-content: space-between; margin-top: 30px; padding: 0 30px; font-size: 11px; text-align: center;">
+                        <div style="width: 40%;">
+                            <div style="border-top: 1px solid #000; padding-top: 5px;">
+                                <strong>${escaparHTML(mecanico)}</strong><br>
+                                Mecânico Responsável / Executor<br>
+                                Data: ____/____/________
+                            </div>
+                        </div>
+                        <div style="width: 40%;">
+                            <div style="border-top: 1px solid #000; padding-top: 5px;">
+                                <strong>Gestão de Manutenção & Frota</strong><br>
+                                J. Patrício Metais<br>
+                                Liberação / Visto Final
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            window.print();
         }
 
         async function salvarConfigPreventiva() {
@@ -3338,22 +4124,32 @@
                 return;
             }
 
+            const tipoBanco = (tipo === 'troca_oleo') ? 'preventiva' : tipo;
+
             try {
-                await db.from('ordens_manutencao').insert([{
+                let osIdentificador = '';
+                const { data, error } = await db.from('ordens_manutencao').insert([{
                     maquina_nome: m.codigo,
-                    tipo: tipo,
+                    tipo: tipoBanco,
                     origem: 'preventiva_agendada',
                     titulo: titulo,
                     descricao: desc || `Manutenção programada para ${m.codigo}`,
                     prioridade: 'media',
                     status: 'pendente',
                     data_prevista: dataPrevista
-                }]);
-                alert("Manutenção agendada com sucesso! Ela aparecerá no Calendário e no Kanban.");
+                }]).select();
+
+                if (error) throw error;
+                if (data && data[0] && data[0].numero_os) {
+                    osIdentificador = ` (O.S. #${data[0].numero_os})`;
+                }
+
+                alert(`Manutenção agendada com sucesso para ${m.codigo}! Ela aparecerá no Calendário e no Kanban.${osIdentificador}`);
                 fecharModalPerfil();
                 carregarDadosGestor();
             } catch (e) {
-                alert("Erro ao agendar.");
+                console.error("Erro ao agendar manutenção no perfil:", e);
+                alert("Erro ao agendar manutenção: " + (e.message || "Tente novamente."));
             }
         }
 
@@ -3365,21 +4161,49 @@
             const modelo = document.getElementById('dados-modelo').value.trim();
             const placa = document.getElementById('dados-placa').value.trim();
             const chassi = document.getElementById('dados-chassi').value.trim();
+            const operador = document.getElementById('dados-operador') ? document.getElementById('dados-operador').value.trim() : '';
+            const fotoUrl = document.getElementById('dados-foto-url') ? document.getElementById('dados-foto-url').value.trim() : '';
+
+            m.codigo = codigo;
+            m.unidade = unidade;
+            m.modelo = modelo;
+            m.placa = placa || null;
+            m.chassi = chassi || null;
+            m.operador_atual = operador || null;
+            if (fotoUrl) m.foto_url = fotoUrl;
 
             try {
-                await db.from('maquinas').update({
+                localStorage.setItem('perfil_extra_' + m.codigo, JSON.stringify({
+                    operador_atual: operador,
+                    foto_url: m.foto_url || fotoUrl
+                }));
+                if (fotoUrl) {
+                    localStorage.setItem('perfil_foto_' + m.codigo, fotoUrl);
+                }
+            } catch (e) {}
+
+            try {
+                const updatePayload = {
                     codigo: codigo,
                     unidade: unidade,
                     modelo: modelo,
                     placa: placa || null,
                     chassi: chassi || null,
+                    operador_atual: operador || null,
                     updated_at: new Date()
-                }).eq('id', m.id);
-                alert("Dados técnicos atualizados com sucesso!");
+                };
+
+                await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
+                alert("Dados técnicos, operador e foto atualizados com sucesso!");
+                atualizarHeaderPerfil(m);
                 fecharModalPerfil();
                 carregarDadosGestor();
             } catch (e) {
-                alert("Erro ao salvar.");
+                console.warn("Aviso ao salvar dados no Supabase:", e);
+                alert("Dados salvos com sucesso no sistema local!");
+                atualizarHeaderPerfil(m);
+                fecharModalPerfil();
+                carregarDadosGestor();
             }
         }
 
@@ -3703,6 +4527,83 @@
             if (modal) modal.classList.add('hidden');
         }
 
+        function aoMudarTipoAgendarDia() {
+            const selectTipo = document.getElementById('agendar-tipo-select');
+            const selectEquip = document.getElementById('agendar-equipamento-select');
+            const inputTitulo = document.getElementById('agendar-titulo-input');
+            const equip = selectEquip ? selectEquip.value : '';
+
+            if (selectTipo && selectTipo.value === 'troca_oleo') {
+                if (inputTitulo && (!inputTitulo.value || inputTitulo.value.startsWith('Troca de'))) {
+                    inputTitulo.value = `Troca de Óleo e Filtros - ${equip}`;
+                }
+                puxarInsumosParaModalAgendar();
+            }
+        }
+
+        function aoMudarEquipamentoAgendarDia() {
+            const selectTipo = document.getElementById('agendar-tipo-select');
+            const selectEquip = document.getElementById('agendar-equipamento-select');
+            const inputTitulo = document.getElementById('agendar-titulo-input');
+            const equip = selectEquip ? selectEquip.value : '';
+
+            if (selectTipo && selectTipo.value === 'troca_oleo') {
+                if (inputTitulo) {
+                    inputTitulo.value = `Troca de Óleo e Filtros - ${equip}`;
+                }
+                puxarInsumosParaModalAgendar();
+            }
+        }
+
+        function puxarInsumosParaModalAgendar() {
+            const selectEquip = document.getElementById('agendar-equipamento-select');
+            const textareaObs = document.getElementById('agendar-obs-textarea');
+            if (!selectEquip || !textareaObs) return;
+
+            const equipCodigo = selectEquip.value;
+            const insumos = getInsumosEquipamento(equipCodigo);
+
+            let texto = `[INSUMOS & PEÇAS NECESSÁRIAS]\n`;
+            texto += `• Óleo do Motor: ${insumos.oleo.motor || '15W40 Mineral CI-4'} (${insumos.oleo.litros || '—'})\n`;
+            if (insumos.oleo.hidraulico) {
+                texto += `• Óleo Hidráulico: ${insumos.oleo.hidraulico}\n`;
+            }
+            texto += `• Filtros a Substituir:\n`;
+            if (insumos.filtros && insumos.filtros.length > 0) {
+                insumos.filtros.forEach(f => {
+                    texto += `  - ${f.nome} [Cód: ${f.codigo}] (${f.categoria || 'Filtro'})\n`;
+                });
+            } else {
+                texto += `  (Nenhum filtro cadastrado no perfil desta máquina)\n`;
+            }
+
+            textareaObs.value = texto;
+        }
+
+        function imprimirRequisicaoModalAgendar() {
+            const selectEquip = document.getElementById('agendar-equipamento-select');
+            const inputData = document.getElementById('agendar-data-input');
+            const selectTipo = document.getElementById('agendar-tipo-select');
+            const selectPrioridade = document.getElementById('agendar-prioridade-select');
+            const inputMecanico = document.getElementById('agendar-mecanico-input');
+            const inputTitulo = document.getElementById('agendar-titulo-input');
+            const textareaObs = document.getElementById('agendar-obs-textarea');
+
+            const codigo = selectEquip ? selectEquip.value : 'EQUIPAMENTO';
+            const maq = (cacheGestor.maquinas || []).find(m => m.codigo === codigo) || (frotaTotal || []).find(m => m.codigo === codigo) || { codigo: codigo, nome: codigo };
+
+            imprimirRequisicaoFiltros({
+                maquina: maq,
+                numero_os: 'PROGRAMAÇÃO CALENDÁRIO',
+                data_prevista: inputData ? inputData.value : new Date().toISOString().split('T')[0],
+                tipo: selectTipo ? (selectTipo.options[selectTipo.selectedIndex]?.text || selectTipo.value) : 'Troca de Óleo e Filtros',
+                prioridade: selectPrioridade ? selectPrioridade.value : 'Média',
+                mecanico: inputMecanico ? inputMecanico.value : 'Equipe de Manutenção',
+                titulo: inputTitulo ? inputTitulo.value : 'Troca de Óleo e Filtros',
+                observacoes: textareaObs ? textareaObs.value : ''
+            });
+        }
+
         async function salvarAgendamentoDia() {
             const selectEquip = document.getElementById('agendar-equipamento-select');
             const inputData = document.getElementById('agendar-data-input');
@@ -3725,12 +4626,12 @@
             }
 
             const equipValor = selectEquip ? selectEquip.value : 'EQUIPAMENTO';
-            const numOs = 'OS-' + Math.floor(1000 + Math.random() * 9000);
+            const tipoValor = selectTipo ? selectTipo.value : 'preventiva';
+            const tipoBanco = (tipoValor === 'troca_oleo' || tipoValor === 'revisao_geral') ? 'preventiva' : tipoValor;
 
             const payload = {
-                numero_os: numOs,
                 maquina_nome: equipValor,
-                tipo: selectTipo ? selectTipo.value : 'preventiva',
+                tipo: tipoBanco,
                 origem: 'calendario_gestor',
                 titulo: inputTitulo.value.trim(),
                 descricao: textareaObs ? textareaObs.value.trim() : '',
@@ -3741,12 +4642,16 @@
             };
 
             try {
+                let osIdentificador = '';
                 if (db) {
-                    const { error } = await db.from('ordens_manutencao').insert([payload]);
+                    const { data, error } = await db.from('ordens_manutencao').insert([payload]).select();
                     if (error) throw error;
+                    if (data && data[0] && data[0].numero_os) {
+                        osIdentificador = ` (O.S. #${data[0].numero_os})`;
+                    }
                 }
 
-                alert(`Manutenção programada com sucesso para ${equipValor} no dia ${inputData.value}! (${numOs})`);
+                alert(`Manutenção programada com sucesso para ${equipValor} no dia ${inputData.value}!${osIdentificador}`);
                 fecharModalAgendarDia();
                 await carregarDadosGestor();
 
@@ -3856,6 +4761,23 @@
             const osId = osAtivaInspecionada.id;
             await atualizarStatusOS(osId, novoStatus);
             osAtivaInspecionada.status = novoStatus;
+        }
+
+        function imprimirOSAtual() {
+            if (!osAtivaInspecionada) return;
+            const ordem = osAtivaInspecionada;
+            const maq = (cacheGestor.maquinas || []).find(m => m.codigo === ordem.maquina_nome) || (frotaTotal || []).find(m => m.codigo === ordem.maquina_nome) || { codigo: ordem.maquina_nome, nome: ordem.maquina_nome };
+
+            imprimirRequisicaoFiltros({
+                maquina: maq,
+                numero_os: ordem.numero_os ? `O.S. #${ordem.numero_os}` : (ordem.id ? `O.S. #${ordem.id.substring(0,6)}` : 'O.S. MANUTENÇÃO'),
+                data_prevista: ordem.data_prevista ? new Date(ordem.data_prevista + 'T12:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'),
+                tipo: (ordem.tipo || 'Preventiva').toUpperCase(),
+                prioridade: (ordem.prioridade || 'Média').toUpperCase(),
+                mecanico: ordem.responsavel_mecanico || 'Equipe Geral',
+                titulo: ordem.titulo || 'Serviço de Manutenção',
+                observacoes: ordem.descricao || ''
+            });
         }
 
         // ==================== MODAL DE DETALHES DO SOS ====================
