@@ -236,7 +236,12 @@
         <section class="manager-workspace">
             <div class="manager-heading">
                 <div><h2 id="gestor-titulo">Manutenções</h2><p id="gestor-descricao">Acompanhe pendências e avance as ordens de serviço.</p></div>
-                <button type="button" onclick="carregarDadosGestor()" class="refresh-button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Atualizar</button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="abrirModalConfigGemini()" class="btn-industrial bg-white border border-slate-300 hover:border-orange-500 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Configurar IA Gemini para Transcrição de Áudio">
+                        <i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> <span class="hidden sm:inline">IA Gemini</span>
+                    </button>
+                    <button type="button" onclick="carregarDadosGestor()" class="refresh-button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Atualizar</button>
+                </div>
             </div>
             <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-3 sm:p-5 bg-slate-50">
             <!-- Preenchido dinamicamente via JS -->
@@ -659,14 +664,79 @@
                 </button>
                 <span id="sos-mic-status" class="text-xs font-bold text-slate-600">Toque para gravar</span>
                 <audio id="sos-audio-preview" controls class="w-full mt-2 h-8 hidden rounded-lg"></audio>
+                
+                <!-- Caixa de Transcrição Técnica por IA -->
+                <div id="sos-transcricao-box" class="w-full mt-3 p-2.5 bg-white rounded-xl border border-red-200 text-xs hidden">
+                    <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 mb-1">
+                        <span class="flex items-center gap-1 text-orange-700"><i class="fa-solid fa-wand-magic-sparkles"></i> Transcrição Técnica da Voz:</span>
+                        <span class="text-[10px] text-slate-400 font-normal">Pode editar antes de enviar</span>
+                    </div>
+                    <textarea id="sos-transcricao-input" rows="2" class="w-full text-xs text-slate-900 border border-slate-200 rounded-lg p-2 focus:outline-none focus:border-red-500 font-medium" placeholder="Aguardando transcrição do áudio..."></textarea>
+                </div>
             </div>
 
             <div class="flex gap-2.5">
                 <button onclick="fecharModalSOS()" class="flex-1 bg-slate-200 text-slate-700 font-bold py-3 rounded-xl active:bg-slate-300">
                     Cancelar
                 </button>
-                <button id="sos-btn-enviar" onclick="enviarChamadoSOS()" class="flex-1 bg-red-600 hover:bg-red-700 text-slate-900 font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                <button id="sos-btn-enviar" onclick="enviarChamadoSOS()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-paper-plane"></i> Enviar Alerta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE CONFIGURAÇÃO IA GEMINI ==================== -->
+    <div id="modal-config-gemini" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-300 rounded-3xl w-full max-w-md p-6 shadow-2xl text-slate-900" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Configurar IA Gemini</h3>
+                        <p class="text-[11px] text-slate-500">Transcrição fiel de áudios e SOS</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalConfigGemini()" class="text-slate-400 hover:text-slate-700 text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3.5 text-xs text-slate-700">
+                <p class="leading-relaxed">
+                    A IA <strong>Google Gemini Flash</strong> ouve o áudio gravado pelos operadores no pátio e transcreve fielmente termos de mecânica pesada, filtrando ruídos de motor e barulho de fábrica para auditoria do gestor.
+                </p>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                    <label class="block font-bold text-slate-800 uppercase text-[10px] tracking-wider mb-1">Chave da API Gemini (Google AI Studio)</label>
+                    <div class="relative">
+                        <input type="password" id="input-gemini-key" placeholder="Cole sua chave AIzaSy..." class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-mono text-slate-900 focus:border-orange-500 focus:outline-none pr-10">
+                        <button type="button" onclick="toggleVerChaveGemini()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-700 text-sm">
+                            <i id="icon-ver-chave" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[11px] font-bold text-orange-600 hover:underline inline-flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Criar chave gratuita no AI Studio
+                        </a>
+                        <span id="status-chave-gemini" class="text-[11px] font-semibold text-slate-500"></span>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 leading-relaxed">
+                    <i class="fa-solid fa-shield-halved mr-1 text-amber-700"></i>
+                    <strong>Diretriz Técnica:</strong> A IA opera estritamente sob comando de auditoria (não inventa avarias e foca em termos objetivos para o gestor).
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-200">
+                <button type="button" onclick="testarChaveGeminiInput()" id="btn-testar-gemini" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3.5 py-2 rounded-xl text-xs transition border border-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-vial"></i> Testar Conexão
+                </button>
+                <button type="button" onclick="salvarChaveGemini()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> Salvar Chave
                 </button>
             </div>
         </div>
@@ -1582,6 +1652,182 @@
             renderCurrentStep();
         }
 
+        // ==================== MÓDULO IA GEMINI MULTIMODAL (ÁUDIO) ====================
+        let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || "";
+
+        function abrirModalConfigGemini() {
+            const modal = document.getElementById('modal-config-gemini');
+            const inputKey = document.getElementById('input-gemini-key');
+            const statusEl = document.getElementById('status-chave-gemini');
+            if (modal) modal.classList.remove('hidden');
+            const keyAtual = localStorage.getItem('gemini_api_key') || GEMINI_API_KEY;
+            if (inputKey) inputKey.value = keyAtual;
+            if (statusEl) {
+                if (keyAtual) {
+                    statusEl.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Chave salva</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="text-amber-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Chave ausente</span>';
+                }
+            }
+        }
+
+        function fecharModalConfigGemini() {
+            const modal = document.getElementById('modal-config-gemini');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function toggleVerChaveGemini() {
+            const input = document.getElementById('input-gemini-key');
+            const icon = document.getElementById('icon-ver-chave');
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        async function testarConexaoGemini(chave) {
+            if (!chave) throw new Error("Chave não informada.");
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${chave.trim()}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "Teste de comunicação rápido. Responda apenas OK." }] }],
+                    generationConfig: { maxOutputTokens: 10 }
+                })
+            });
+            if (!res.ok) {
+                const errJson = await res.json().catch(() => ({}));
+                throw new Error(errJson.error?.message || `Erro HTTP ${res.status}`);
+            }
+            return true;
+        }
+
+        async function testarChaveGeminiInput() {
+            const inputKey = document.getElementById('input-gemini-key');
+            const statusEl = document.getElementById('status-chave-gemini');
+            const btn = document.getElementById('btn-testar-gemini');
+            const chave = inputKey ? inputKey.value.trim() : '';
+            if (!chave) {
+                alert("Por favor, cole a sua chave da API do Gemini antes de testar.");
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Testando...';
+            if (statusEl) statusEl.innerHTML = '<span class="text-slate-500">Conectando à Google AI...</span>';
+            try {
+                await testarConexaoGemini(chave);
+                if (statusEl) statusEl.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Conexão Gemini 100% OK!</span>';
+                alert("Sucesso! A API do Google Gemini respondeu perfeitamente.");
+            } catch (e) {
+                if (statusEl) statusEl.innerHTML = `<span class="text-red-600 font-bold"><i class="fa-solid fa-circle-xmark"></i> Falha: ${e.message}</span>`;
+                alert("Falha na validação da chave do Gemini:\n" + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-vial"></i> Testar Conexão';
+            }
+        }
+
+        function salvarChaveGemini() {
+            const inputKey = document.getElementById('input-gemini-key');
+            const statusEl = document.getElementById('status-chave-gemini');
+            const chave = inputKey ? inputKey.value.trim() : '';
+            if (!chave) {
+                if (!confirm("Deseja realmente remover a chave do Gemini? O sistema usará o Web Speech API como contingência.")) return;
+                localStorage.removeItem('gemini_api_key');
+                GEMINI_API_KEY = "";
+            } else {
+                localStorage.setItem('gemini_api_key', chave);
+                GEMINI_API_KEY = chave;
+            }
+            if (statusEl) statusEl.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Salvo com sucesso!</span>';
+            setTimeout(() => fecharModalConfigGemini(), 800);
+        }
+
+        async function transcreverAudioComGemini(audioBlob, contexto = 'checklist') {
+            if (!audioBlob) return null;
+            const apiKey = (localStorage.getItem('gemini_api_key') || GEMINI_API_KEY || "").trim();
+            if (!apiKey) {
+                console.warn("Chave do Gemini ausente no navegador.");
+                return null;
+            }
+
+            try {
+                const base64Data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const res = reader.result;
+                        if (!res || typeof res !== 'string') return reject(new Error("Falha na leitura do áudio"));
+                        const partes = res.split(',');
+                        resolve(partes.length > 1 ? partes[1] : partes[0]);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(audioBlob);
+                });
+
+                if (!base64Data) return null;
+
+                const promptInstrucao = `Você é um auditor e especialista em manutenção mecânica e operação de máquinas industriais e frotas pesadas (empilhadeiras retráteis e a combustão, escavadeiras Doosan, tratores Hyundai, Valtra, caminhões e veículos de apoio).
+Sua missão é ouvir o áudio gravado pelo operador no chão de fábrica e transcrever EXATAMENTE o que foi relatado de forma clara, técnica e direta para o gestor de manutenção ler.
+DIRETRIZES RÍGIDAS DE AUDITORIA:
+1. NÃO invente, não deduza e não acrescente absolutamente nada que não foi dito expressamente no áudio.
+2. Ignore ruídos industriais, motores funcionando ou barulho do pátio ao fundo. Extraia apenas a voz do operador.
+3. Ajuste pontuação e empregue a terminologia técnica correta de oficina (ex.: vazamento de óleo no retentor, cilindro de elevação, mangueira hidráulica estourada, pneu furado/careca, freio com ar, arrefecimento, etc.).
+4. Responda de forma direta e concisa (máximo 2 a 3 frases).
+5. Se não houver voz humana audível ou se for apenas ruído estático sem fala, responda exatamente: "Áudio sem fala identificável".`;
+
+                const modelos = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+                let mimeLimpo = (audioBlob.type || 'audio/webm').split(';')[0];
+                if (!mimeLimpo) mimeLimpo = 'audio/webm';
+
+                for (const mod of modelos) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [
+                                        { text: promptInstrucao },
+                                        {
+                                            inlineData: {
+                                                mimeType: mimeLimpo,
+                                                data: base64Data
+                                            }
+                                        }
+                                    ]
+                                }],
+                                generationConfig: {
+                                    temperature: 0.1,
+                                    maxOutputTokens: 300
+                                }
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                            if (texto && texto.length > 0) {
+                                return texto;
+                            }
+                        } else {
+                            console.warn(`Gemini ${mod} retornou status ${response.status}`);
+                        }
+                    } catch (errMod) {
+                        console.warn(`Erro no modelo Gemini ${mod}:`, errMod);
+                    }
+                }
+            } catch (e) {
+                console.error("Erro geral na transcrição com Gemini:", e);
+            }
+            return null;
+        }
+
         // ==================== ÁUDIO E TRANSCRIÇÃO ====================
         let isRecording = false;
         let mediaRecorder = null;
@@ -1643,13 +1889,30 @@
                     let mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
 
+                    const micStatusEl = document.getElementById('mic-status');
+                    const previewEl = document.getElementById('live-transcript-preview');
+                    if (micStatusEl) {
+                        micStatusEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-orange-600 mr-1"></i> Analisando com IA...';
+                        micStatusEl.className = "text-xs font-bold text-orange-700";
+                    }
+                    if (previewEl) previewEl.innerText = "Transcrevendo termos de mecânica pesada...";
+
                     const reader = new FileReader();
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = async () => {
                         const base64Audio = reader.result;
-                        let textoFinal = liveTranscribedText.trim();
                         
-                        if (!textoFinal) {
+                        // 1. Tentar transcrição de alta fidelidade com IA Gemini Multimodal
+                        let textoFinal = await transcreverAudioComGemini(audioBlob, 'checklist');
+                        let foiPorIA = false;
+
+                        if (textoFinal && textoFinal !== "Áudio sem fala identificável") {
+                            foiPorIA = true;
+                        } else if (!textoFinal && liveTranscribedText.trim()) {
+                            // 2. Fallback para SpeechRecognition nativo
+                            textoFinal = liveTranscribedText.trim();
+                        } else if (!textoFinal) {
+                            // 3. Fallback final amigável
                             textoFinal = "Áudio gravado pelo operador (toque para ouvir ou editar texto).";
                         }
 
@@ -1658,7 +1921,8 @@
                             text: textoFinal,
                             audioBlob: audioBlob,
                             audioBase64: base64Audio,
-                            mimeType: mimeType
+                            mimeType: mimeType,
+                            transcritoIA: foiPorIA
                         });
                         renderCurrentStep();
                     };
@@ -1691,7 +1955,7 @@
                 mediaRecorder.stream.getTracks().forEach(t => t.stop());
             }
             const micStatusEl = document.getElementById('mic-status');
-            if (micStatusEl) micStatusEl.innerText = "Processando áudio...";
+            if (micStatusEl) micStatusEl.innerText = "Processando áudio com IA...";
         }
 
         function removerObservacao(idx) {
@@ -1711,20 +1975,21 @@
                 </div>`;
             }
             return observacoesList.map((obs, idx) => `
-                <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-1 relative shadow-sm shrink-0">
+                <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-1.5 relative shadow-sm shrink-0">
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-2">
                             <i class="fa-solid ${obs.tipo === 'audio' ? 'fa-microphone text-orange-600' : 'fa-pen text-slate-600'} text-xs"></i>
                             <span class="font-bold text-[11px] text-slate-800 uppercase tracking-wide">
                                 ${obs.tipo === 'audio' ? 'Áudio ' + (idx + 1) : 'Nota Escrita ' + (idx + 1)}
                             </span>
+                            ${obs.transcritoIA ? `<span class="text-[9px] bg-orange-100 text-orange-800 font-bold px-1.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1 shadow-2xs"><i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> Transcrito por IA</span>` : ''}
                         </div>
                         <button onclick="removerObservacao(${idx})" class="text-red-500 hover:text-red-700 p-1 text-xs">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                     <textarea onchange="updateObsText(${idx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-orange-500" rows="2">${obs.text}</textarea>
-                    ${obs.audioBase64 ? `<audio controls src="${obs.audioBase64}" class="h-7 w-full mt-1 rounded"></audio>` : ''}
+                    ${obs.audioBase64 ? `<audio controls src="${obs.audioBase64}" class="h-7 w-full mt-0.5 rounded"></audio>` : ''}
                 </div>
             `).join('');
         }
@@ -5743,6 +6008,8 @@
             const icon = document.getElementById('sos-mic-icon');
             const status = document.getElementById('sos-mic-status');
             const preview = document.getElementById('sos-audio-preview');
+            const boxTranscricao = document.getElementById('sos-transcricao-box');
+            const inputTranscricao = document.getElementById('sos-transcricao-input');
 
             if (!isSosRecording) {
                 try {
@@ -5752,11 +6019,25 @@
                     isSosRecording = true;
 
                     sosMediaRecorder.ondataavailable = e => { if (e.data.size > 0) sosAudioChunks.push(e.data); };
-                    sosMediaRecorder.onstop = () => {
+                    sosMediaRecorder.onstop = async () => {
                         sosAudioBlob = new Blob(sosAudioChunks, { type: 'audio/webm' });
                         preview.src = URL.createObjectURL(sosAudioBlob);
                         preview.classList.remove('hidden');
-                        status.innerText = "Áudio pronto para envio!";
+
+                        if (status) status.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-red-600 mr-1"></i> Analisando com IA Gemini...';
+                        if (boxTranscricao) boxTranscricao.classList.remove('hidden');
+                        if (inputTranscricao) inputTranscricao.value = 'Transcrevendo áudio com termos técnicos de manutenção...';
+
+                        // 1. Chamar transcrição especializada com Gemini
+                        let textoTranscrito = await transcreverAudioComGemini(sosAudioBlob, 'sos');
+
+                        if (textoTranscrito && textoTranscrito !== "Áudio sem fala identificável") {
+                            if (inputTranscricao) inputTranscricao.value = textoTranscrito;
+                            if (status) status.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Relato transcrito pela IA!</span>';
+                        } else {
+                            if (inputTranscricao) inputTranscricao.value = "Alerta imediato de quebra mecânica relatado pelo operador.";
+                            if (status) status.innerText = "Áudio pronto para envio!";
+                        }
                     };
 
                     sosMediaRecorder.start();
@@ -5780,6 +6061,11 @@
         async function enviarChamadoSOS() {
             const maqNome = document.getElementById('sos-select-maquina').value;
             const btnEnviar = document.getElementById('sos-btn-enviar');
+            const inputTranscricao = document.getElementById('sos-transcricao-input');
+            const relatoFinal = (inputTranscricao && inputTranscricao.value.trim()) 
+                ? inputTranscricao.value.trim() 
+                : 'Alerta imediato de quebra mecânica.';
+
             btnEnviar.disabled = true;
             btnEnviar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
 
@@ -5802,7 +6088,7 @@
                         maquina_nome: maqNome,
                         operador: formData.operador || 'Operador de Turno',
                         audio_url: audioUrl,
-                        texto_transcrito: 'Alerta imediato de quebra mecânica.',
+                        texto_transcrito: relatoFinal,
                         gravidade: 'CRITICA',
                         status: 'pendente'
                     }]);
@@ -5816,7 +6102,7 @@
                         tipo: 'emergencial',
                         origem: 'sos_operador',
                         titulo: `SOS QUEBRA: ${maqNome}`,
-                        descricao: 'Chamado de parada imediata gerado pelo operador.',
+                        descricao: relatoFinal,
                         prioridade: 'urgente',
                         status: 'pendente',
                         data_prevista: new Date().toISOString().split('T')[0]
