@@ -950,6 +950,8 @@
             observacao_texto: ''
         };
         let observacoesList = [];
+        let itemObsAberto = {};
+        let currentRecordingItemId = null;
         let synth = window.speechSynthesis;
 
         const appOperador = document.getElementById('app-operador');
@@ -1184,6 +1186,15 @@
 
         function selectQuestion(id, val) {
             formData[id] = val;
+            if (val === 'NÃO CONFORME') {
+                itemObsAberto[id] = true;
+                speakText("Informe o defeito no microfone ou digite.");
+            }
+            renderCurrentStep();
+        }
+
+        function toggleItemObsSecao(id) {
+            itemObsAberto[id] = !itemObsAberto[id];
             renderCurrentStep();
         }
 
@@ -1511,50 +1522,100 @@
                 const val = formData[item.id];
                 const okSelected = val === 'CONFORME';
                 const nokSelected = val === 'NÃO CONFORME';
+                const itemObs = observacoesList.filter(o => o.itemId === item.id);
+                const showObsSection = nokSelected || itemObs.length > 0 || !!itemObsAberto[item.id];
 
                 appOperador.innerHTML = `
-                    <div class="w-full flex flex-col h-full items-center justify-between">
-                        <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
-                            <span class="text-[10px] font-mono-num font-bold text-slate-600 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">
-                                ITEM ${currentStepIndex + 1}/${itemsAtuais.length}
-                            </span>
-                            <button onclick="speakText('${item.question}')" class="bg-orange-100 text-orange-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
-                                <i class="fa-solid fa-volume-high text-xl"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="text-center flex-1 flex flex-col justify-center my-1">
-                            ${item.secao ? `
-                                <div class="mb-2">
-                                    <span class="text-[11px] font-bold uppercase tracking-wider text-orange-700 bg-orange-100/90 border border-orange-200 px-3 py-1 rounded-full inline-block shadow-sm">
-                                        ${item.secao}
-                                    </span>
-                                </div>
-                            ` : ''}
-                            <div class="w-20 h-20 rounded-3xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-2 shadow-inner">
-                                <i class="fa-solid ${item.icon} text-4xl"></i>
+                    <div class="w-full flex flex-col h-full justify-between">
+                        <!-- CONTAINER COM SCROLL INTERNO PARA CABER PERFEITAMENTE EM QUALQUER CELULAR -->
+                        <div class="w-full flex-1 overflow-y-auto pr-1 flex flex-col items-center">
+                            <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1 mb-1">
+                                <span class="text-[10px] font-mono-num font-bold text-slate-600 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">
+                                    ITEM ${currentStepIndex + 1}/${itemsAtuais.length}
+                                </span>
+                                <button onclick="speakText('${item.question}')" class="bg-orange-100 text-orange-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                    <i class="fa-solid fa-volume-high text-xl"></i>
+                                </button>
                             </div>
-                            <h2 class="text-2xl font-bold text-slate-900 leading-snug px-2">${item.title}</h2>
-                            <p class="text-xs text-slate-600 font-medium mt-0.5 px-3">${item.question}</p>
-                        </div>
-                        
-                        <!-- BOTÕES GIGANTES ULTRA-FÁCEIS DE APERTAR -->
-                        <div class="w-full flex flex-col gap-3 shrink-0 pb-1">
-                            <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.02]' : ''} text-slate-900 rounded-2xl p-4 text-xl font-bold flex items-center justify-center gap-4 transition-all">
-                                <i class="fa-solid fa-circle-check text-4xl"></i>
-                                <div class="text-left">
-                                    <span class="block text-2xl tracking-wide">TUDO CERTO</span>
-                                    <span class="text-xs font-bold text-emerald-100 uppercase">Em Conformidade (OK)</span>
+                            
+                            <div class="text-center my-1.5 shrink-0">
+                                ${item.secao ? `
+                                    <div class="mb-1">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-orange-700 bg-orange-100/90 border border-orange-200 px-3 py-0.5 rounded-full inline-block shadow-sm">
+                                            ${item.secao}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                                <div class="w-16 h-16 rounded-2xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-1.5 shadow-inner">
+                                    <i class="fa-solid ${item.icon} text-3xl"></i>
                                 </div>
-                            </button>
+                                <h2 class="text-xl font-bold text-slate-900 leading-snug px-2">${item.title}</h2>
+                                <p class="text-xs text-slate-600 font-medium mt-0.5 px-3">${item.question}</p>
+                            </div>
+                            
+                            <!-- BOTÕES DE SELEÇÃO: TUDO CERTO / PROBLEMA -->
+                            <div class="w-full flex flex-col gap-2.5 shrink-0 mb-3">
+                                <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.01]' : ''} text-slate-900 rounded-2xl p-3.5 text-lg font-bold flex items-center justify-center gap-4 transition-all">
+                                    <i class="fa-solid fa-circle-check text-3xl"></i>
+                                    <div class="text-left">
+                                        <span class="block text-xl tracking-wide">TUDO CERTO</span>
+                                        <span class="text-[11px] font-bold text-emerald-100 uppercase">Em Conformidade (OK)</span>
+                                    </div>
+                                </button>
 
-                            <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial ${nokSelected ? 'ring-4 ring-red-400 scale-[1.02]' : ''} text-slate-900 rounded-2xl p-4 text-xl font-bold flex items-center justify-center gap-4 transition-all">
-                                <i class="fa-solid fa-triangle-exclamation text-4xl"></i>
-                                <div class="text-left">
-                                    <span class="block text-2xl tracking-wide">PROBLEMA</span>
-                                    <span class="text-xs font-bold text-red-100 uppercase">Com Defeito / Avaria</span>
+                                <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial ${nokSelected ? 'ring-4 ring-red-400 scale-[1.01]' : ''} text-slate-900 rounded-2xl p-3.5 text-lg font-bold flex items-center justify-center gap-4 transition-all">
+                                    <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+                                    <div class="text-left">
+                                        <span class="block text-xl tracking-wide">PROBLEMA</span>
+                                        <span class="text-[11px] font-bold text-red-100 uppercase">Com Defeito / Avaria</span>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- SEÇÃO DE OBSERVAÇÃO & ÁUDIO DO ITEM -->
+                            ${showObsSection ? `
+                                <div class="w-full bg-slate-50 border-2 ${nokSelected ? 'border-red-300 bg-red-50/40' : 'border-orange-200'} rounded-2xl p-3 shadow-sm mb-3">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold ${nokSelected ? 'text-red-700' : 'text-slate-800'} flex items-center gap-1.5 uppercase">
+                                            <i class="fa-solid ${nokSelected ? 'fa-triangle-exclamation text-red-600' : 'fa-comment-dots text-orange-600'}"></i>
+                                            ${nokSelected ? `Relatar Defeito em ${item.title}` : `Observação sobre ${item.title}`}
+                                        </span>
+                                        <button onclick="toggleItemObsSecao('${item.id}')" class="text-slate-500 hover:text-slate-700 text-xs px-2 py-0.5 rounded" title="Ocultar painel">
+                                            <i class="fa-solid fa-chevron-up"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- GRAVADOR DE VOZ PARA ESTA PERGUNTA -->
+                                    <div class="w-full flex items-center gap-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm mb-2">
+                                        <button id="btn-mic-${item.id}" onclick="toggleRecording('${item.id}')" class="btn-industrial bg-slate-100 text-slate-700 w-12 h-12 rounded-full shadow-inner flex items-center justify-center border-2 border-slate-300 transition-colors shrink-0">
+                                            <i id="mic-icon-${item.id}" class="fa-solid fa-microphone text-xl text-orange-600"></i>
+                                        </button>
+                                        <div class="flex-1 min-w-0">
+                                            <p id="mic-status-${item.id}" class="text-xs font-bold text-slate-800">Gravar Áudio por Voz</p>
+                                            <p id="live-transcript-preview-${item.id}" class="text-[10px] text-slate-500 italic truncate">Toque no microfone e fale o defeito</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- CAMPO ESCRITO PARA ESTA PERGUNTA -->
+                                    <div class="flex gap-1.5 mb-2">
+                                        <input type="text" id="input-obs-escrita-${item.id}" placeholder="Ou digite o defeito aqui..." class="flex-1 bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-orange-500 shadow-inner">
+                                        <button onclick="adicionarObsEscritaItem('${item.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1 shrink-0 shadow-sm">
+                                            <i class="fa-solid fa-plus"></i> Inserir
+                                        </button>
+                                    </div>
+
+                                    <!-- LISTA DE OBSERVAÇÕES CADASTRADAS NESTA PERGUNTA -->
+                                    ${renderObservacoesItem(item.id)}
                                 </div>
-                            </button>
+                            ` : `
+                                <div class="w-full flex justify-center mb-2">
+                                    <button onclick="toggleItemObsSecao('${item.id}')" class="btn-industrial bg-white border border-dashed border-slate-400 hover:border-orange-500 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all">
+                                        <i class="fa-solid fa-microphone text-orange-600 text-sm"></i>
+                                        <i class="fa-solid fa-pen text-slate-500 text-xs"></i>
+                                        <span>Adicionar observação ou áudio neste item</span>
+                                    </button>
+                                </div>
+                            `}
                         </div>
                         
                         ${renderNavButtons()}
@@ -1650,6 +1711,74 @@
             });
             inp.value = '';
             renderCurrentStep();
+        }
+
+        function adicionarObsEscritaItem(itemId) {
+            const inp = document.getElementById('input-obs-escrita-' + itemId);
+            if (!inp) return;
+            const texto = inp.value.trim();
+            if (!texto) {
+                alert("Por favor, digite a observação antes de inserir.");
+                return;
+            }
+            const itemsAtuais = getChecklistItemsAtuais();
+            const item = itemsAtuais.find(it => it.id === itemId);
+            const prefixo = item ? `[${item.title}]: ` : '';
+
+            observacoesList.push({
+                id: 'obs_' + Date.now(),
+                tipo: 'texto',
+                itemId: itemId,
+                itemTitle: item ? item.title : null,
+                text: prefixo + texto,
+                audioBlob: null,
+                audioBase64: null,
+                transcritoIA: false,
+                refinandoIA: false
+            });
+            inp.value = '';
+            renderCurrentStep();
+        }
+
+        function renderObservacoesItem(itemId) {
+            const itemObs = observacoesList
+                .map((obs, globalIdx) => ({ obs, globalIdx }))
+                .filter(entry => entry.obs.itemId === itemId);
+
+            if (itemObs.length === 0) return '';
+
+            return `
+                <div class="flex flex-col gap-1.5 mt-2">
+                    ${itemObs.map(({ obs, globalIdx }) => {
+                        const id = obs.id || ('obs_' + globalIdx);
+                        return `
+                        <div id="obs-card-${id}" class="bg-white border border-slate-200 rounded-xl p-2.5 flex flex-col gap-1 relative shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fa-solid ${obs.tipo === 'audio' ? 'fa-microphone text-orange-600' : 'fa-pen text-slate-600'} text-xs"></i>
+                                    <span class="font-bold text-[10px] text-slate-800 uppercase tracking-wide">
+                                        ${obs.tipo === 'audio' ? 'Áudio Gravado' : 'Nota Escrita'}
+                                    </span>
+                                    ${obs.refinandoIA ? `
+                                        <span id="obs-badge-${id}" class="text-[9px] bg-amber-50 text-amber-800 font-bold px-1.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                                            <i class="fa-solid fa-wand-magic-sparkles fa-spin text-orange-500"></i> IA refinando...
+                                        </span>
+                                    ` : (obs.transcritoIA ? `
+                                        <span id="obs-badge-${id}" class="text-[9px] bg-orange-100 text-orange-800 font-bold px-1.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1 shadow-2xs">
+                                            <i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> IA
+                                        </span>
+                                    ` : '')}
+                                </div>
+                                <button onclick="removerObservacao(${globalIdx})" class="text-red-500 hover:text-red-700 p-1 text-xs">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                            <textarea id="obs-text-${id}" onchange="updateObsText(${globalIdx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-orange-500" rows="2">${obs.text}</textarea>
+                            ${(obs.audioUrl || obs.audioBase64) ? `<audio controls src="${obs.audioUrl || obs.audioBase64}" class="h-7 w-full mt-0.5 rounded"></audio>` : ''}
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
         }
 
         // ==================== MÓDULO IA GEMINI MULTIMODAL (ÁUDIO) ====================
@@ -1764,7 +1893,7 @@
         }
 
         // ==================== TRANSCRIÇÃO E POLIMENTO TÉCNICO COM GEMINI ====================
-        async function aprimorarTextoComGemini(textoOriginal) {
+        async function aprimorarTextoComGemini(textoOriginal, contextoItem = null) {
             if (!textoOriginal || typeof textoOriginal !== 'string') return textoOriginal;
             const limpo = textoOriginal.trim();
             if (limpo.length < 3) return limpo;
@@ -1772,8 +1901,9 @@
             const apiKey = (localStorage.getItem('gemini_api_key') || GEMINI_API_KEY || GEMINI_DEFAULT_KEY || "").trim();
             if (!apiKey) return limpo;
 
-            const prompt = `Você é um auditor e especialista em manutenção industrial e frotas de máquinas pesadas.
+            const prompt = `Você é um auditor e especialista em manutenção mecânica industrial e frotas de máquinas pesadas.
 Sua função é transformar a fala do operador em um relatório técnico conciso e formal de oficina mecânica.
+${contextoItem ? `Componente/Item sob inspeção: ${contextoItem}.` : ''}
 DIRETRIZES:
 1. Mantenha estritamente o que o operador relatou, empregando a terminologia técnica correta de oficina (ex: vazamento no retentor, cilindro de elevação, atuador hidráulico, pneu desgastado/careca, mangueira danificada, superaquecimento, ruído no redutor).
 2. Não invente peças nem causas que não foram citadas.
@@ -1841,6 +1971,7 @@ Fala do operador: "${limpo}"`;
 
                 const promptInstrucao = `Você é um auditor de manutenção mecânica de frotas industriais.
 Ouça o áudio gravado pelo operador e transcreva o problema relatado de forma clara e técnica.
+${contexto && contexto !== 'checklist' ? `Item/Componente inspecionado: ${contexto}.` : ''}
 DIRETRIZES:
 1. Transcreva o que o operador falou, ajustando apenas a pontuação e termos técnicos de oficina (máximo 1 a 2 frases).
 2. Não invente peças nem causas que não foram citadas.
@@ -1923,9 +2054,12 @@ DIRETRIZES:
                                 interim += event.results[i][0].transcript;
                             }
                         }
-                        const prevEl = document.getElementById('live-transcript-preview');
-                        if (prevEl) {
-                            prevEl.innerText = (liveTranscribedText + interim).trim() || "Ouvindo sua fala...";
+                        const textoAoVivo = (liveTranscribedText + interim).trim() || "Ouvindo sua fala...";
+                        const prevEl99 = document.getElementById('live-transcript-preview');
+                        if (prevEl99) prevEl99.innerText = textoAoVivo;
+                        if (currentRecordingItemId) {
+                            const prevElItem = document.getElementById(`live-transcript-preview-${currentRecordingItemId}`);
+                            if (prevElItem) prevElItem.innerText = textoAoVivo;
                         }
                     };
 
@@ -1937,13 +2071,54 @@ DIRETRIZES:
         }
         initSpeechRecognition();
 
-        function toggleRecording() {
-            if (isProcessingAudio) return;
-            if (isRecording) stopRecording();
-            else startRecording();
+        function atualizarUIBotaoMic(gravando, itemId = null) {
+            const btnId = itemId ? `btn-mic-${itemId}` : 'btn-mic';
+            const iconId = itemId ? `mic-icon-${itemId}` : 'mic-icon';
+            const statusId = itemId ? `mic-status-${itemId}` : 'mic-status';
+            const prevId = itemId ? `live-transcript-preview-${itemId}` : 'live-transcript-preview';
+
+            const btn = document.getElementById(btnId);
+            const icon = document.getElementById(iconId);
+            const status = document.getElementById(statusId);
+            const preview = document.getElementById(prevId);
+
+            if (gravando) {
+                if (btn) {
+                    btn.classList.add('mic-recording');
+                    btn.classList.add('bg-red-500');
+                    btn.classList.remove('bg-slate-100');
+                }
+                if (icon) icon.className = "fa-solid fa-stop text-xl text-white";
+                if (status) {
+                    status.innerText = "Gravando... Toque p/ parar";
+                    status.className = "text-xs font-bold text-red-600 animate-pulse";
+                }
+                if (preview) preview.innerText = "Ouvindo sua fala... pode falar";
+            } else {
+                if (btn) {
+                    btn.classList.remove('mic-recording');
+                    btn.classList.remove('bg-red-500');
+                    btn.classList.add('bg-slate-100');
+                }
+                if (icon) icon.className = itemId ? "fa-solid fa-microphone text-xl text-orange-600" : "fa-solid fa-microphone text-xl text-slate-700";
+                if (status) {
+                    status.innerText = "Gravar Áudio por Voz";
+                    status.className = "text-xs font-bold text-slate-800";
+                }
+                if (preview) preview.innerText = itemId ? "Toque no microfone e fale o defeito" : "Toque no microfone e relate o problema";
+            }
         }
 
-        async function startRecording() {
+        function toggleRecording(targetItemId = null) {
+            if (isProcessingAudio) return;
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording(targetItemId);
+            }
+        }
+
+        async function startRecording(targetItemId = null) {
             if (isProcessingAudio) return;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1966,6 +2141,7 @@ DIRETRIZES:
 
                 audioChunks = [];
                 isRecording = true;
+                currentRecordingItemId = targetItemId;
                 liveTranscribedText = "";
 
                 if (recognition) {
@@ -1978,12 +2154,16 @@ DIRETRIZES:
 
                 mediaRecorder.onstop = async () => {
                     try {
+                        const recItemId = currentRecordingItemId;
+                        currentRecordingItemId = null;
+
                         let mimeType = mediaRecorder.mimeType || options.mimeType || 'audio/webm';
                         const audioBlob = new Blob(audioChunks, { type: mimeType });
 
                         if (audioBlob.size < 400) {
                             console.warn("Gravação muito curta ou vazia:", audioBlob.size);
-                            const micStatusEl = document.getElementById('mic-status');
+                            const statusId = recItemId ? `mic-status-${recItemId}` : 'mic-status';
+                            const micStatusEl = document.getElementById(statusId);
                             if (micStatusEl) {
                                 micStatusEl.innerText = "Gravação muito curta. Fale por mais tempo.";
                                 micStatusEl.className = "text-xs font-bold text-amber-600";
@@ -1996,10 +2176,16 @@ DIRETRIZES:
                         const falaCapturada = (liveTranscribedText || '').trim();
                         const temFalaReal = falaCapturada.length > 0;
 
+                        const itemsAtuais = getChecklistItemsAtuais();
+                        const item = recItemId ? itemsAtuais.find(it => it.id === recItemId) : null;
+                        const prefixo = item ? `[${item.title}]: ` : '';
+
                         const novaObs = {
                             id: obsId,
                             tipo: 'audio',
-                            text: temFalaReal ? falaCapturada : "Processando áudio com IA...",
+                            itemId: recItemId || null,
+                            itemTitle: item ? item.title : null,
+                            text: temFalaReal ? (prefixo + falaCapturada) : "Processando áudio com IA...",
                             audioBlob: audioBlob,
                             audioUrl: localAudioUrl,
                             audioBase64: null,
@@ -2015,7 +2201,7 @@ DIRETRIZES:
 
                         // Processamento assíncrono em segundo plano
                         (async () => {
-                            // 1. Converter Base64 em background para garantir persistência offline
+                            // 1. Converter Base64 em background para persistência offline
                             try {
                                 const reader = new FileReader();
                                 reader.readAsDataURL(audioBlob);
@@ -2028,29 +2214,29 @@ DIRETRIZES:
                             try {
                                 let textoFinal = "";
                                 if (temFalaReal) {
-                                    // Ultrarrápido (~400ms): envia apenas texto para o modelo Flash 3.5 Lite
-                                    textoFinal = await aprimorarTextoComGemini(falaCapturada);
+                                    // Envia o texto com contexto do item para o modelo Flash 3.5 Lite (~400ms)
+                                    textoFinal = await aprimorarTextoComGemini(falaCapturada, item ? item.title : null);
                                 } else {
                                     // Fallback multimodal com áudio se o SpeechRecognition não capturou
-                                    textoFinal = await transcreverAudioComGemini(audioBlob, 'checklist');
+                                    textoFinal = await transcreverAudioComGemini(audioBlob, item ? item.title : 'checklist');
                                 }
 
                                 if (textoFinal && textoFinal !== "Áudio sem fala identificável") {
-                                    novaObs.text = textoFinal;
+                                    novaObs.text = prefixo + textoFinal;
                                     novaObs.transcritoIA = true;
                                 } else if (!temFalaReal) {
-                                    novaObs.text = "Áudio gravado pelo operador (toque para ouvir).";
+                                    novaObs.text = prefixo ? `${prefixo}Áudio gravado pelo operador (toque para ouvir).` : "Áudio gravado pelo operador (toque para ouvir).";
                                 }
                             } catch (errAi) {
                                 console.warn("Aviso na IA em segundo plano:", errAi);
                                 if (!temFalaReal) {
-                                    novaObs.text = "Áudio gravado pelo operador (toque para ouvir).";
+                                    novaObs.text = prefixo ? `${prefixo}Áudio gravado pelo operador (toque para ouvir).` : "Áudio gravado pelo operador (toque para ouvir).";
                                 }
                             } finally {
                                 novaObs.refinandoIA = false;
                                 // Atualizar diretamente os elementos do card no DOM
                                 const textareaEl = document.getElementById('obs-text-' + obsId);
-                                if (textareaEl && (textareaEl.value === falaCapturada || textareaEl.value === "Processando áudio com IA...")) {
+                                if (textareaEl && (textareaEl.value === (prefixo + falaCapturada) || textareaEl.value === "Processando áudio com IA...")) {
                                     textareaEl.value = novaObs.text;
                                 }
                                 const badgeEl = document.getElementById('obs-badge-' + obsId);
@@ -2071,19 +2257,8 @@ DIRETRIZES:
 
                 mediaRecorder.start(200);
 
-                const btnMicEl = document.getElementById('btn-mic');
-                const micIconEl = document.getElementById('mic-icon');
-                const micStatusEl = document.getElementById('mic-status');
+                atualizarUIBotaoMic(true, targetItemId);
 
-                if (btnMicEl) {
-                    btnMicEl.disabled = false;
-                    btnMicEl.classList.add('mic-recording');
-                }
-                if (micIconEl) micIconEl.className = "fa-solid fa-stop text-xl text-white";
-                if (micStatusEl) {
-                    micStatusEl.innerText = "Gravando... Toque p/ parar";
-                    micStatusEl.className = "text-xs font-bold text-red-600";
-                }
             } catch (err) {
                 isRecording = false;
                 isProcessingAudio = false;
@@ -2105,21 +2280,7 @@ DIRETRIZES:
                 } catch(e){}
             }
 
-            const btnMicEl = document.getElementById('btn-mic');
-            const micIconEl = document.getElementById('mic-icon');
-            const micStatusEl = document.getElementById('mic-status');
-            const previewEl = document.getElementById('live-transcript-preview');
-
-            if (btnMicEl) {
-                btnMicEl.classList.remove('mic-recording');
-                btnMicEl.disabled = false;
-            }
-            if (micIconEl) micIconEl.className = "fa-solid fa-microphone text-xl";
-            if (micStatusEl) {
-                micStatusEl.innerText = "Gravar Áudio por Voz";
-                micStatusEl.className = "text-xs font-bold text-slate-700";
-            }
-            if (previewEl) previewEl.innerText = "Toque no microfone e relate o problema";
+            atualizarUIBotaoMic(false, currentRecordingItemId);
         }
 
         function removerObservacao(idx) {
@@ -2145,11 +2306,16 @@ DIRETRIZES:
                 return `
                 <div id="obs-card-${id}" class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-1.5 relative shadow-sm shrink-0">
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <i class="fa-solid ${obs.tipo === 'audio' ? 'fa-microphone text-orange-600' : 'fa-pen text-slate-600'} text-xs"></i>
                             <span class="font-bold text-[11px] text-slate-800 uppercase tracking-wide">
                                 ${obs.tipo === 'audio' ? 'Áudio ' + (idx + 1) : 'Nota Escrita ' + (idx + 1)}
                             </span>
+                            ${obs.itemTitle ? `
+                                <span class="text-[9px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded border border-slate-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-tag text-orange-600"></i> ${obs.itemTitle}
+                                </span>
+                            ` : ''}
                             ${obs.refinandoIA ? `
                                 <span id="obs-badge-${id}" class="text-[9px] bg-amber-50 text-amber-800 font-bold px-1.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
                                     <i class="fa-solid fa-wand-magic-sparkles fa-spin text-orange-500"></i> Refinando com IA...
@@ -2347,6 +2513,8 @@ DIRETRIZES:
                 observacao_texto: ''
             };
             observacoesList = [];
+            itemObsAberto = {};
+            currentRecordingItemId = null;
             goToStep(-5);
         }
 
