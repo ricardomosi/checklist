@@ -1763,6 +1763,59 @@
             setTimeout(() => fecharModalConfigGemini(), 800);
         }
 
+        // ==================== TRANSCRIÇÃO E POLIMENTO TÉCNICO COM GEMINI ====================
+        async function aprimorarTextoComGemini(textoOriginal) {
+            if (!textoOriginal || typeof textoOriginal !== 'string') return textoOriginal;
+            const limpo = textoOriginal.trim();
+            if (limpo.length < 3) return limpo;
+
+            const apiKey = (localStorage.getItem('gemini_api_key') || GEMINI_API_KEY || GEMINI_DEFAULT_KEY || "").trim();
+            if (!apiKey) return limpo;
+
+            const prompt = `Você é um auditor e especialista em manutenção industrial e frotas de máquinas pesadas.
+Sua função é transformar a fala do operador em um relatório técnico conciso e formal de oficina mecânica.
+DIRETRIZES:
+1. Mantenha estritamente o que o operador relatou, empregando a terminologia técnica correta de oficina (ex: vazamento no retentor, cilindro de elevação, atuador hidráulico, pneu desgastado/careca, mangueira danificada, superaquecimento, ruído no redutor).
+2. Não invente peças nem causas que não foram citadas.
+3. Responda em no máximo 1 a 2 frases diretas, SEM introduções, SEM saudações, SEM aspas e sem markdown.
+
+Fala do operador: "${limpo}"`;
+
+            const modelos = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+            for (const mod of modelos) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+                    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        signal: controller ? controller.signal : undefined,
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: {
+                                temperature: 0.1,
+                                maxOutputTokens: 120
+                            }
+                        })
+                    });
+                    if (timeoutId) clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                        if (texto && texto.length > 0 && !texto.toLowerCase().includes("erro:")) {
+                            return texto.replace(/^\*\*|\*\*$/g, '').trim();
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Aviso ao polir texto com ${mod}:`, e);
+                }
+            }
+            return limpo;
+        }
+
         async function transcreverAudioComGemini(audioBlob, contexto = 'checklist') {
             if (!audioBlob) return null;
             const apiKey = (localStorage.getItem('gemini_api_key') || GEMINI_API_KEY || GEMINI_DEFAULT_KEY || "").trim();
@@ -1786,16 +1839,14 @@
 
                 if (!base64Data) return null;
 
-                const promptInstrucao = `Você é um auditor e especialista em manutenção mecânica e operação de máquinas industriais e frotas pesadas (empilhadeiras retráteis e a combustão, escavadeiras Doosan, tratores Hyundai, Valtra, caminhões e veículos de apoio).
-Sua missão é ouvir o áudio gravado pelo operador no chão de fábrica e transcrever EXATAMENTE o que foi relatado de forma clara, técnica e direta para o gestor de manutenção ler.
-DIRETRIZES RÍGIDAS DE AUDITORIA:
-1. NÃO invente, não deduza e não acrescente absolutamente nada que não foi dito expressamente no áudio.
-2. Ignore ruídos industriais, motores funcionando ou barulho do pátio ao fundo. Extraia apenas a voz do operador.
-3. Ajuste pontuação e empregue a terminologia técnica correta de oficina (ex.: vazamento de óleo no retentor, cilindro de elevação, mangueira hidráulica estourada, pneu furado/careca, freio com ar, arrefecimento, etc.).
-4. Responda de forma direta e concisa (máximo 2 a 3 frases).
-5. Se não houver voz humana audível ou se for apenas ruído estático sem fala, responda exatamente: "Áudio sem fala identificável".`;
+                const promptInstrucao = `Você é um auditor de manutenção mecânica de frotas industriais.
+Ouça o áudio gravado pelo operador e transcreva o problema relatado de forma clara e técnica.
+DIRETRIZES:
+1. Transcreva o que o operador falou, ajustando apenas a pontuação e termos técnicos de oficina (máximo 1 a 2 frases).
+2. Não invente peças nem causas que não foram citadas.
+3. Se não houver voz ou for apenas estática/ruído de motor, responda exatamente: "Áudio sem fala identificável".`;
 
-                const modelos = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
+                const modelos = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
                 let mimeLimpo = (audioBlob.type || 'audio/webm').split(';')[0];
                 if (!mimeLimpo || mimeLimpo === 'application/octet-stream') mimeLimpo = 'audio/webm';
 
@@ -1803,7 +1854,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     try {
                         const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
                         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-                        const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
+                        const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
 
                         const response = await fetch(url, {
                             method: 'POST',
@@ -1823,7 +1874,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                                 }],
                                 generationConfig: {
                                     temperature: 0.1,
-                                    maxOutputTokens: 300
+                                    maxOutputTokens: 150
                                 }
                             })
                         });
@@ -1833,13 +1884,11 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                             const data = await response.json();
                             const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
                             if (texto && texto.length > 0) {
-                                return texto;
+                                return texto.replace(/^\*\*|\*\*$/g, '').trim();
                             }
-                        } else {
-                            console.warn(`Gemini ${mod} retornou status ${response.status}`);
                         }
                     } catch (errMod) {
-                        console.warn(`Erro no modelo Gemini ${mod}:`, errMod.name === 'AbortError' ? 'Timeout 12s' : errMod);
+                        console.warn(`Aviso no modelo Gemini ${mod}:`, errMod);
                     }
                 }
             } catch (e) {
@@ -1848,7 +1897,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
             return null;
         }
 
-        // ==================== ÁUDIO E TRANSCRIÇÃO ====================
+        // ==================== ÁUDIO E TRANSCRIÇÃO INSTANTÂNEA ====================
         let isRecording = false;
         let isProcessingAudio = false;
         let mediaRecorder = null;
@@ -1928,90 +1977,95 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                 };
 
                 mediaRecorder.onstop = async () => {
-                    isProcessingAudio = true;
-                    const btnMicEl = document.getElementById('btn-mic');
-                    const micIconEl = document.getElementById('mic-icon');
-                    const micStatusEl = document.getElementById('mic-status');
-                    const previewEl = document.getElementById('live-transcript-preview');
-
-                    if (btnMicEl) {
-                        btnMicEl.disabled = true;
-                        btnMicEl.classList.remove('mic-recording');
-                    }
-                    if (micIconEl) micIconEl.className = "fa-solid fa-spinner fa-spin text-xl text-orange-600";
-                    if (micStatusEl) {
-                        micStatusEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-orange-600 mr-1"></i> Analisando com IA...';
-                        micStatusEl.className = "text-xs font-bold text-orange-700";
-                    }
-                    if (previewEl) previewEl.innerText = "Transcrevendo termos de mecânica pesada...";
-
                     try {
                         let mimeType = mediaRecorder.mimeType || options.mimeType || 'audio/webm';
                         const audioBlob = new Blob(audioChunks, { type: mimeType });
 
                         if (audioBlob.size < 400) {
                             console.warn("Gravação muito curta ou vazia:", audioBlob.size);
+                            const micStatusEl = document.getElementById('mic-status');
                             if (micStatusEl) {
                                 micStatusEl.innerText = "Gravação muito curta. Fale por mais tempo.";
                                 micStatusEl.className = "text-xs font-bold text-amber-600";
                             }
-                            if (previewEl) previewEl.innerText = "Toque no microfone e relate o problema";
-                            isProcessingAudio = false;
-                            renderCurrentStep();
                             return;
                         }
 
-                        const reader = new FileReader();
-                        reader.readAsDataURL(audioBlob);
-                        reader.onloadend = async () => {
-                            try {
-                                const base64Audio = reader.result;
-                                
-                                // 1. Tentar transcrição de alta fidelidade com IA Gemini Multimodal
-                                let textoFinal = await transcreverAudioComGemini(audioBlob, 'checklist');
-                                let foiPorIA = false;
+                        const obsId = 'obs_' + Date.now();
+                        const localAudioUrl = URL.createObjectURL(audioBlob);
+                        const falaCapturada = (liveTranscribedText || '').trim();
+                        const temFalaReal = falaCapturada.length > 0;
 
-                                if (textoFinal && textoFinal !== "Áudio sem fala identificável") {
-                                    foiPorIA = true;
-                                } else if (!textoFinal && liveTranscribedText.trim()) {
-                                    // 2. Fallback para SpeechRecognition nativo
-                                    textoFinal = liveTranscribedText.trim();
-                                } else if (!textoFinal) {
-                                    // 3. Fallback final amigável
-                                    textoFinal = "Áudio gravado pelo operador (toque para ouvir ou editar texto).";
+                        const novaObs = {
+                            id: obsId,
+                            tipo: 'audio',
+                            text: temFalaReal ? falaCapturada : "Processando áudio com IA...",
+                            audioBlob: audioBlob,
+                            audioUrl: localAudioUrl,
+                            audioBase64: null,
+                            mimeType: mimeType,
+                            transcritoIA: false,
+                            refinandoIA: true
+                        };
+
+                        observacoesList.push(novaObs);
+                        
+                        // Renderização INSTANTÂNEA na tela (Zero espera para o operador!)
+                        renderCurrentStep();
+
+                        // Processamento assíncrono em segundo plano
+                        (async () => {
+                            // 1. Converter Base64 em background para garantir persistência offline
+                            try {
+                                const reader = new FileReader();
+                                reader.readAsDataURL(audioBlob);
+                                reader.onloadend = () => {
+                                    novaObs.audioBase64 = reader.result;
+                                };
+                            } catch(e){}
+
+                            // 2. Refinamento de termos técnicos com Gemini
+                            try {
+                                let textoFinal = "";
+                                if (temFalaReal) {
+                                    // Ultrarrápido (~400ms): envia apenas texto para o modelo Flash 3.5 Lite
+                                    textoFinal = await aprimorarTextoComGemini(falaCapturada);
+                                } else {
+                                    // Fallback multimodal com áudio se o SpeechRecognition não capturou
+                                    textoFinal = await transcreverAudioComGemini(audioBlob, 'checklist');
                                 }
 
-                                observacoesList.push({
-                                    tipo: 'audio',
-                                    text: textoFinal,
-                                    audioBlob: audioBlob,
-                                    audioBase64: base64Audio,
-                                    mimeType: mimeType,
-                                    transcritoIA: foiPorIA
-                                });
-                            } catch (procErr) {
-                                console.error("Erro ao processar áudio:", procErr);
-                                observacoesList.push({
-                                    tipo: 'audio',
-                                    text: liveTranscribedText.trim() || "Áudio gravado pelo operador (toque para ouvir).",
-                                    audioBlob: audioBlob,
-                                    audioBase64: null,
-                                    mimeType: mimeType,
-                                    transcritoIA: false
-                                });
+                                if (textoFinal && textoFinal !== "Áudio sem fala identificável") {
+                                    novaObs.text = textoFinal;
+                                    novaObs.transcritoIA = true;
+                                } else if (!temFalaReal) {
+                                    novaObs.text = "Áudio gravado pelo operador (toque para ouvir).";
+                                }
+                            } catch (errAi) {
+                                console.warn("Aviso na IA em segundo plano:", errAi);
+                                if (!temFalaReal) {
+                                    novaObs.text = "Áudio gravado pelo operador (toque para ouvir).";
+                                }
                             } finally {
-                                isProcessingAudio = false;
-                                renderCurrentStep();
+                                novaObs.refinandoIA = false;
+                                // Atualizar diretamente os elementos do card no DOM
+                                const textareaEl = document.getElementById('obs-text-' + obsId);
+                                if (textareaEl && (textareaEl.value === falaCapturada || textareaEl.value === "Processando áudio com IA...")) {
+                                    textareaEl.value = novaObs.text;
+                                }
+                                const badgeEl = document.getElementById('obs-badge-' + obsId);
+                                if (badgeEl) {
+                                    if (novaObs.transcritoIA) {
+                                        badgeEl.className = "text-[9px] bg-orange-100 text-orange-800 font-bold px-1.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1 shadow-2xs";
+                                        badgeEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> Transcrito por IA';
+                                    } else {
+                                        badgeEl.remove();
+                                    }
+                                }
                             }
-                        };
-                        reader.onerror = () => {
-                            isProcessingAudio = false;
-                            renderCurrentStep();
-                        };
+                        })();
                     } catch (errBlob) {
                         console.error("Erro geral no onstop do áudio:", errBlob);
-                        isProcessingAudio = false;
-                        renderCurrentStep();
                     }
                 };
 
@@ -2038,7 +2092,9 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
         }
 
         function stopRecording() {
+            if (!isRecording) return;
             isRecording = false;
+
             if (recognition) {
                 try { recognition.stop(); } catch(e){}
             }
@@ -2048,15 +2104,22 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     mediaRecorder.stream.getTracks().forEach(t => t.stop());
                 } catch(e){}
             }
+
             const btnMicEl = document.getElementById('btn-mic');
             const micIconEl = document.getElementById('mic-icon');
             const micStatusEl = document.getElementById('mic-status');
+            const previewEl = document.getElementById('live-transcript-preview');
+
             if (btnMicEl) {
                 btnMicEl.classList.remove('mic-recording');
-                btnMicEl.disabled = true;
+                btnMicEl.disabled = false;
             }
-            if (micIconEl) micIconEl.className = "fa-solid fa-spinner fa-spin text-xl text-orange-600";
-            if (micStatusEl) micStatusEl.innerText = "Processando áudio com IA...";
+            if (micIconEl) micIconEl.className = "fa-solid fa-microphone text-xl";
+            if (micStatusEl) {
+                micStatusEl.innerText = "Gravar Áudio por Voz";
+                micStatusEl.className = "text-xs font-bold text-slate-700";
+            }
+            if (previewEl) previewEl.innerText = "Toque no microfone e relate o problema";
         }
 
         function removerObservacao(idx) {
@@ -2065,7 +2128,9 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
         }
 
         function updateObsText(idx, val) {
-            observacoesList[idx].text = val;
+            if (observacoesList[idx]) {
+                observacoesList[idx].text = val;
+            }
         }
 
         function renderObservacoes() {
@@ -2075,24 +2140,35 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     Nenhuma observação inserida ainda. Fale ou digite abaixo se houver algum apontamento.
                 </div>`;
             }
-            return observacoesList.map((obs, idx) => `
-                <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-1.5 relative shadow-sm shrink-0">
+            return observacoesList.map((obs, idx) => {
+                const id = obs.id || ('obs_' + idx);
+                return `
+                <div id="obs-card-${id}" class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-1.5 relative shadow-sm shrink-0">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid ${obs.tipo === 'audio' ? 'fa-microphone text-orange-600' : 'fa-pen text-slate-600'} text-xs"></i>
                             <span class="font-bold text-[11px] text-slate-800 uppercase tracking-wide">
                                 ${obs.tipo === 'audio' ? 'Áudio ' + (idx + 1) : 'Nota Escrita ' + (idx + 1)}
                             </span>
-                            ${obs.transcritoIA ? `<span class="text-[9px] bg-orange-100 text-orange-800 font-bold px-1.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1 shadow-2xs"><i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> Transcrito por IA</span>` : ''}
+                            ${obs.refinandoIA ? `
+                                <span id="obs-badge-${id}" class="text-[9px] bg-amber-50 text-amber-800 font-bold px-1.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles fa-spin text-orange-500"></i> Refinando com IA...
+                                </span>
+                            ` : (obs.transcritoIA ? `
+                                <span id="obs-badge-${id}" class="text-[9px] bg-orange-100 text-orange-800 font-bold px-1.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1 shadow-2xs">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> Transcrito por IA
+                                </span>
+                            ` : '')}
                         </div>
                         <button onclick="removerObservacao(${idx})" class="text-red-500 hover:text-red-700 p-1 text-xs">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
-                    <textarea onchange="updateObsText(${idx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-orange-500" rows="2">${obs.text}</textarea>
-                    ${obs.audioBase64 ? `<audio controls src="${obs.audioBase64}" class="h-7 w-full mt-0.5 rounded"></audio>` : ''}
+                    <textarea id="obs-text-${id}" onchange="updateObsText(${idx}, this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-orange-500" rows="2">${obs.text}</textarea>
+                    ${(obs.audioUrl || obs.audioBase64) ? `<audio controls src="${obs.audioUrl || obs.audioBase64}" class="h-7 w-full mt-0.5 rounded"></audio>` : ''}
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // ==================== ENVIO AO SUPABASE ====================
@@ -6121,13 +6197,14 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     sosMediaRecorder = new MediaRecorder(stream);
                     sosAudioChunks = [];
                     isSosRecording = true;
+                    liveTranscribedText = "";
+
+                    if (recognition) {
+                        try { recognition.start(); } catch(e){}
+                    }
 
                     sosMediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) sosAudioChunks.push(e.data); };
                     sosMediaRecorder.onstop = async () => {
-                        isProcessingSosAudio = true;
-                        if (btn) btn.disabled = true;
-                        if (icon) icon.className = "fa-solid fa-spinner fa-spin text-2xl text-red-600";
-
                         try {
                             sosAudioBlob = new Blob(sosAudioChunks, { type: 'audio/webm' });
                             if (preview) {
@@ -6135,35 +6212,46 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                                 preview.classList.remove('hidden');
                             }
 
-                            if (status) status.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-red-600 mr-1"></i> Analisando com IA Gemini...';
+                            const falaSos = (liveTranscribedText || '').trim();
+                            const temFalaReal = falaSos.length > 0;
+
                             if (boxTranscricao) boxTranscricao.classList.remove('hidden');
-                            if (inputTranscricao) inputTranscricao.value = 'Transcrevendo áudio com termos técnicos de manutenção...';
-
-                            // 1. Chamar transcrição especializada com Gemini
-                            let textoTranscrito = await transcreverAudioComGemini(sosAudioBlob, 'sos');
-
-                            if (textoTranscrito && textoTranscrito !== "Áudio sem fala identificável") {
-                                if (inputTranscricao) inputTranscricao.value = textoTranscrito;
-                                if (status) status.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Relato transcrito pela IA!</span>';
-                            } else {
-                                if (inputTranscricao) inputTranscricao.value = "Alerta imediato de quebra mecânica relatado pelo operador.";
-                                if (status) status.innerText = "Áudio pronto para envio!";
+                            if (inputTranscricao) {
+                                inputTranscricao.value = temFalaReal ? falaSos : "Processando áudio com IA...";
                             }
-                        } catch (errSos) {
-                            console.error("Erro no processamento SOS:", errSos);
-                            if (inputTranscricao) inputTranscricao.value = "Alerta imediato de quebra mecânica relatado pelo operador.";
-                            if (status) status.innerText = "Áudio pronto para envio!";
-                        } finally {
-                            isProcessingSosAudio = false;
-                            if (btn) {
-                                btn.disabled = false;
-                                btn.classList.remove('mic-recording');
+
+                            if (status) {
+                                status.innerHTML = '<span class="text-orange-600 font-bold"><i class="fa-solid fa-wand-magic-sparkles fa-spin mr-1"></i> Refinando termos técnicos com IA...</span>';
                             }
-                            if (icon) icon.className = "fa-solid fa-microphone text-2xl";
+
+                            // Refinamento em segundo plano sem travar o operador
+                            (async () => {
+                                try {
+                                    let textoTranscrito = "";
+                                    if (temFalaReal) {
+                                        textoTranscrito = await aprimorarTextoComGemini(falaSos);
+                                    } else {
+                                        textoTranscrito = await transcreverAudioComGemini(sosAudioBlob, 'sos');
+                                    }
+
+                                    if (textoTranscrito && textoTranscrito !== "Áudio sem fala identificável") {
+                                        if (inputTranscricao) inputTranscricao.value = textoTranscrito;
+                                        if (status) status.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Relato técnico concluído pela IA!</span>';
+                                    } else {
+                                        if (inputTranscricao && !temFalaReal) inputTranscricao.value = "Alerta imediato de quebra mecânica relatado pelo operador.";
+                                        if (status) status.innerText = "Áudio pronto para envio!";
+                                    }
+                                } catch (errSos) {
+                                    console.error("Erro no processamento SOS:", errSos);
+                                    if (status) status.innerText = "Áudio pronto para envio!";
+                                }
+                            })();
+                        } catch (errBlobSos) {
+                            console.error("Erro geral no SOS:", errBlobSos);
                         }
                     };
 
-                    sosMediaRecorder.start();
+                    sosMediaRecorder.start(200);
                     btn.classList.add('mic-recording');
                     icon.className = "fa-solid fa-stop text-2xl text-white";
                     status.innerText = "Gravando emergência... Toque p/ parar";
@@ -6174,6 +6262,9 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                 }
             } else {
                 isSosRecording = false;
+                if (recognition) {
+                    try { recognition.stop(); } catch(e){}
+                }
                 if (sosMediaRecorder && sosMediaRecorder.state !== 'inactive') {
                     try {
                         sosMediaRecorder.stop();
@@ -6181,8 +6272,8 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     } catch(e){}
                 }
                 btn.classList.remove('mic-recording');
-                icon.className = "fa-solid fa-spinner fa-spin text-2xl text-red-600";
-                if (status) status.innerText = "Processando áudio com IA Gemini...";
+                icon.className = "fa-solid fa-microphone text-2xl";
+                if (status) status.innerText = "Toque no microfone para regravar se desejar.";
             }
         }
 
