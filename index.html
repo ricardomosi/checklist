@@ -1666,7 +1666,7 @@
             if (inputKey) inputKey.value = keyAtual;
             if (statusEl) {
                 if (keyAtual) {
-                    statusEl.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Chave ativa (Flash Latest)</span>';
+                    statusEl.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Chave ativa (Flash 3.5 Lite)</span>';
                 } else {
                     statusEl.innerHTML = '<span class="text-amber-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Chave ausente</span>';
                 }
@@ -1693,26 +1693,30 @@
 
         async function testarConexaoGemini(chave) {
             if (!chave) throw new Error("Chave não informada.");
-            const modelosTeste = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-3.6-flash', 'gemini-3.5-flash'];
+            const modelosTeste = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
             let ultimoErro = "";
             for (const mod of modelosTeste) {
                 try {
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${chave.trim()}`;
+                    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                    const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
                     const res = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        signal: controller ? controller.signal : undefined,
                         body: JSON.stringify({
                             contents: [{ parts: [{ text: "Teste de comunicação rápido. Responda apenas OK." }] }],
                             generationConfig: { maxOutputTokens: 10 }
                         })
                     });
+                    if (timeoutId) clearTimeout(timeoutId);
                     if (res.ok) {
                         return true;
                     }
                     const errJson = await res.json().catch(() => ({}));
                     ultimoErro = errJson.error?.message || `Erro HTTP ${res.status} (${mod})`;
                 } catch (e) {
-                    ultimoErro = e.message;
+                    ultimoErro = e.name === 'AbortError' ? `Tempo limite esgotado (${mod})` : e.message;
                 }
             }
             throw new Error(ultimoErro || "Não foi possível comunicar com a API do Gemini.");
@@ -1729,7 +1733,7 @@
             }
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Testando...';
-            if (statusEl) statusEl.innerHTML = '<span class="text-slate-500">Conectando ao modelo Flash Latest...</span>';
+            if (statusEl) statusEl.innerHTML = '<span class="text-slate-500">Conectando ao modelo Flash 3.5 Lite...</span>';
             try {
                 await testarConexaoGemini(chave);
                 if (statusEl) statusEl.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Conexão Gemini 100% OK!</span>';
@@ -1791,16 +1795,20 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
 4. Responda de forma direta e concisa (máximo 2 a 3 frases).
 5. Se não houver voz humana audível ou se for apenas ruído estático sem fala, responda exatamente: "Áudio sem fala identificável".`;
 
-                const modelos = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-3.6-flash', 'gemini-3.5-flash'];
+                const modelos = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
                 let mimeLimpo = (audioBlob.type || 'audio/webm').split(';')[0];
-                if (!mimeLimpo) mimeLimpo = 'audio/webm';
+                if (!mimeLimpo || mimeLimpo === 'application/octet-stream') mimeLimpo = 'audio/webm';
 
                 for (const mod of modelos) {
                     try {
                         const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+                        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                        const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
+
                         const response = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
+                            signal: controller ? controller.signal : undefined,
                             body: JSON.stringify({
                                 contents: [{
                                     parts: [
@@ -1819,6 +1827,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                                 }
                             })
                         });
+                        if (timeoutId) clearTimeout(timeoutId);
 
                         if (response.ok) {
                             const data = await response.json();
@@ -1830,7 +1839,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                             console.warn(`Gemini ${mod} retornou status ${response.status}`);
                         }
                     } catch (errMod) {
-                        console.warn(`Erro no modelo Gemini ${mod}:`, errMod);
+                        console.warn(`Erro no modelo Gemini ${mod}:`, errMod.name === 'AbortError' ? 'Timeout 12s' : errMod);
                     }
                 }
             } catch (e) {
@@ -1841,6 +1850,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
 
         // ==================== ÁUDIO E TRANSCRIÇÃO ====================
         let isRecording = false;
+        let isProcessingAudio = false;
         let mediaRecorder = null;
         let audioChunks = [];
         let recognition = null;
@@ -1879,14 +1889,32 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
         initSpeechRecognition();
 
         function toggleRecording() {
+            if (isProcessingAudio) return;
             if (isRecording) stopRecording();
             else startRecording();
         }
 
         async function startRecording() {
+            if (isProcessingAudio) return;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                let options = {};
+                if (typeof MediaRecorder !== 'undefined') {
+                    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                        options = { mimeType: 'audio/webm;codecs=opus' };
+                    } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+                        options = { mimeType: 'audio/webm' };
+                    } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                        options = { mimeType: 'audio/mp4' };
+                    }
+                }
+
+                try {
+                    mediaRecorder = new MediaRecorder(stream, options);
+                } catch (recErr) {
+                    mediaRecorder = new MediaRecorder(stream);
+                }
+
                 audioChunks = [];
                 isRecording = true;
                 liveTranscribedText = "";
@@ -1895,48 +1923,96 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     try { recognition.start(); } catch(e){}
                 }
 
-                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-                mediaRecorder.onstop = async () => {
-                    let mimeType = mediaRecorder.mimeType || 'audio/webm';
-                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) audioChunks.push(e.data);
+                };
 
+                mediaRecorder.onstop = async () => {
+                    isProcessingAudio = true;
+                    const btnMicEl = document.getElementById('btn-mic');
+                    const micIconEl = document.getElementById('mic-icon');
                     const micStatusEl = document.getElementById('mic-status');
                     const previewEl = document.getElementById('live-transcript-preview');
+
+                    if (btnMicEl) {
+                        btnMicEl.disabled = true;
+                        btnMicEl.classList.remove('mic-recording');
+                    }
+                    if (micIconEl) micIconEl.className = "fa-solid fa-spinner fa-spin text-xl text-orange-600";
                     if (micStatusEl) {
                         micStatusEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-orange-600 mr-1"></i> Analisando com IA...';
                         micStatusEl.className = "text-xs font-bold text-orange-700";
                     }
                     if (previewEl) previewEl.innerText = "Transcrevendo termos de mecânica pesada...";
 
-                    const reader = new FileReader();
-                    reader.readAsDataURL(audioBlob);
-                    reader.onloadend = async () => {
-                        const base64Audio = reader.result;
-                        
-                        // 1. Tentar transcrição de alta fidelidade com IA Gemini Multimodal
-                        let textoFinal = await transcreverAudioComGemini(audioBlob, 'checklist');
-                        let foiPorIA = false;
+                    try {
+                        let mimeType = mediaRecorder.mimeType || options.mimeType || 'audio/webm';
+                        const audioBlob = new Blob(audioChunks, { type: mimeType });
 
-                        if (textoFinal && textoFinal !== "Áudio sem fala identificável") {
-                            foiPorIA = true;
-                        } else if (!textoFinal && liveTranscribedText.trim()) {
-                            // 2. Fallback para SpeechRecognition nativo
-                            textoFinal = liveTranscribedText.trim();
-                        } else if (!textoFinal) {
-                            // 3. Fallback final amigável
-                            textoFinal = "Áudio gravado pelo operador (toque para ouvir ou editar texto).";
+                        if (audioBlob.size < 400) {
+                            console.warn("Gravação muito curta ou vazia:", audioBlob.size);
+                            if (micStatusEl) {
+                                micStatusEl.innerText = "Gravação muito curta. Fale por mais tempo.";
+                                micStatusEl.className = "text-xs font-bold text-amber-600";
+                            }
+                            if (previewEl) previewEl.innerText = "Toque no microfone e relate o problema";
+                            isProcessingAudio = false;
+                            renderCurrentStep();
+                            return;
                         }
 
-                        observacoesList.push({
-                            tipo: 'audio',
-                            text: textoFinal,
-                            audioBlob: audioBlob,
-                            audioBase64: base64Audio,
-                            mimeType: mimeType,
-                            transcritoIA: foiPorIA
-                        });
+                        const reader = new FileReader();
+                        reader.readAsDataURL(audioBlob);
+                        reader.onloadend = async () => {
+                            try {
+                                const base64Audio = reader.result;
+                                
+                                // 1. Tentar transcrição de alta fidelidade com IA Gemini Multimodal
+                                let textoFinal = await transcreverAudioComGemini(audioBlob, 'checklist');
+                                let foiPorIA = false;
+
+                                if (textoFinal && textoFinal !== "Áudio sem fala identificável") {
+                                    foiPorIA = true;
+                                } else if (!textoFinal && liveTranscribedText.trim()) {
+                                    // 2. Fallback para SpeechRecognition nativo
+                                    textoFinal = liveTranscribedText.trim();
+                                } else if (!textoFinal) {
+                                    // 3. Fallback final amigável
+                                    textoFinal = "Áudio gravado pelo operador (toque para ouvir ou editar texto).";
+                                }
+
+                                observacoesList.push({
+                                    tipo: 'audio',
+                                    text: textoFinal,
+                                    audioBlob: audioBlob,
+                                    audioBase64: base64Audio,
+                                    mimeType: mimeType,
+                                    transcritoIA: foiPorIA
+                                });
+                            } catch (procErr) {
+                                console.error("Erro ao processar áudio:", procErr);
+                                observacoesList.push({
+                                    tipo: 'audio',
+                                    text: liveTranscribedText.trim() || "Áudio gravado pelo operador (toque para ouvir).",
+                                    audioBlob: audioBlob,
+                                    audioBase64: null,
+                                    mimeType: mimeType,
+                                    transcritoIA: false
+                                });
+                            } finally {
+                                isProcessingAudio = false;
+                                renderCurrentStep();
+                            }
+                        };
+                        reader.onerror = () => {
+                            isProcessingAudio = false;
+                            renderCurrentStep();
+                        };
+                    } catch (errBlob) {
+                        console.error("Erro geral no onstop do áudio:", errBlob);
+                        isProcessingAudio = false;
                         renderCurrentStep();
-                    };
+                    }
                 };
 
                 mediaRecorder.start(200);
@@ -1945,13 +2021,18 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                 const micIconEl = document.getElementById('mic-icon');
                 const micStatusEl = document.getElementById('mic-status');
 
-                if (btnMicEl) btnMicEl.classList.add('mic-recording');
-                if (micIconEl) micIconEl.classList.replace('fa-microphone', 'fa-stop');
+                if (btnMicEl) {
+                    btnMicEl.disabled = false;
+                    btnMicEl.classList.add('mic-recording');
+                }
+                if (micIconEl) micIconEl.className = "fa-solid fa-stop text-xl text-white";
                 if (micStatusEl) {
                     micStatusEl.innerText = "Gravando... Toque p/ parar";
                     micStatusEl.className = "text-xs font-bold text-red-600";
                 }
             } catch (err) {
+                isRecording = false;
+                isProcessingAudio = false;
                 alert("Por favor, permita o acesso ao microfone nas configurações do seu navegador.");
             }
         }
@@ -1962,10 +2043,19 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                 try { recognition.stop(); } catch(e){}
             }
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                try {
+                    mediaRecorder.stop();
+                    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                } catch(e){}
             }
+            const btnMicEl = document.getElementById('btn-mic');
+            const micIconEl = document.getElementById('mic-icon');
             const micStatusEl = document.getElementById('mic-status');
+            if (btnMicEl) {
+                btnMicEl.classList.remove('mic-recording');
+                btnMicEl.disabled = true;
+            }
+            if (micIconEl) micIconEl.className = "fa-solid fa-spinner fa-spin text-xl text-orange-600";
             if (micStatusEl) micStatusEl.innerText = "Processando áudio com IA...";
         }
 
@@ -6014,6 +6104,7 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
             `).join('');
         }
 
+        let isProcessingSosAudio = false;
         async function toggleGravarAudioSOS() {
             const btn = document.getElementById('sos-btn-mic');
             const icon = document.getElementById('sos-mic-icon');
@@ -6022,6 +6113,8 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
             const boxTranscricao = document.getElementById('sos-transcricao-box');
             const inputTranscricao = document.getElementById('sos-transcricao-input');
 
+            if (isProcessingSosAudio) return;
+
             if (!isSosRecording) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -6029,43 +6122,67 @@ DIRETRIZES RÍGIDAS DE AUDITORIA:
                     sosAudioChunks = [];
                     isSosRecording = true;
 
-                    sosMediaRecorder.ondataavailable = e => { if (e.data.size > 0) sosAudioChunks.push(e.data); };
+                    sosMediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) sosAudioChunks.push(e.data); };
                     sosMediaRecorder.onstop = async () => {
-                        sosAudioBlob = new Blob(sosAudioChunks, { type: 'audio/webm' });
-                        preview.src = URL.createObjectURL(sosAudioBlob);
-                        preview.classList.remove('hidden');
+                        isProcessingSosAudio = true;
+                        if (btn) btn.disabled = true;
+                        if (icon) icon.className = "fa-solid fa-spinner fa-spin text-2xl text-red-600";
 
-                        if (status) status.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-red-600 mr-1"></i> Analisando com IA Gemini...';
-                        if (boxTranscricao) boxTranscricao.classList.remove('hidden');
-                        if (inputTranscricao) inputTranscricao.value = 'Transcrevendo áudio com termos técnicos de manutenção...';
+                        try {
+                            sosAudioBlob = new Blob(sosAudioChunks, { type: 'audio/webm' });
+                            if (preview) {
+                                preview.src = URL.createObjectURL(sosAudioBlob);
+                                preview.classList.remove('hidden');
+                            }
 
-                        // 1. Chamar transcrição especializada com Gemini
-                        let textoTranscrito = await transcreverAudioComGemini(sosAudioBlob, 'sos');
+                            if (status) status.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-spin text-red-600 mr-1"></i> Analisando com IA Gemini...';
+                            if (boxTranscricao) boxTranscricao.classList.remove('hidden');
+                            if (inputTranscricao) inputTranscricao.value = 'Transcrevendo áudio com termos técnicos de manutenção...';
 
-                        if (textoTranscrito && textoTranscrito !== "Áudio sem fala identificável") {
-                            if (inputTranscricao) inputTranscricao.value = textoTranscrito;
-                            if (status) status.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Relato transcrito pela IA!</span>';
-                        } else {
+                            // 1. Chamar transcrição especializada com Gemini
+                            let textoTranscrito = await transcreverAudioComGemini(sosAudioBlob, 'sos');
+
+                            if (textoTranscrito && textoTranscrito !== "Áudio sem fala identificável") {
+                                if (inputTranscricao) inputTranscricao.value = textoTranscrito;
+                                if (status) status.innerHTML = '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Relato transcrito pela IA!</span>';
+                            } else {
+                                if (inputTranscricao) inputTranscricao.value = "Alerta imediato de quebra mecânica relatado pelo operador.";
+                                if (status) status.innerText = "Áudio pronto para envio!";
+                            }
+                        } catch (errSos) {
+                            console.error("Erro no processamento SOS:", errSos);
                             if (inputTranscricao) inputTranscricao.value = "Alerta imediato de quebra mecânica relatado pelo operador.";
                             if (status) status.innerText = "Áudio pronto para envio!";
+                        } finally {
+                            isProcessingSosAudio = false;
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.classList.remove('mic-recording');
+                            }
+                            if (icon) icon.className = "fa-solid fa-microphone text-2xl";
                         }
                     };
 
                     sosMediaRecorder.start();
                     btn.classList.add('mic-recording');
-                    icon.classList.replace('fa-microphone', 'fa-stop');
+                    icon.className = "fa-solid fa-stop text-2xl text-white";
                     status.innerText = "Gravando emergência... Toque p/ parar";
                 } catch (e) {
+                    isSosRecording = false;
+                    isProcessingSosAudio = false;
                     alert("Por favor, permita o acesso ao microfone.");
                 }
             } else {
                 isSosRecording = false;
-                if (sosMediaRecorder) {
-                    sosMediaRecorder.stop();
-                    sosMediaRecorder.stream.getTracks().forEach(t => t.stop());
+                if (sosMediaRecorder && sosMediaRecorder.state !== 'inactive') {
+                    try {
+                        sosMediaRecorder.stop();
+                        sosMediaRecorder.stream.getTracks().forEach(t => t.stop());
+                    } catch(e){}
                 }
                 btn.classList.remove('mic-recording');
-                icon.classList.replace('fa-stop', 'fa-microphone');
+                icon.className = "fa-solid fa-spinner fa-spin text-2xl text-red-600";
+                if (status) status.innerText = "Processando áudio com IA Gemini...";
             }
         }
 

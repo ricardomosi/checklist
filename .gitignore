@@ -30,9 +30,11 @@ Desktop.ini
 .vscode/
 .idea/
 
-# Logs e temporários
+# Logs, segredos e temporários
 *.log
 *.tmp
+.env
+.env*
 skills-lock.json
 
 # Sessões locais de escolha visual e evidências de revisão
