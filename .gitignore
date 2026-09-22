@@ -33,6 +33,7 @@ Desktop.ini
 # Logs, segredos e temporários
 *.log
 *.tmp
+*.ps1
 .env
 .env*
 skills-lock.json
