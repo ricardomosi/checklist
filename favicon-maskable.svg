@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+    <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#ea580c" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo Total para preencher qualquer mascara (Circulo, Squircle, Teardrop) -->
+  <rect width="128" height="128" fill="url(#bgGrad)" />
+
+  <!-- Grupo centralizado na Safe Zone (80% central) -->
+  <g transform="matrix(0.82 0 0 0.82 11.5 11.5)">
+    <!-- Borda Interna Sutil -->
+    <rect x="6" y="6" width="116" height="116" rx="26" fill="none" stroke="#ea580c" stroke-width="2" stroke-opacity="0.5" />
+
+    <!-- Prancheta Base Checklist 5S -->
+    <rect x="28" y="32" width="72" height="76" rx="10" fill="#ffffff" filter="url(#glow)"/>
+    
+    <!-- Presilha Superior da Prancheta -->
+    <path d="M46 24 C46 20, 52 18, 64 18 C76 18, 82 20, 82 24 L86 32 L42 32 Z" fill="#475569" />
+    <circle cx="64" cy="24" r="3.5" fill="#f8fafc" />
+
+    <!-- Linhas do Checklist -->
+    <rect x="52" y="44" width="40" height="5" rx="2.5" fill="#e2e8f0" />
+    <rect x="52" y="60" width="40" height="5" rx="2.5" fill="#e2e8f0" />
+    <rect x="52" y="76" width="40" height="5" rx="2.5" fill="#e2e8f0" />
+    <rect x="52" y="92" width="28" height="5" rx="2.5" fill="#e2e8f0" />
+
+    <!-- Checkmark 1 (Verde 5S) -->
+    <circle cx="40" cy="46.5" r="5" fill="#d1fae5" />
+    <path d="M37.5 46.5 L39.5 48.5 L43 44.5" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Checkmark 2 (Verde 5S) -->
+    <circle cx="40" cy="62.5" r="5" fill="#d1fae5" />
+    <path d="M37.5 62.5 L39.5 64.5 L43 60.5" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Engrenagem Industrial -->
+    <circle cx="94" cy="94" r="18" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="3" />
+    <path d="M94 82 L96.5 86 L101 84.5 L101 89.5 L106 91 L103.5 94 L106 97 L101 98.5 L101 103.5 L96.5 102 L94 106 L91.5 102 L87 103.5 L87 98.5 L82 97 L84.5 94 L82 91 L87 89.5 L87 84.5 L91.5 86 Z" fill="#ffffff" opacity="0.95"/>
+    <circle cx="94" cy="94" r="5" fill="#ea580c" />
+  </g>
+</svg>

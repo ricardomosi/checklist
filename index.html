@@ -6,14 +6,17 @@
     <title>Checklist 5S & Gestão Industrial de Frotas | JPatrício</title>
     <!-- Favicon & PWA App Setup -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="alternate icon" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ea580c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Checklist 5S">
-    <link rel="apple-touch-icon" href="favicon.svg">
+    <meta name="application-name" content="Checklist 5S">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -853,6 +856,94 @@
                 </button>
                 <button type="button" onclick="salvarChaveGemini()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5">
                     <i class="fa-solid fa-check"></i> Salvar Chave
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE INSTALAÇÃO DO APLICATIVO PRÓPRIO (PWA) ==================== -->
+    <div id="modal-instalar-app" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4" onclick="fecharModalInstalarApp()">
+        <div class="bg-white border border-slate-300 rounded-3xl w-full max-w-md p-6 shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Cabeçalho do Modal -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+                <div class="flex items-center gap-3">
+                    <img src="icon-192.png" alt="Ícone Checklist 5S" class="w-12 h-12 rounded-2xl shadow-md border border-slate-200 object-cover">
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <h3 class="text-base font-bold text-slate-900">Instalar Aplicativo</h3>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 uppercase tracking-wider">App Próprio</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Checklist 5S & Gestão de Frotas</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalInstalarApp()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Corpo com Benefícios e Instruções -->
+            <div class="space-y-3.5 text-xs text-slate-700">
+                <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-3.5 flex items-start gap-3">
+                    <i class="fa-solid fa-mobile-screen-button text-orange-600 text-xl mt-0.5"></i>
+                    <div>
+                        <strong class="text-slate-900 block text-xs">Experiência 100% Nativa</strong>
+                        <p class="text-slate-600 text-[11px] leading-relaxed mt-0.5">
+                            O sistema será instalado como aplicativo dedicado no seu celular (sem barra de URL, com ícone próprio e funcionamento rápido mesmo em pátios com sinal fraco).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Botão de Instalação Rápida (quando prompt estiver ativo) -->
+                <div id="pwa-prompt-container">
+                    <button type="button" onclick="executarPromptInstalacao()" class="btn-industrial w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-xl shadow-md text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Instalar Aplicativo no Dispositivo</span>
+                    </button>
+                </div>
+
+                <!-- Guias visuais por plataforma -->
+                <div class="space-y-2 pt-1">
+                    <span class="font-bold text-slate-800 uppercase text-[10px] tracking-wider block">Como instalar no seu celular:</span>
+                    
+                    <!-- Android Chrome -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+                        <i class="fa-brands fa-android text-emerald-600 text-base mt-0.5"></i>
+                        <div class="text-[11px] leading-relaxed">
+                            <strong class="text-slate-800">Android (Google Chrome):</strong>
+                            <p class="text-slate-600 mt-0.5">
+                                Toque nos <strong>3 pontinhos (<i class="fa-solid fa-ellipsis-vertical text-slate-400"></i>)</strong> no topo do navegador e selecione <strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- iOS Safari (iPhone) -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+                        <i class="fa-brands fa-apple text-slate-800 text-base mt-0.5"></i>
+                        <div class="text-[11px] leading-relaxed">
+                            <strong class="text-slate-800">iPhone / iPad (Safari):</strong>
+                            <p class="text-slate-600 mt-0.5">
+                                Toque no botão de <strong>Compartilhar (<i class="fa-solid fa-arrow-up-from-bracket text-blue-500"></i>)</strong> na barra inferior e escolha <strong>"Adicionar à Tela de Início"</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Computador -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+                        <i class="fa-solid fa-desktop text-slate-700 text-base mt-0.5"></i>
+                        <div class="text-[11px] leading-relaxed">
+                            <strong class="text-slate-800">Computador (Chrome / Edge):</strong>
+                            <p class="text-slate-600 mt-0.5">
+                                Clique no ícone de <strong>instalar (<i class="fa-solid fa-circle-down text-orange-600"></i>)</strong> na barra de endereços do navegador.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé do Modal -->
+            <div class="mt-4 pt-3 border-t border-slate-200 flex justify-end">
+                <button type="button" onclick="fecharModalInstalarApp()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition border border-slate-300">
+                    Entendido
                 </button>
             </div>
         </div>
@@ -7622,10 +7713,97 @@ DIRETRIZES:
             }
         }
 
+        // ==================== PWA WEBAPK & SUPORTE DE INSTALAÇÃO DO APP ====================
+        let deferredInstallPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            console.log('PWA: Evento beforeinstallprompt capturado com sucesso.');
+            const promptCont = document.getElementById('pwa-prompt-container');
+            if (promptCont) promptCont.classList.remove('hidden');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            console.log('PWA instalado como aplicativo próprio com sucesso!');
+            fecharModalInstalarApp();
+            const btnInstalar = document.getElementById('btn-instalar-app');
+            if (btnInstalar) btnInstalar.classList.add('hidden');
+            alert('Aplicativo Checklist 5S instalado com sucesso no seu dispositivo!');
+        });
+
+        function abrirModalInstalarApp() {
+            const modal = document.getElementById('modal-instalar-app');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            const promptCont = document.getElementById('pwa-prompt-container');
+            if (promptCont) {
+                if (deferredInstallPrompt) {
+                    promptCont.classList.remove('hidden');
+                }
+            }
+        }
+
+        function fecharModalInstalarApp() {
+            const modal = document.getElementById('modal-instalar-app');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function acionarInstalacaoPWA() {
+            if (deferredInstallPrompt) {
+                executarPromptInstalacao();
+            } else {
+                abrirModalInstalarApp();
+            }
+        }
+
+        async function executarPromptInstalacao() {
+            if (deferredInstallPrompt) {
+                try {
+                    deferredInstallPrompt.prompt();
+                    const { outcome } = await deferredInstallPrompt.userChoice;
+                    console.log('Resultado da escolha do usuário:', outcome);
+                    if (outcome === 'accepted') {
+                        deferredInstallPrompt = null;
+                        fecharModalInstalarApp();
+                    }
+                } catch (err) {
+                    console.error('Erro ao acionar prompt de instalação:', err);
+                    abrirModalInstalarApp();
+                }
+            } else {
+                abrirModalInstalarApp();
+            }
+        }
+
+        function verificarModoAppInstalado() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isStandalone) {
+                console.log('Executando em modo aplicativo próprio (Standalone / WebAPK).');
+                const btnOp = document.getElementById('btn-instalar-app');
+                if (btnOp) btnOp.classList.add('hidden');
+            }
+        }
+
+        // Registrar Service Worker para PWA WebAPK
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => {
+                        console.log('PWA: Service Worker registrado com sucesso no escopo:', reg.scope);
+                    })
+                    .catch((err) => {
+                        console.warn('PWA: Falha ao registrar Service Worker:', err);
+                    });
+            });
+        }
+
         // ==================== INICIALIZAÇÃO ====================
         goToStep(-5);
         atualizarSelectSOS();
         carregarDadosDoBanco();
+        verificarModoAppInstalado();
     </script>
 </body>
 </html>
