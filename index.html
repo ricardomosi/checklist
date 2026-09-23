@@ -5022,6 +5022,39 @@ DIRETRIZES:
             };
         }
 
+        function abrirLightboxFoto(url, titulo) {
+            if (!url) return;
+            let lb = document.getElementById('lightbox-foto-modal');
+            if (!lb) {
+                lb = document.createElement('div');
+                lb.id = 'lightbox-foto-modal';
+                lb.className = 'fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center p-4 transition-all duration-300';
+                lb.innerHTML = `
+                    <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
+                        <button type="button" onclick="fecharLightboxFoto()" class="absolute -top-12 right-0 text-white/80 hover:text-white text-xl p-2 rounded-lg bg-black/50 hover:bg-black/80 transition flex items-center gap-1.5 font-bold text-xs border border-white/20">
+                            <i class="fa-solid fa-xmark text-base"></i> Fechar
+                        </button>
+                        <div class="rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black/50">
+                            <img id="lightbox-foto-img" src="" alt="Foto Ampliada" class="max-w-full max-h-[80vh] object-contain">
+                        </div>
+                        <p id="lightbox-foto-legenda" class="text-white font-bold text-sm mt-3 text-center"></p>
+                    </div>
+                `;
+                lb.onclick = (e) => { if (e.target === lb) fecharLightboxFoto(); };
+                document.body.appendChild(lb);
+            }
+            const img = document.getElementById('lightbox-foto-img');
+            const leg = document.getElementById('lightbox-foto-legenda');
+            if (img) img.src = url;
+            if (leg) leg.innerText = titulo || 'Visualização do Equipamento';
+            lb.classList.remove('hidden');
+        }
+
+        function fecharLightboxFoto() {
+            const lb = document.getElementById('lightbox-foto-modal');
+            if (lb) lb.classList.add('hidden');
+        }
+
         function renderSubAbaHistorico(m) {
             const container = document.getElementById('modal-perfil-conteudo');
             if (!container || !m) return;
@@ -5048,112 +5081,261 @@ DIRETRIZES:
             const statusDispClass = Number(k.disponibilidadePercent) >= 92 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
                                     (Number(k.disponibilidadePercent) >= 85 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-red-700 bg-red-50 border-red-200');
 
+            // Foto e detalhes visuais em destaque do equipamento
+            let fotoEquip = m.foto_url || '';
+            if (!fotoEquip) {
+                try {
+                    fotoEquip = localStorage.getItem('perfil_foto_' + m.codigo) || '';
+                } catch(e) {}
+            }
+            if (!fotoEquip) {
+                const maqInCache = (cacheGestor.maquinas || []).find(x => x.codigo === m.codigo) || (frotaTotal || []).find(x => x.codigo === m.codigo);
+                if (maqInCache && maqInCache.foto_url) {
+                    fotoEquip = maqInCache.foto_url;
+                }
+            }
+
+            // Operador atual e foto do operador (se houver no cadastro)
+            const opNome = m.operador_atual || 'Não informado';
+            let opFoto = '';
+            try {
+                if (typeof listaOperadores !== 'undefined' && Array.isArray(listaOperadores)) {
+                    const opMatch = listaOperadores.find(o => o.nome && o.nome.trim().toLowerCase() === opNome.trim().toLowerCase());
+                    if (opMatch && opMatch.foto_url) opFoto = opMatch.foto_url;
+                }
+            } catch(e) {}
+
+            // Status operacional visual com indicador animado
+            const statusOp = (m.status_operacional || 'operacional').toLowerCase();
+            let statusBadge = {
+                texto: 'Operacional',
+                bg: 'bg-emerald-500/90 text-white border-emerald-400/40',
+                dot: 'bg-emerald-400'
+            };
+            if (statusOp === 'manutencao' || statusOp === 'parado') {
+                statusBadge = {
+                    texto: 'Em Manutenção',
+                    bg: 'bg-red-500/90 text-white border-red-400/40',
+                    dot: 'bg-red-400'
+                };
+            } else if (statusOp === 'alerta' || k.defeitosChecklistCount > 0) {
+                statusBadge = {
+                    texto: 'Atenção Operacional',
+                    bg: 'bg-amber-500/90 text-white border-amber-400/40',
+                    dot: 'bg-amber-300'
+                };
+            }
+
             container.innerHTML = `
                 <div class="space-y-4 text-xs">
-                    <!-- Barra de Controle do Histórico: Período Selecionado & Ações -->
-                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                                <i class="fa-solid fa-filter text-orange-600"></i> Período de Análise:
-                            </span>
-                            <div class="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200">
-                                ${['30d', '90d', '6m', '1ano', 'tudo'].map(p => `
-                                    <button type="button" onclick="setPeriodoHistorico('${p}')" class="px-2.5 py-1 text-[11px] font-bold rounded-md transition ${periodo === p ? 'bg-orange-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
-                                        ${p === '30d' ? '30 Dias' : (p === '90d' ? '90 Dias' : (p === '6m' ? '6 Meses' : (p === '1ano' ? '1 Ano' : 'Tudo')))}
+                    <!-- PAINEL SUPERIOR: BLOCO DE DESTAQUE COM FOTO DA MÁQUINA + KPIS EXECUTIVOS -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+                        <!-- 1. BLOCO DE DESTAQUE COM FOTO DA MÁQUINA (APELO VISUAL DO EQUIPAMENTO) -->
+                        <div class="lg:col-span-5 relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-md flex flex-col justify-between min-h-[300px] lg:min-h-full bg-slate-900 group">
+                            ${fotoEquip ? `
+                                <!-- Imagem de Alta Resolução com Zoom suave no hover -->
+                                <img src="${escaparHTML(fotoEquip)}" alt="${escaparHTML(m.codigo)}" class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out cursor-pointer" onclick="abrirLightboxFoto('${escaparHTML(fotoEquip)}', '${escaparHTML(m.codigo)} - ${escaparHTML(m.modelo || m.nome)}')">
+                                <!-- Gradientes de profundidade para legibilidade máxima -->
+                                <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none"></div>
+                                <div class="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent pointer-events-none"></div>
+                            ` : `
+                                <!-- Textura industrial moderna para equipamento sem foto -->
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950"></div>
+                                <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                            `}
+
+                            <!-- Topo do Bloco: Badges do Equipamento e Status Operacional -->
+                            <div class="relative z-10 p-3.5 sm:p-4 flex justify-between items-start gap-2">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="bg-black/65 backdrop-blur-md text-white font-mono-num font-black text-sm px-2.5 py-1 rounded-lg border border-white/20 shadow-sm flex items-center gap-1.5">
+                                        <i class="fa-solid fa-truck-monster text-orange-400 text-xs"></i>
+                                        ${escaparHTML(m.codigo)}
+                                    </span>
+                                    <span class="bg-orange-600/90 backdrop-blur-md text-white font-mono-num font-bold text-[10px] px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
+                                        ${escaparHTML(m.unidade || 'FILIAL')}
+                                    </span>
+                                    <span class="bg-white/20 backdrop-blur-md text-white font-bold text-[10px] px-2 py-0.5 rounded-md uppercase tracking-wider border border-white/15">
+                                        ${escaparHTML(m.categoria || 'MÁQUINAS')}
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <!-- Status Operacional -->
+                                    <span class="${statusBadge.bg} backdrop-blur-md text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1.5 border">
+                                        <span class="w-2 h-2 rounded-full ${statusBadge.dot} animate-ping"></span>
+                                        <span>${statusBadge.texto}</span>
+                                    </span>
+                                    ${fotoEquip ? `
+                                        <button type="button" onclick="abrirLightboxFoto('${escaparHTML(fotoEquip)}', '${escaparHTML(m.codigo)} - ${escaparHTML(m.modelo || m.nome)}')" class="w-8 h-8 rounded-lg bg-black/60 hover:bg-black/90 backdrop-blur-md text-white flex items-center justify-center transition border border-white/20 shadow-sm" title="Ampliar foto em tela cheia">
+                                            <i class="fa-solid fa-expand text-xs"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Centro: Aviso amigável caso não tenha foto -->
+                            ${!fotoEquip ? `
+                                <div class="relative z-10 px-4 py-3 my-auto text-center">
+                                    <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 text-2xl shadow-inner mb-2.5">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </div>
+                                    <p class="text-white font-bold text-sm">Equipamento sem foto cadastrada</p>
+                                    <p class="text-slate-400 text-xs mt-0.5 max-w-xs mx-auto">Adicione uma foto real para destacar este equipamento no painel.</p>
+                                    <button type="button" onclick="mudarSubAbaPerfil('dados')" class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-lg shadow-sm transition">
+                                        <i class="fa-solid fa-plus"></i> Cadastrar Foto
                                     </button>
-                                `).join('')}
-                            </div>
-                        </div>
+                                </div>
+                            ` : `
+                                <div class="flex-1"></div>
+                            `}
 
-                        <div class="flex items-center gap-2 self-end md:self-auto">
-                            <span class="text-[11px] text-slate-500 font-medium hidden lg:inline">
-                                Período ativo: <strong>${periodoLabels[periodo]}</strong>
-                            </span>
-                            <button type="button" onclick="imprimirDossieDiretoria()" class="btn-industrial px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm" title="Imprimir Relatório Executivo para Diretoria">
-                                <i class="fa-solid fa-file-pdf text-orange-400"></i> Imprimir Dossiê Diretoria
-                            </button>
-                        </div>
-                    </div>
+                            <!-- Rodapé do Bloco de Destaque: Nome do Modelo, Operador e Leitura Atual -->
+                            <div class="relative z-10 p-3.5 sm:p-4 text-white">
+                                <h3 class="text-base sm:text-lg font-black tracking-wide text-white drop-shadow-md leading-snug">
+                                    ${escaparHTML(m.modelo || m.nome)}
+                                </h3>
 
-                    <!-- Grid de KPIs Executivos para a Diretoria -->
-                    <div class="grid grid-cols-2 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                        <!-- KPI 1: Total de Paradas -->
-                        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Paradas Totais</span>
-                                <span class="w-6 h-6 rounded bg-red-100 text-red-700 flex items-center justify-center text-xs"><i class="fa-solid fa-triangle-exclamation"></i></span>
-                            </div>
-                            <div class="mt-2">
-                                <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.totalParadas}</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
-                                    <span class="font-bold text-red-600">${k.corretivas} corr.</span> • <span class="font-bold text-emerald-600">${k.preventivas} prev.</span>
+                                <div class="flex items-center justify-between gap-2 mt-2 pt-2.5 border-t border-white/20 flex-wrap">
+                                    <!-- Operador Atual -->
+                                    <div class="flex items-center gap-2 bg-black/55 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/15 min-w-0">
+                                        ${opFoto ? `
+                                            <img src="${escaparHTML(opFoto)}" alt="${escaparHTML(opNome)}" class="w-7 h-7 rounded-full object-cover border border-white/70 shrink-0 shadow-xs">
+                                        ` : `
+                                            <div class="w-7 h-7 rounded-full bg-orange-500/30 text-orange-300 border border-white/20 flex items-center justify-center text-xs shrink-0">
+                                                <i class="fa-solid fa-user-gear"></i>
+                                            </div>
+                                        `}
+                                        <div class="leading-tight min-w-0">
+                                            <span class="text-[9px] text-slate-300 block uppercase font-semibold tracking-wider">Operador Atual</span>
+                                            <span class="text-xs font-bold text-white truncate block max-w-[140px] sm:max-w-[180px]">${escaparHTML(opNome)}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Horímetro / KM Atual -->
+                                    <div class="flex items-center gap-2 bg-black/55 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/15 shrink-0">
+                                        <i class="fa-solid fa-gauge-high text-orange-400 text-sm"></i>
+                                        <div class="leading-tight text-right">
+                                            <span class="text-[9px] text-slate-300 block uppercase font-semibold tracking-wider">${k.isHoras ? 'Horímetro Atual' : 'KM Atual'}</span>
+                                            <span class="text-xs font-black font-mono-num text-white">${k.leituraAtual.toLocaleString('pt-BR')} ${k.isHoras ? 'h' : 'km'}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ação rápida: Trocar/Editar Foto -->
+                                    <button type="button" onclick="mudarSubAbaPerfil('dados')" class="text-[10px] text-slate-300 hover:text-white underline decoration-dotted flex items-center gap-1 hover:bg-white/10 px-2 py-1 rounded transition" title="Ir para aba de Dados Técnicos para alterar a foto">
+                                        <i class="fa-solid fa-camera-rotate text-[10px]"></i> Alterar Foto
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- KPI 2: Horímetro / KM Acumulado -->
-                        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${k.isHoras ? 'Horímetro Atual' : 'KM Atual'}</span>
-                                <span class="w-6 h-6 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-xs"><i class="fa-solid fa-clock"></i></span>
-                            </div>
-                            <div class="mt-2">
-                                <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.leituraAtual.toLocaleString('pt-BR')} ${k.isHoras ? 'h' : 'km'}</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">
-                                    ~${k.horasTrabalhadasPeriodo.toLocaleString('pt-BR')} ${k.isHoras ? 'h no período' : 'km no período'}
+                        <!-- 2. PAINEL DA DIREITA: FILTRO DE PERÍODO & 6 KPIS EXECUTIVOS EM GRID 3x2 -->
+                        <div class="lg:col-span-7 flex flex-col justify-between gap-3">
+                            <!-- Barra de Controle do Histórico: Período Selecionado & Ações -->
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-filter text-orange-600"></i> Período:
+                                    </span>
+                                    <div class="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+                                        ${['30d', '90d', '6m', '1ano', 'tudo'].map(p => `
+                                            <button type="button" onclick="setPeriodoHistorico('${p}')" class="px-2.5 py-1 text-[11px] font-bold rounded-md transition ${periodo === p ? 'bg-orange-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                                                ${p === '30d' ? '30 Dias' : (p === '90d' ? '90 Dias' : (p === '6m' ? '6 Meses' : (p === '1ano' ? '1 Ano' : 'Tudo')))}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 self-end sm:self-auto">
+                                    <span class="text-[11px] text-slate-500 font-medium hidden sm:inline">
+                                        Período ativo: <strong>${periodoLabels[periodo]}</strong>
+                                    </span>
+                                    <button type="button" onclick="imprimirDossieDiretoria()" class="btn-industrial px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm" title="Imprimir Relatório Executivo para Diretoria">
+                                        <i class="fa-solid fa-file-pdf text-orange-400"></i> <span class="hidden sm:inline">Imprimir</span> Dossiê Diretoria
+                                    </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- KPI 3: MTBF (Tempo Médio entre Paradas) -->
-                        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500" title="Mean Time Between Failures">MTBF Médio</span>
-                                <span class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs"><i class="fa-solid fa-arrows-split-up-and-left"></i></span>
-                            </div>
-                            <div class="mt-2">
-                                <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.mtbf} <span class="text-xs font-semibold text-slate-500">${k.isHoras ? 'h/parada' : 'km/parada'}</span></div>
-                                <div class="text-[9px] font-bold px-1.5 py-0.5 rounded border inline-block mt-0.5 ${statusMTBFClass}">
-                                    ${statusMTBFTexto}
+                            <!-- Grid 3x2 de KPIs Executivos para a Diretoria -->
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 flex-1">
+                                <!-- KPI 1: Total de Paradas -->
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-orange-200 transition">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Paradas Totais</span>
+                                        <span class="w-6 h-6 rounded bg-red-100 text-red-700 flex items-center justify-center text-xs"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                                    </div>
+                                    <div class="mt-1.5">
+                                        <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.totalParadas}</div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
+                                            <span class="font-bold text-red-600">${k.corretivas} corr.</span> • <span class="font-bold text-emerald-600">${k.preventivas} prev.</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- KPI 4: MTTR Estimado (Tempo de Reparo) -->
-                        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500" title="Mean Time to Repair">MTTR Médio</span>
-                                <span class="w-6 h-6 rounded bg-purple-100 text-purple-700 flex items-center justify-center text-xs"><i class="fa-solid fa-wrench"></i></span>
-                            </div>
-                            <div class="mt-2">
-                                <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.mttr} <span class="text-xs font-semibold text-slate-500">horas</span></div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">Tempo médio inoperante</div>
-                            </div>
-                        </div>
-
-                        <!-- KPI 5: Uptime / Disponibilidade -->
-                        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Disponibilidade</span>
-                                <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
-                            </div>
-                            <div class="mt-2">
-                                <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.disponibilidadePercent}%</div>
-                                <div class="text-[9px] font-bold px-1.5 py-0.5 rounded border inline-block mt-0.5 ${statusDispClass}">
-                                    Uptime Operacional
+                                <!-- KPI 2: Horímetro / KM Acumulado -->
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-orange-200 transition">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${k.isHoras ? 'Horímetro Atual' : 'KM Atual'}</span>
+                                        <span class="w-6 h-6 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-xs"><i class="fa-solid fa-clock"></i></span>
+                                    </div>
+                                    <div class="mt-1.5">
+                                        <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.leituraAtual.toLocaleString('pt-BR')} ${k.isHoras ? 'h' : 'km'}</div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5">
+                                            ~${k.horasTrabalhadasPeriodo.toLocaleString('pt-BR')} ${k.isHoras ? 'h no período' : 'km no período'}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- KPI 6: Apontamentos Checklist -->
-                        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Defeitos Checklist</span>
-                                <span class="w-6 h-6 rounded bg-amber-100 text-amber-700 flex items-center justify-center text-xs"><i class="fa-solid fa-clipboard-check"></i></span>
-                            </div>
-                            <div class="mt-2">
-                                <div class="text-xl sm:text-2xl font-black font-mono-num ${k.defeitosChecklistCount > 0 ? 'text-amber-600' : 'text-slate-900'}">${k.defeitosChecklistCount}</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">em ${k.totalChecklists} inspeções 5S</div>
+                                <!-- KPI 3: MTBF Médio -->
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-orange-200 transition">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500" title="Mean Time Between Failures">MTBF Médio</span>
+                                        <span class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs"><i class="fa-solid fa-arrows-split-up-and-left"></i></span>
+                                    </div>
+                                    <div class="mt-1.5">
+                                        <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.mtbf} <span class="text-xs font-semibold text-slate-500">${k.isHoras ? 'h/parada' : 'km/parada'}</span></div>
+                                        <div class="text-[9px] font-bold px-1.5 py-0.5 rounded border inline-block mt-0.5 ${statusMTBFClass}">
+                                            ${statusMTBFTexto}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- KPI 4: MTTR Médio -->
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-orange-200 transition">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500" title="Mean Time to Repair">MTTR Médio</span>
+                                        <span class="w-6 h-6 rounded bg-purple-100 text-purple-700 flex items-center justify-center text-xs"><i class="fa-solid fa-wrench"></i></span>
+                                    </div>
+                                    <div class="mt-1.5">
+                                        <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.mttr} <span class="text-xs font-semibold text-slate-500">horas</span></div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5">Tempo médio inoperante</div>
+                                    </div>
+                                </div>
+
+                                <!-- KPI 5: Disponibilidade / Uptime -->
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-orange-200 transition">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Disponibilidade</span>
+                                        <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-check"></i></span>
+                                    </div>
+                                    <div class="mt-1.5">
+                                        <div class="text-xl sm:text-2xl font-black font-mono-num text-slate-900">${k.disponibilidadePercent}%</div>
+                                        <div class="text-[9px] font-bold px-1.5 py-0.5 rounded border inline-block mt-0.5 ${statusDispClass}">
+                                            Uptime Operacional
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- KPI 6: Defeitos Checklist -->
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-orange-200 transition">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Defeitos Checklist</span>
+                                        <span class="w-6 h-6 rounded bg-amber-100 text-amber-700 flex items-center justify-center text-xs"><i class="fa-solid fa-clipboard-check"></i></span>
+                                    </div>
+                                    <div class="mt-1.5">
+                                        <div class="text-xl sm:text-2xl font-black font-mono-num ${k.defeitosChecklistCount > 0 ? 'text-amber-600' : 'text-slate-900'}">${k.defeitosChecklistCount}</div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5">em ${k.totalChecklists} inspeções 5S</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
