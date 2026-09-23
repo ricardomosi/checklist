@@ -221,38 +221,44 @@
     <!-- ==================== CONTAINER PRINCIPAL: MODO GESTOR ==================== -->
     <main id="app-gestor" class="flex-1 hidden flex-col w-full h-full overflow-hidden bg-slate-50 text-slate-900">
         <!-- Sub-header do Gestor -->
-        <aside class="manager-sidebar bg-white border-b border-slate-200 shrink-0">
-            <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded bg-orange-500/20 text-orange-700 flex items-center justify-center font-bold text-sm">
-                    <i class="fa-solid fa-chart-line"></i>
+        <!-- Sub-header do Gestor com Sidebar Retrátil -->
+        <aside id="manager-sidebar" class="manager-sidebar bg-white border-b border-slate-200 shrink-0">
+            <div class="flex items-center justify-between gap-2 pb-3 mb-2 border-b border-slate-100">
+                <div class="sidebar-brand-group flex items-center gap-2 overflow-hidden">
+                    <div class="w-7 h-7 rounded bg-orange-500/20 text-orange-700 flex items-center justify-center font-bold text-sm shrink-0">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="sidebar-text truncate">
+                        <h1 class="text-sm font-bold text-slate-900 leading-tight truncate">Área de gestão</h1>
+                        <span class="text-[11px] text-slate-500 block truncate">Matriz e Filial</span>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-base font-semibold text-slate-900">Área de gestão</h1>
-                    <span class="text-xs text-slate-600">Matriz e Filial</span>
-                </div>
+                <button type="button" id="btn-toggle-sidebar" onclick="toggleSidebarGestor()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-slate-100 flex items-center justify-center transition shrink-0 cursor-pointer" title="Recolher / Expandir Menu Lateral">
+                    <i id="icone-toggle-sidebar" class="fa-solid fa-angles-left text-xs"></i>
+                </button>
             </div>
             
-<nav class="manager-nav" aria-label="Áreas de gestão">
-                <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-orange-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-calendar-days"></i> Manutenções (<span id="count-os">0</span>)
+            <nav class="manager-nav" aria-label="Áreas de gestão">
+                <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-orange-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2 transition" title="Manutenções">
+                    <i class="fa-solid fa-calendar-days shrink-0"></i> <span class="sidebar-text">Manutenções</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-os">0</span>)</span>
                 </button>
-                <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bell text-red-700"></i> SOS (<span id="count-sos">0</span>)
+                <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Chamados SOS">
+                    <i class="fa-solid fa-bell text-red-700 shrink-0"></i> <span class="sidebar-text">SOS</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-sos">0</span>)</span>
                 </button>
-                <button onclick="mudarAbaGestor('dashboard')" id="tab-btn-dashboard" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-chart-pie"></i> Indicadores
+                <button onclick="mudarAbaGestor('dashboard')" id="tab-btn-dashboard" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Indicadores">
+                    <i class="fa-solid fa-chart-pie shrink-0"></i> <span class="sidebar-text">Indicadores</span>
                 </button>
-                <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-table-list"></i> Checklists (<span id="count-checklists">0</span>)
+                <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Checklists Realizados">
+                    <i class="fa-solid fa-table-list shrink-0"></i> <span class="sidebar-text">Checklists</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-checklists">0</span>)</span>
                 </button>
-                <button onclick="mudarAbaGestor('maquinas')" id="tab-btn-maquinas" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-truck-ramp-box"></i> Frotas (<span id="count-maquinas">0</span>)
+                <button onclick="mudarAbaGestor('maquinas')" id="tab-btn-maquinas" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Frotas de Máquinas e Veículos">
+                    <i class="fa-solid fa-truck-ramp-box shrink-0"></i> <span class="sidebar-text">Frotas</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-maquinas">0</span>)</span>
                 </button>
-                <button onclick="mudarAbaGestor('configuracoes')" id="tab-btn-configuracoes" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-gear text-orange-600"></i> Configurações
+                <button onclick="mudarAbaGestor('configuracoes')" id="tab-btn-configuracoes" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Configurações do Sistema">
+                    <i class="fa-solid fa-gear text-orange-600 shrink-0"></i> <span class="sidebar-text">Configurações</span>
                 </button>
-                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-700 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-red-500/40 ml-1.5 transition flex items-center gap-1">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+                <button onclick="voltarParaOperador()" class="bg-red-500/20 hover:bg-red-500/30 text-red-700 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-red-500/40 ml-1.5 transition flex items-center gap-2" title="Sair do Modo Gestão">
+                    <i class="fa-solid fa-arrow-right-from-bracket shrink-0"></i> <span class="sidebar-text">Sair</span>
                 </button>
             </nav>
         </aside>
@@ -260,18 +266,23 @@
         <!-- Conteúdo das Abas do Gestor -->
         <section class="manager-workspace">
             <div class="manager-heading">
-                <div><h2 id="gestor-titulo">Manutenções</h2><p id="gestor-descricao">Acompanhe pendências e avance as ordens de serviço.</p></div>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="acionarInstalacaoPWA()" class="btn-industrial bg-white border border-slate-300 hover:border-orange-500 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Instalar aplicativo de checklist no computador ou celular">
-                        <i class="fa-solid fa-download text-orange-600"></i> <span class="hidden sm:inline">Baixar App</span>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <button type="button" id="btn-toggle-sidebar-gestor" onclick="toggleSidebarGestor()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-orange-600 hover:bg-slate-100 flex items-center justify-center transition border border-slate-200 cursor-pointer shrink-0" title="Recolher / Expandir Menu Lateral">
+                        <i class="fa-solid fa-bars-staggered text-xs"></i>
                     </button>
-                    <button type="button" onclick="abrirModalConfigGemini()" class="btn-industrial bg-white border border-slate-300 hover:border-orange-500 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Configurar IA Gemini para Transcrição de Áudio">
+                    <div class="flex items-baseline gap-2 min-w-0">
+                        <h2 id="gestor-titulo" class="text-base font-bold text-slate-900 leading-none truncate">Manutenções</h2>
+                        <span id="gestor-descricao" class="text-xs text-slate-500 hidden md:inline truncate">Acompanhe pendências e avance as ordens de serviço.</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="abrirModalConfigGemini()" class="btn-industrial bg-white border border-slate-300 hover:border-orange-500 text-slate-700 text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-xs" title="Configurar IA Gemini para Transcrição de Áudio">
                         <i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> <span class="hidden sm:inline">IA Gemini</span>
                     </button>
                     <button type="button" onclick="carregarDadosGestor()" class="refresh-button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Atualizar</button>
                 </div>
             </div>
-            <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-3 sm:p-5 bg-slate-50">
+            <div id="gestor-conteudo" class="flex-1 overflow-y-auto p-2.5 sm:p-4 bg-slate-50">
             <!-- Preenchido dinamicamente via JS -->
             </div>
         </section>
@@ -352,113 +363,129 @@
     </div>
 
     <!-- ==================== MODAL DE AGENDAMENTO DE MANUTENÇÃO (MÁQUINA OU VEÍCULO) ==================== -->
-    <div id="modal-agendar-dia" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
-            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-lg font-bold">
+    <div id="modal-agendar-dia" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-4xl 2xl:max-w-5xl max-h-[94vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Cabeçalho do Modal -->
+            <div class="p-4 px-6 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-lg font-bold shrink-0">
                         <i id="agendar-modal-icone" class="fa-solid fa-calendar-plus"></i>
                     </div>
                     <div>
-                        <h3 id="agendar-modal-titulo" class="text-base font-bold text-slate-900">Agendar Manutenção no Calendário</h3>
+                        <h3 id="agendar-modal-titulo" class="text-base sm:text-lg font-bold text-slate-900">Agendar Manutenção no Calendário</h3>
                         <p id="agendar-modal-subtitulo" class="text-xs text-slate-500">Programar intervenção para máquina ou veículo</p>
                     </div>
                 </div>
-                <button onclick="fecharModalAgendarDia()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition">
+                <button onclick="fecharModalAgendarDia()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition cursor-pointer" title="Fechar janela">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="p-5 overflow-y-auto flex-1 space-y-3.5">
+            <!-- Corpo do Formulário em Grade de 2 Colunas para Desktop -->
+            <div class="p-5 sm:p-6 overflow-y-auto flex-1">
                 <input type="hidden" id="agendar-os-id" value="">
 
-                <div>
-                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Equipamento (Máquina ou Veículo)</label>
-                    <select id="agendar-equipamento-select" onchange="aoMudarEquipamentoAgendarDia()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-orange-500">
-                        <!-- Preenchido via JS -->
-                    </select>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                    <!-- Coluna Esquerda: Equipamento, Prévia Visual, Datas, Prioridade e Mecânico -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Equipamento (Máquina ou Veículo)</label>
+                            <select id="agendar-equipamento-select" onchange="aoMudarEquipamentoAgendarDia()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-orange-500">
+                                <!-- Preenchido via JS -->
+                            </select>
+                        </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Data Programada</label>
-                        <input type="date" id="agendar-data-input" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-mono-num text-slate-900 focus:outline-none focus:border-orange-500">
+                        <!-- Card de Prévia Visual do Equipamento Selecionado -->
+                        <div id="agendar-equipamento-preview" class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 shadow-2xs">
+                            <!-- Preenchido dinamicamente via aoMudarEquipamentoAgendarDia() -->
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Data Programada</label>
+                                <input type="date" id="agendar-data-input" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-mono-num text-slate-900 focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Tipo de Intervenção</label>
+                                <select id="agendar-tipo-select" onchange="aoMudarTipoAgendarDia()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-semibold focus:outline-none focus:border-orange-500">
+                                    <option value="troca_oleo">Troca de Óleo e Filtros</option>
+                                    <option value="preventiva">Preventiva Periódica</option>
+                                    <option value="corretiva">Corretiva / Reparo</option>
+                                    <option value="revisao_geral">Revisão Geral 5S</option>
+                                    <option value="emergencial">Emergencial</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Prioridade</label>
+                                <select id="agendar-prioridade-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                                    <option value="media">Média</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="urgente">Urgente</option>
+                                    <option value="baixa">Baixa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Mecânico Responsável</label>
+                                <input type="text" id="agendar-mecanico-input" placeholder="Ex: Equipe de Manutenção" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                            </div>
+                        </div>
+
+                        <div id="agendar-status-group" class="hidden">
+                            <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Status da Manutenção / Etapa</label>
+                            <select id="agendar-status-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 font-semibold focus:outline-none focus:border-orange-500">
+                                <option value="pendente">Pendente / Solicitado</option>
+                                <option value="analise_pecas">Análise de Peças</option>
+                                <option value="em_manutencao">Em Manutenção</option>
+                                <option value="concluido">Concluído</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Tipo de Intervenção</label>
-                        <select id="agendar-tipo-select" onchange="aoMudarTipoAgendarDia()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-orange-500">
-                            <option value="troca_oleo">Troca de Óleo e Filtros</option>
-                            <option value="preventiva">Preventiva Periódica</option>
-                            <option value="corretiva">Corretiva / Reparo</option>
-                            <option value="revisao_geral">Revisão Geral 5S</option>
-                            <option value="emergencial">Emergencial</option>
-                        </select>
+
+                    <!-- Coluna Direita: Título do Serviço, Observações Técnicas/Peças e Parecer do Mecânico -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Título da Ordem / Serviço</label>
+                            <input type="text" id="agendar-titulo-input" placeholder="Ex: Troca de óleo de motor e filtros" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-[11px] uppercase font-bold text-slate-600">Observações Técnicas / Peças Necessárias</label>
+                                <button type="button" onclick="puxarInsumosParaModalAgendar()" class="text-[10px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-2 py-0.5 rounded transition cursor-pointer" title="Preencher automaticamente com dados de óleo e filtros cadastrados no perfil da máquina">
+                                    <i class="fa-solid fa-list-check"></i> Puxar Filtros & Óleo
+                                </button>
+                            </div>
+                            <textarea id="agendar-obs-textarea" rows="4" placeholder="Descreva os detalhes e peças necessárias..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-mono text-[11px] leading-relaxed"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">
+                                Observação do Mecânico / Parecer <span class="text-slate-400 font-normal lowercase">(opcional)</span>
+                            </label>
+                            <textarea id="agendar-obs-mecanico" rows="3" placeholder="Observações preliminares do mecânico (na ficha impressa haverá também campo aberto pautado para escrita física à caneta)..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-mono text-[11px] leading-relaxed"></textarea>
+                        </div>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Prioridade</label>
-                        <select id="agendar-prioridade-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
-                            <option value="media">Média</option>
-                            <option value="alta">Alta</option>
-                            <option value="urgente">Urgente</option>
-                            <option value="baixa">Baixa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Mecânico Responsável</label>
-                        <input type="text" id="agendar-mecanico-input" placeholder="Ex: Equipe de Manutenção" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
-                    </div>
-                </div>
-
-                <div id="agendar-status-group" class="hidden">
-                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Status da Manutenção / Etapa</label>
-                    <select id="agendar-status-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-orange-500">
-                        <option value="pendente">Pendente / Solicitado</option>
-                        <option value="analise_pecas">Análise de Peças</option>
-                        <option value="em_manutencao">Em Manutenção</option>
-                        <option value="concluido">Concluído</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">Título da Ordem / Serviço</label>
-                    <input type="text" id="agendar-titulo-input" placeholder="Ex: Troca de óleo de motor e filtros" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-[11px] uppercase font-bold text-slate-600">Observações Técnicas / Peças Necessárias</label>
-                        <button type="button" onclick="puxarInsumosParaModalAgendar()" class="text-[10px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-2 py-0.5 rounded transition">
-                            <i class="fa-solid fa-list-check"></i> Puxar Filtros & Óleo
-                        </button>
-                    </div>
-                    <textarea id="agendar-obs-textarea" rows="3" placeholder="Descreva os detalhes e peças necessárias..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-mono text-[11px]"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] uppercase font-bold text-slate-600 mb-1">
-                        Observação do Mecânico / Parecer <span class="text-slate-400 font-normal lowercase">(opcional - pode digitar ou preencher à mão no papel)</span>
-                    </label>
-                    <textarea id="agendar-obs-mecanico" rows="2" placeholder="Observações preliminares do mecânico (na ficha impressa haverá também campo aberto pautado para escrita física à caneta)..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-mono text-[11px]"></textarea>
                 </div>
             </div>
 
-            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
+            <!-- Rodapé com Ações -->
+            <div class="p-3 px-6 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="imprimirRequisicaoModalAgendar()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition border border-slate-300 flex items-center gap-1.5 shadow-sm">
+                    <button type="button" onclick="imprimirRequisicaoModalAgendar()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition border border-slate-300 flex items-center gap-1.5 shadow-xs cursor-pointer">
                         <i class="fa-solid fa-print text-orange-600"></i> Imprimir Ficha
                     </button>
-                    <button type="button" id="btn-excluir-os" onclick="excluirOSAgendada()" class="hidden px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-lg text-xs transition border border-red-200 items-center gap-1.5 shadow-sm">
+                    <button type="button" id="btn-excluir-os" onclick="excluirOSAgendada()" class="hidden px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-lg text-xs transition border border-red-200 items-center gap-1.5 shadow-xs cursor-pointer">
                         <i class="fa-solid fa-trash-can"></i> Excluir O.S.
                     </button>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="fecharModalAgendarDia()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition border border-slate-300">
+                    <button onclick="fecharModalAgendarDia()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition border border-slate-300 cursor-pointer">
                         Cancelar
                     </button>
-                    <button id="btn-salvar-agendamento" onclick="salvarAgendamentoDia()" class="btn-industrial px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
+                    <button id="btn-salvar-agendamento" onclick="salvarAgendamentoDia()" class="btn-industrial px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                         <i class="fa-solid fa-check"></i> <span id="btn-salvar-agendamento-texto">Gravar no Calendário</span>
                     </button>
                 </div>
@@ -1525,7 +1552,10 @@
             const itemsAtuais = getChecklistItemsAtuais();
             if (currentStepIndex === -5) return;
             if (currentStepIndex === -4) goToStep(-5);
-            else if (currentStepIndex === -1) goToStep(-4);
+            else if (currentStepIndex === -1) {
+                if (formData.categoria === 'veiculos') goToStep(-5);
+                else goToStep(-4);
+            }
             else if (currentStepIndex === -2) goToStep(-1);
             else if (currentStepIndex === -3) goToStep(-2);
             else if (currentStepIndex === 0) goToStep(-3);
@@ -1537,10 +1567,11 @@
             const itemsAtuais = getChecklistItemsAtuais();
             if (currentStepIndex === -5) {
                 if (formData.categoria === 'veiculos') {
-                    alert("O módulo de Veículos (Caminhões e Utilitários) está em parametrização técnica. Selecione 'Máquinas' para continuar.");
-                    return;
+                    formData.tipo_maquina = 'veiculo';
+                    goToStep(-1);
+                } else {
+                    goToStep(-4);
                 }
-                goToStep(-4);
             }
             else if (currentStepIndex === -4) {
                 goToStep(-1);
@@ -1599,11 +1630,17 @@
         // ==================== SELEÇÕES OPERADOR ====================
         function selectCategoria(cat) {
             formData.categoria = cat;
+            formData.empilhadeira = '';
+            formData.maquina_id = null;
+            formData.operador = '';
+            formData.horimetro = '';
+            formData.ultimo_horimetro = 0;
             if (cat === 'veiculos') {
-                speakText('Módulo de veículos em breve.');
-                alert('Módulo de Veículos (Caminhões e Utilitários) em implantação técnica. Selecione Máquinas para realizar o checklist.');
+                formData.tipo_maquina = 'veiculo';
+                goToStep(-1);
             } else {
-                renderCurrentStep();
+                formData.tipo_maquina = '';
+                goToStep(-4);
             }
         }
 
@@ -1698,10 +1735,10 @@
                             <p class="text-xs text-slate-600 font-medium">Selecione a categoria de equipamento</p>
                         </div>
 
-                        <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2 max-w-sm">
-                            <button onclick="selectCategoria('maquinas')" class="btn-industrial bg-white border-2 ${isMaq ? 'border-orange-600 bg-orange-50/60 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300'} rounded-2xl p-5 shadow-sm flex items-center justify-between text-left">
+                        <div class="flex flex-col gap-3.5 w-full flex-1 justify-center py-2 max-w-sm">
+                            <button onclick="selectCategoria('maquinas')" class="btn-industrial bg-white border-2 ${isMaq ? 'border-orange-600 bg-orange-50/60 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-5 shadow-sm flex items-center justify-between text-left transition-all">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 rounded-xl ${isMaq ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-2xl shadow-inner">
+                                    <div class="w-14 h-14 rounded-xl ${isMaq ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-2xl shadow-inner">
                                         <i class="fa-solid fa-truck-ramp-box"></i>
                                     </div>
                                     <div>
@@ -1709,23 +1746,23 @@
                                         <p class="text-xs text-slate-600 font-medium">Empilhadeiras, DOOSAN, HYUNDAI</p>
                                     </div>
                                 </div>
-                                <i class="fa-solid fa-chevron-right text-slate-600"></i>
+                                <i class="fa-solid fa-chevron-right text-slate-400"></i>
                             </button>
 
-                            <button onclick="selectCategoria('veiculos')" class="btn-industrial bg-white border-2 ${isVeic ? 'border-orange-600 bg-orange-50/60 ring-4 ring-orange-200' : 'border-slate-300'} rounded-2xl p-5 shadow-sm flex items-center justify-between text-left opacity-90">
+                            <button onclick="selectCategoria('veiculos')" class="btn-industrial bg-white border-2 ${isVeic ? 'border-orange-600 bg-orange-50/60 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-5 shadow-sm flex items-center justify-between text-left transition-all">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 rounded-xl ${isVeic ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-2xl shadow-inner">
+                                    <div class="w-14 h-14 rounded-xl ${isVeic ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-2xl shadow-inner">
                                         <i class="fa-solid fa-truck"></i>
                                     </div>
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <h3 class="text-lg font-bold text-slate-900">VEÍCULOS</h3>
-                                            <span class="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold">Em breve</span>
+                                            <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-1.5 py-0.2 rounded font-bold uppercase">Caminhões</span>
                                         </div>
-                                        <p class="text-xs text-slate-600 font-medium">Caminhões, Utilitários, Frotas leves</p>
+                                        <p class="text-xs text-slate-600 font-medium mt-0.5">Caminhões VW, MB, Strada e Apoio</p>
                                     </div>
                                 </div>
-                                <i class="fa-solid fa-lock text-slate-600"></i>
+                                <i class="fa-solid fa-chevron-right text-slate-400"></i>
                             </button>
                         </div>
 
@@ -1774,12 +1811,83 @@
                     </div>
                 `;
             }
-            // PASSO -1: ESCOLHER MÁQUINA / PLACA CONFORME O TIPO SELECIONADO
+            // PASSO -1: ESCOLHER MÁQUINA / VEÍCULO / PLACA COM FOTOS EM DESTAQUE
             else if (currentStepIndex === -1) {
-                const isEmpilhadeira = formData.tipo_maquina === 'empilhadeiras' || !formData.tipo_maquina;
+                const isVeiculo = formData.categoria === 'veiculos' || formData.tipo_maquina === 'veiculo';
+                const isEmpilhadeira = formData.tipo_maquina === 'empilhadeiras' || (!formData.tipo_maquina && !isVeiculo);
 
-                if (isEmpilhadeira) {
-                    const maquinasDaUnidade = frotaTotal.filter(m => m.categoria === 'maquinas' && m.tipo === 'empilhadeira' && m.unidade === formData.unidade);
+                const todasFrotas = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+
+                if (isVeiculo) {
+                    // SELEÇÃO DE VEÍCULOS COM FOTOS GRANDES
+                    let veiculos = todasFrotas.filter(m => m.categoria === 'veiculos' || m.tipo === 'veiculo' || Boolean(m.placa));
+                    if (veiculos.length === 0) {
+                        veiculos = [
+                            { codigo: 'CAM-VW1', nome: 'Caminhão VW 8-150', modelo: 'VW 8-150 Worker Baú', unidade: 'MATRIZ', km_atual: 142500, foto_url: '' },
+                            { codigo: 'CAM-MB1', nome: 'Caminhão MB Atego', modelo: 'Mercedes-Benz Atego 2426', unidade: 'FILIAL', km_atual: 98400, foto_url: '' },
+                            { codigo: 'UTI-STR1', nome: 'Fiat Strada Apoio 01', modelo: 'Strada Freedom CS 1.3', unidade: 'FILIAL', km_atual: 43200, foto_url: '' },
+                            { codigo: 'UTI-STR2', nome: 'Fiat Strada Apoio 02', modelo: 'Strada Freedom CD 1.3', unidade: 'MATRIZ', km_atual: 36100, foto_url: '' }
+                        ];
+                    }
+
+                    appOperador.innerHTML = `
+                        <div class="w-full flex flex-col h-full items-center justify-between">
+                            <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
+                                <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 2/5</span>
+                                <button onclick="speakText('Escolha o veículo ou caminhão para preencher o checklist.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                    <i class="fa-solid fa-volume-high text-base"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="text-center my-1 shrink-0">
+                                <h2 class="text-2xl font-bold text-slate-900">Qual Veículo?</h2>
+                                <p class="text-xs text-slate-600">Reconheça pela foto ou toque na placa do veículo</p>
+                            </div>
+
+                            <!-- LISTA DE VEÍCULOS COM FOTOS GRANDES -->
+                            <div class="flex flex-col gap-2.5 w-full flex-1 overflow-y-auto pr-0.5 py-1">
+                                ${veiculos.map(v => {
+                                    const sel = formData.empilhadeira === v.codigo || formData.empilhadeira === v.nome;
+                                    const kmVal = v.km_atual || v.km || 0;
+                                    const fotoHtml = v.foto_url ? `
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 ${sel ? 'border-orange-600 ring-2 ring-orange-300' : 'border-slate-200'} bg-slate-100 shadow-sm relative flex items-center justify-center">
+                                            <img src="${escaparHTML(v.foto_url)}" alt="${escaparHTML(v.codigo)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-orange-50 text-orange-700\\'><i class=\\'fa-solid fa-truck text-2xl\\'></i></div>';">
+                                        </div>
+                                    ` : `
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${sel ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-600'} shrink-0 border-2 ${sel ? 'border-orange-600' : 'border-slate-200'} shadow-inner flex flex-col items-center justify-center">
+                                            <i class="fa-solid fa-truck text-2xl"></i>
+                                            <span class="text-[9px] font-bold mt-1 uppercase ${sel ? 'text-white' : 'text-slate-400'}">Veículo</span>
+                                        </div>
+                                    `;
+
+                                    return `
+                                    <button onclick="selectEmpilhadeira('${escaparHTML(v.codigo)}', '${v.id || ''}', ${kmVal})" class="group btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50/70 ring-4 ring-orange-200 scale-[1.01]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-3 sm:p-3.5 text-left shadow-sm flex items-center justify-between transition-all gap-3 relative">
+                                        <div class="flex items-center gap-3 sm:gap-3.5 flex-1 min-w-0">
+                                            ${fotoHtml}
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-2 mb-0.5">
+                                                    <span class="font-mono-num font-black text-lg sm:text-xl text-slate-900 group-hover:text-orange-600 transition-colors">${escaparHTML(v.codigo)}</span>
+                                                    <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono-num font-bold uppercase">${escaparHTML(v.unidade || 'MATRIZ')}</span>
+                                                </div>
+                                                <span class="text-xs sm:text-sm text-slate-600 font-semibold block truncate">${escaparHTML(v.modelo || v.nome || 'Veículo Operacional')}</span>
+                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num">
+                                                    <i class="fa-solid fa-road text-slate-400"></i>
+                                                    <span>Último: <strong class="text-slate-800 font-bold">${kmVal} km</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="shrink-0 text-right">
+                                            ${sel ? '<i class="fa-solid fa-circle-check text-2xl text-orange-600"></i>' : '<i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-orange-500 text-lg transition-colors"></i>'}
+                                        </div>
+                                    </button>`;
+                                }).join('')}
+                            </div>
+
+                            ${renderNavButtons()}
+                        </div>
+                    `;
+                } else if (isEmpilhadeira) {
+                    const maquinasDaUnidade = todasFrotas.filter(m => (m.categoria === 'maquinas' || !m.categoria) && (m.tipo === 'empilhadeira' || !m.tipo) && m.unidade === formData.unidade);
 
                     appOperador.innerHTML = `
                         <div class="w-full flex flex-col h-full items-center justify-between">
@@ -1792,40 +1900,53 @@
                             
                             <div class="text-center my-1 shrink-0">
                                 <h2 class="text-2xl font-bold text-slate-900">Qual Empilhadeira?</h2>
-                                <p class="text-xs text-slate-600">Escolha a Unidade e toque no código da máquina</p>
+                                <p class="text-xs text-slate-600">Escolha a Unidade e toque na foto ou código</p>
                             </div>
 
                             <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ -->
                             <div class="w-full grid grid-cols-2 gap-2 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
-                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-building"></i> FILIAL (${frotaTotal.filter(m => m.unidade === 'FILIAL' && m.tipo === 'empilhadeira').length})
+                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-building"></i> FILIAL (${todasFrotas.filter(m => m.unidade === 'FILIAL' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
                                 </button>
-                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-industry"></i> MATRIZ (${frotaTotal.filter(m => m.unidade === 'MATRIZ' && m.tipo === 'empilhadeira').length})
+                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-industry"></i> MATRIZ (${todasFrotas.filter(m => m.unidade === 'MATRIZ' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
                                 </button>
                             </div>
 
-                            <!-- LISTA DE EMPILHADEIRAS -->
-                            <div class="flex flex-col gap-2 w-full flex-1 overflow-y-auto pr-0.5 py-1">
+                            <!-- LISTA DE EMPILHADEIRAS COM FOTOS GRANDES -->
+                            <div class="flex flex-col gap-2.5 w-full flex-1 overflow-y-auto pr-0.5 py-1">
                                 ${maquinasDaUnidade.map(maq => {
                                     const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
+                                    const horimetroVal = maq.horimetro_atual || maq.horimetro || 0;
+                                    const fotoHtml = maq.foto_url ? `
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 ${sel ? 'border-orange-600 ring-2 ring-orange-300' : 'border-slate-200'} bg-slate-100 shadow-sm relative flex items-center justify-center">
+                                            <img src="${escaparHTML(maq.foto_url)}" alt="${escaparHTML(maq.codigo)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-orange-50 text-orange-700\\'><i class=\\'fa-solid fa-truck-ramp-box text-2xl\\'></i></div>';">
+                                        </div>
+                                    ` : `
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${sel ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-600'} shrink-0 border-2 ${sel ? 'border-orange-600' : 'border-slate-200'} shadow-inner flex flex-col items-center justify-center">
+                                            <i class="fa-solid fa-truck-ramp-box text-2xl"></i>
+                                            <span class="text-[9px] font-bold mt-1 uppercase ${sel ? 'text-white' : 'text-slate-400'}">Máquina</span>
+                                        </div>
+                                    `;
+
                                     return `
-                                    <button onclick="selectEmpilhadeira('${maq.codigo}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50/70 ring-4 ring-orange-200 scale-[1.01]' : 'border-slate-300 hover:border-slate-400'} rounded-xl p-3 text-left shadow-sm flex items-center justify-between transition-all">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-lg ${sel ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-lg font-bold">
-                                                <i class="fa-solid fa-truck-ramp-box"></i>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-mono-num font-bold text-base text-slate-900">${maq.codigo}</span>
-                                                    <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono-num font-semibold">${formData.unidade}</span>
+                                    <button onclick="selectEmpilhadeira('${escaparHTML(maq.codigo)}', '${maq.id || ''}', ${horimetroVal})" class="group btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50/70 ring-4 ring-orange-200 scale-[1.01]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-3 sm:p-3.5 text-left shadow-sm flex items-center justify-between transition-all gap-3 relative">
+                                        <div class="flex items-center gap-3 sm:gap-3.5 flex-1 min-w-0">
+                                            ${fotoHtml}
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-2 mb-0.5">
+                                                    <span class="font-mono-num font-black text-lg sm:text-xl text-slate-900 group-hover:text-orange-600 transition-colors">${escaparHTML(maq.codigo)}</span>
+                                                    <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono-num font-bold uppercase">${formData.unidade}</span>
                                                 </div>
-                                                <span class="text-xs text-slate-600 font-medium block truncate max-w-[200px]">${maq.modelo || maq.nome}</span>
+                                                <span class="text-xs sm:text-sm text-slate-600 font-semibold block truncate">${escaparHTML(maq.modelo || maq.nome || 'Empilhadeira')}</span>
+                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num">
+                                                    <i class="fa-solid fa-gauge text-slate-400"></i>
+                                                    <span>Último: <strong class="text-slate-800 font-bold">${horimetroVal} h</strong></span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="text-right">
-                                            <span class="text-[10px] text-slate-600 block font-bold uppercase">Último</span>
-                                            <span class="font-mono-num text-xs font-bold text-slate-800">${maq.horimetro_atual || 0} h</span>
+                                        <div class="shrink-0 text-right">
+                                            ${sel ? '<i class="fa-solid fa-circle-check text-2xl text-orange-600"></i>' : '<i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-orange-500 text-lg transition-colors"></i>'}
                                         </div>
                                     </button>`;
                                 }).join('')}
@@ -1842,7 +1963,7 @@
                         motocana: { titulo: 'Carregadeira Motocana', icone: 'fa-wheat-awn', desc: 'Carregadeira de Cana' }
                     }[formData.tipo_maquina] || { titulo: 'Máquina', icone: 'fa-truck-ramp-box', desc: 'Equipamento' };
 
-                    const maquinasDoTipo = frotaTotal.filter(m => m.tipo === formData.tipo_maquina);
+                    const maquinasDoTipo = todasFrotas.filter(m => m.tipo === formData.tipo_maquina);
 
                     appOperador.innerHTML = `
                         <div class="w-full flex flex-col h-full items-center justify-between">
@@ -1858,27 +1979,40 @@
                                 <p class="text-xs text-slate-600">${tipoConfig.desc} - Selecione a máquina correspondente</p>
                             </div>
 
-                            <!-- LISTA DE MÁQUINAS DO TIPO ESPECÍFICO -->
-                            <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2 max-w-sm">
+                            <!-- LISTA DE MÁQUINAS DO TIPO ESPECÍFICO COM FOTOS GRANDES -->
+                            <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2 max-w-sm overflow-y-auto">
                                 ${maquinasDoTipo.map(maq => {
                                     const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
+                                    const horimetroVal = maq.horimetro_atual || maq.horimetro || 0;
+                                    const fotoHtml = maq.foto_url ? `
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 ${sel ? 'border-orange-600 ring-2 ring-orange-300' : 'border-slate-200'} bg-slate-100 shadow-sm relative flex items-center justify-center">
+                                            <img src="${escaparHTML(maq.foto_url)}" alt="${escaparHTML(maq.codigo)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-orange-50 text-orange-700\\'><i class=\\'fa-solid ${tipoConfig.icone} text-2xl\\'></i></div>';">
+                                        </div>
+                                    ` : `
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${sel ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-600'} shrink-0 border-2 ${sel ? 'border-orange-600' : 'border-slate-200'} shadow-inner flex flex-col items-center justify-center">
+                                            <i class="fa-solid ${tipoConfig.icone} text-2xl"></i>
+                                            <span class="text-[9px] font-bold mt-1 uppercase ${sel ? 'text-white' : 'text-slate-400'}">Máquina</span>
+                                        </div>
+                                    `;
+
                                     return `
-                                    <button onclick="selectEmpilhadeira('${maq.codigo}', '${maq.id || ''}', ${maq.horimetro_atual || 0})" class="btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-4 text-left shadow-sm flex items-center justify-between transition-all">
-                                        <div class="flex items-center gap-3.5">
-                                            <div class="w-12 h-12 rounded-xl ${sel ? 'bg-orange-600 text-slate-900' : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-xl font-bold shadow-inner">
-                                                <i class="fa-solid ${tipoConfig.icone}"></i>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-mono-num font-bold text-base text-slate-900">${maq.codigo}</span>
-                                                    <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono-num font-semibold">${maq.unidade || 'MATRIZ'}</span>
+                                    <button onclick="selectEmpilhadeira('${escaparHTML(maq.codigo)}', '${maq.id || ''}', ${horimetroVal})" class="group btn-industrial bg-white border-2 ${sel ? 'border-orange-600 bg-orange-50 ring-4 ring-orange-200 scale-[1.02]' : 'border-slate-300 hover:border-slate-400'} rounded-2xl p-3.5 sm:p-4 text-left shadow-sm flex items-center justify-between transition-all gap-3 relative">
+                                        <div class="flex items-center gap-3 sm:gap-3.5 flex-1 min-w-0">
+                                            ${fotoHtml}
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-2 mb-0.5">
+                                                    <span class="font-mono-num font-black text-lg sm:text-xl text-slate-900 group-hover:text-orange-600 transition-colors">${escaparHTML(maq.codigo)}</span>
+                                                    <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono-num font-bold uppercase">${escaparHTML(maq.unidade || 'MATRIZ')}</span>
                                                 </div>
-                                                <span class="text-xs text-slate-600 font-medium block">${maq.modelo || maq.nome}</span>
+                                                <span class="text-xs sm:text-sm text-slate-600 font-semibold block truncate">${escaparHTML(maq.modelo || maq.nome || tipoConfig.titulo)}</span>
+                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num">
+                                                    <i class="fa-solid fa-gauge text-slate-400"></i>
+                                                    <span>Último: <strong class="text-slate-800 font-bold">${horimetroVal} h</strong></span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="text-right">
-                                            <span class="text-[10px] text-slate-600 block font-bold uppercase">Último</span>
-                                            <span class="font-mono-num text-xs font-bold text-slate-800">${maq.horimetro_atual || 0} h</span>
+                                        <div class="shrink-0 text-right">
+                                            ${sel ? '<i class="fa-solid fa-circle-check text-2xl text-orange-600"></i>' : '<i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-orange-500 text-lg transition-colors"></i>'}
                                         </div>
                                     </button>`;
                                 }).join('')}
@@ -1964,33 +2098,40 @@
                     </div>
                 `;
             }
-            // PASSO -3: HORÍMETRO (SEMPRE COMEÇA ZERADO, EXIBINDO ÚLTIMO REGISTRO)
+            // PASSO -3: HORÍMETRO / QUILOMETRAGEM (SEMPRE COMEÇA ZERADO, EXIBINDO ÚLTIMO REGISTRO)
             else if (currentStepIndex === -3) {
+                const isVeiculo = formData.categoria === 'veiculos' || formData.tipo_maquina === 'veiculo';
+                const tituloMetrica = isVeiculo ? 'Quilometragem (KM)' : 'Horímetro Atual';
+                const subtituloMetrica = isVeiculo ? 'Veja o odômetro no painel do veículo' : 'Veja o número no painel da máquina';
+                const unidadeMetrica = isVeiculo ? 'km' : 'h';
+                const falaMetrica = isVeiculo ? 'Digite a quilometragem atual que está no painel do veículo.' : 'Digite o número do horímetro atual que está no painel da máquina.';
+                const iconeMetrica = isVeiculo ? 'fa-road' : 'fa-clock-rotate-left';
+
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col items-center h-full justify-between">
                         <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
                             <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 5/5</span>
-                            <button onclick="speakText('Digite o número do horímetro atual que está no painel da máquina.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                            <button onclick="speakText('${falaMetrica}')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
                                 <i class="fa-solid fa-volume-high text-base"></i>
                             </button>
                         </div>
                         
                         <div class="text-center my-1 shrink-0">
-                            <h2 class="text-2xl font-bold text-slate-900">Horímetro Atual</h2>
-                            <p class="text-xs text-slate-600">Veja o número no painel da máquina</p>
+                            <h2 class="text-2xl font-bold text-slate-900">${tituloMetrica}</h2>
+                            <p class="text-xs text-slate-600">${subtituloMetrica}</p>
                             
-                            <!-- BADGE DE ÚLTIMO HORÍMETRO HISTÓRICO -->
+                            <!-- BADGE DE ÚLTIMA LEITURA HISTÓRICA -->
                             <div class="mt-2 inline-flex items-center gap-2 bg-slate-200/80 border border-slate-300 px-3 py-1 rounded-full text-xs text-slate-700 font-bold">
-                                <i class="fa-solid fa-clock-rotate-left text-orange-600"></i>
+                                <i class="fa-solid ${iconeMetrica} text-orange-600"></i>
                                 <span>Último registrado:</span>
-                                <span class="font-mono-num text-orange-700 font-bold">${formData.ultimo_horimetro || 0} h</span>
+                                <span class="font-mono-num text-orange-700 font-bold">${formData.ultimo_horimetro || 0} ${unidadeMetrica}</span>
                             </div>
                         </div>
                         
-                        <!-- Mostrador do Horímetro Atual Digitado (Começa zerado) -->
+                        <!-- Mostrador do Horímetro / KM Atual Digitado (Começa zerado) -->
                         <div class="flex-1 w-full flex flex-col items-center justify-center max-w-[300px]">
                             <div class="w-full bg-white border-2 border-orange-500 h-14 rounded-2xl flex items-center justify-center text-3xl font-mono-num font-bold text-orange-700 tracking-widest mb-3 shadow-inner">
-                                ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-600 ml-2">h</span>
+                                ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-600 ml-2">${unidadeMetrica}</span>
                             </div>
                             
                             <div class="grid grid-cols-3 gap-2 w-full">
@@ -3132,6 +3273,7 @@ DIRETRIZES:
             progressWrapper.classList.add('hidden');
             badgeModo.innerText = "Gestor";
             badgeModo.className = "text-[11px] uppercase tracking-wider font-semibold bg-amber-400 text-slate-950 px-2 py-0.5 rounded";
+            restaurarEstadoSidebarGestor();
             mudarAbaGestor(abaAtualGestor || 'kanban');
         }
 
@@ -3160,6 +3302,35 @@ DIRETRIZES:
             try { localStorage.setItem('jp-texto-ampliado', String(ampliado)); } catch (_) {}
         }
         try { if (localStorage.getItem('jp-texto-ampliado') === 'true') alternarTamanhoTexto(); } catch (_) {}
+
+        function toggleSidebarGestor() {
+            const sidebar = document.getElementById('manager-sidebar');
+            const icone = document.getElementById('icone-toggle-sidebar');
+            const btnTop = document.getElementById('btn-toggle-sidebar-gestor');
+            if (!sidebar) return;
+            const recolhido = sidebar.classList.toggle('collapsed');
+            if (icone) {
+                icone.className = recolhido ? 'fa-solid fa-angles-right text-xs' : 'fa-solid fa-angles-left text-xs';
+            }
+            if (btnTop) {
+                btnTop.title = recolhido ? 'Expandir Menu Lateral' : 'Recolher Menu Lateral';
+            }
+            try { localStorage.setItem('jp-sidebar-gestor-recolhido', String(recolhido)); } catch (_) {}
+        }
+
+        function restaurarEstadoSidebarGestor() {
+            try {
+                if (localStorage.getItem('jp-sidebar-gestor-recolhido') === 'true') {
+                    const sidebar = document.getElementById('manager-sidebar');
+                    const icone = document.getElementById('icone-toggle-sidebar');
+                    const btnTop = document.getElementById('btn-toggle-sidebar-gestor');
+                    if (sidebar) sidebar.classList.add('collapsed');
+                    if (icone) icone.className = 'fa-solid fa-angles-right text-xs';
+                    if (btnTop) btnTop.title = 'Expandir Menu Lateral';
+                }
+            } catch (_) {}
+        }
+        try { restaurarEstadoSidebarGestor(); } catch (_) {}
 
         function mudarAbaGestor(aba) {
             abaAtualGestor = aba;
@@ -3963,9 +4134,9 @@ DIRETRIZES:
             const sosPendentes = cacheGestor.chamados.filter(c => c.status === 'pendente').length;
 
             container.innerHTML = `
-                <div class="space-y-2.5">
+                <div class="flex-1 flex flex-col space-y-2.5 h-full">
                     <!-- CONTROLES UNIFICADOS DE MANUTENÇÃO (COMPACTO & SEM ESPAÇO MORTO) -->
-                    <div class="flex flex-wrap justify-between items-center bg-white border border-slate-200 p-2 px-3.5 rounded-xl gap-2 shadow-xs">
+                    <div class="flex flex-wrap justify-between items-center bg-white border border-slate-200 p-2 px-3.5 rounded-xl gap-2 shadow-xs shrink-0">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5 mr-1">
                                 <i class="fa-solid fa-wrench text-orange-700"></i> Manutenções
@@ -4016,19 +4187,19 @@ DIRETRIZES:
             ];
 
             return `
-                <div class="kanban-grid grid gap-3 items-start">
+                <div class="kanban-grid grid gap-3 items-stretch flex-1">
                     ${colunas.map(col => {
                         const itens = cacheGestor.ordens.filter(o => o.status === col.id).sort((a,b) => Number(b.prioridade === 'urgente') - Number(a.prioridade === 'urgente'));
                         return `
-                        <div class="bg-white border-t-4 ${col.cor} border-x border-b border-slate-200 rounded-xl p-3 shadow-sm min-h-[420px] flex flex-col">
-                            <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-200">
+                        <div class="bg-white border-t-4 ${col.cor} border-x border-b border-slate-200 rounded-xl p-3 shadow-sm min-h-[420px] flex flex-col flex-1">
+                            <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-200 shrink-0">
                                 <h4 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
                                     <i class="fa-solid ${col.icone}"></i> ${col.titulo}
                                 </h4>
                                 <span class="bg-slate-100 text-slate-900 text-[11px] font-bold px-2 py-0.2 rounded-full font-mono-num">${itens.length}</span>
                             </div>
 
-                            <div class="space-y-2 flex-1 overflow-y-auto max-h-[650px] pr-0.5">
+                            <div class="space-y-2 flex-1 overflow-y-auto pr-0.5">
                                 ${itens.length === 0 ? '<p class="text-sm text-slate-600 py-6">Nenhuma ordem nesta etapa.</p>' : ''}
                                 ${itens.map(item => {
                                     const dtCriacao = item.created_at ? new Date(item.created_at) : null;
@@ -4179,7 +4350,7 @@ DIRETRIZES:
                                     </div>
 
                                     <!-- Lista de Manutenções do Dia -->
-                                    <div class="p-2 space-y-2 flex-1 overflow-y-auto max-h-[500px]">
+                                    <div class="p-2 space-y-2 flex-1 overflow-y-auto">
                                         ${dia.ordens.length === 0 ? `
                                             <div class="h-28 border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400 text-center p-2">
                                                 <i class="fa-regular fa-calendar-check text-slate-300 text-base mb-1"></i>
@@ -8291,6 +8462,53 @@ DIRETRIZES:
             const selectEquip = document.getElementById('agendar-equipamento-select');
             const inputTitulo = document.getElementById('agendar-titulo-input');
             const equip = selectEquip ? selectEquip.value : '';
+
+            // Atualiza o Card de Prévia Visual do Equipamento Selecionado
+            const previewContainer = document.getElementById('agendar-equipamento-preview');
+            if (previewContainer) {
+                const todasMaquinas = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+                const maq = todasMaquinas.find(m => m.codigo === equip || m.nome === equip) || { codigo: equip, nome: equip };
+
+                if (equip) {
+                    const isVeic = maq.categoria === 'veiculos' || maq.tipo === 'veiculo' || Boolean(maq.placa);
+                    const iconePadrao = isVeic ? 'fa-truck' : 'fa-truck-ramp-box';
+                    const leituraTxt = (maq.horimetro_atual || maq.horimetro) ? `${maq.horimetro_atual || maq.horimetro} h` : ((maq.km_atual || maq.km) ? `${maq.km_atual || maq.km} km` : 'Leitura atual padrão');
+
+                    const fotoHtml = maq.foto_url ? `
+                        <div class="w-14 h-14 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-2xs relative bg-slate-100">
+                            <img src="${escaparHTML(maq.foto_url)}" alt="${escaparHTML(maq.codigo || '')}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center bg-orange-100 text-orange-700 font-bold text-lg\\'><i class=\\'fa-solid ${iconePadrao}\\'></i></div>';">
+                        </div>
+                    ` : `
+                        <div class="w-14 h-14 rounded-xl bg-orange-500/10 text-orange-700 flex items-center justify-center text-xl shrink-0 border border-orange-200/60 font-bold">
+                            <i class="fa-solid ${iconePadrao}"></i>
+                        </div>
+                    `;
+
+                    previewContainer.innerHTML = `
+                        ${fotoHtml}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-mono-num font-black text-sm text-slate-900">${escaparHTML(maq.codigo || equip)}</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 border border-orange-200 uppercase font-mono-num">${escaparHTML(maq.unidade || 'MATRIZ')}</span>
+                                ${isVeic ? '<span class="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.2 rounded uppercase">Veículo</span>' : '<span class="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.2 rounded uppercase">Máquina</span>'}
+                            </div>
+                            <span class="text-xs text-slate-600 font-medium block truncate mt-0.5">${escaparHTML(maq.modelo || maq.nome || 'Equipamento Selecionado')}</span>
+                            <div class="flex items-center gap-1.5 text-[11px] text-slate-500 font-mono-num mt-1">
+                                <i class="fa-solid fa-gauge text-slate-400"></i>
+                                <span>Odômetro/Horímetro: <strong class="text-slate-700 font-bold">${leituraTxt}</strong></span>
+                            </div>
+                        </div>
+                    `;
+                    previewContainer.classList.remove('hidden');
+                } else {
+                    previewContainer.innerHTML = `
+                        <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-lg shrink-0 border border-slate-200">
+                            <i class="fa-solid fa-wrench"></i>
+                        </div>
+                        <div class="text-xs text-slate-500">Selecione uma máquina ou veículo na lista acima</div>
+                    `;
+                }
+            }
 
             if (selectTipo && selectTipo.value === 'troca_oleo') {
                 if (inputTitulo && (!inputTitulo.value || inputTitulo.value.startsWith('Troca de') || inputTitulo.value.includes('Óleo'))) {
