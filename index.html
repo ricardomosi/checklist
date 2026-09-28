@@ -4338,8 +4338,8 @@ DIRETRIZES:
                                         <div class="flex items-center justify-between text-[11px] mt-0.5">
                                             <span class="font-mono-num font-semibold text-slate-500">${dia.diaMes}</span>
                                             <div class="flex items-center gap-1">
-                                                ${dia.checklists.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-emerald-100 text-emerald-800 px-1 rounded" title="${dia.checklists.length} checklist(s)"><i class="fa-solid fa-check text-[8px]"></i> ${dia.checklists.length}</span>` : ''}
-                                                <span class="text-[9px] font-mono-num font-bold ${dia.ordens.length > 0 ? 'bg-orange-100 text-orange-800 border border-orange-200' : 'bg-slate-100 text-slate-600'} px-1.5 rounded">
+                                                ${dia.checklists.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-teal-100 text-teal-800 border border-teal-200 px-1 rounded flex items-center gap-0.5" title="${dia.checklists.length} checklist(s)"><i class="fa-solid fa-clipboard-check text-[8px] text-teal-600"></i> ${dia.checklists.length}</span>` : ''}
+                                                <span class="text-[9px] font-mono-num font-bold ${dia.ordens.length > 0 ? 'bg-orange-100 text-orange-800 border border-orange-200' : 'bg-slate-100 text-slate-600'} px-1.5 rounded flex items-center gap-0.5">
                                                     <i class="fa-solid fa-wrench text-[8px]"></i> ${dia.ordens.length}
                                                 </span>
                                             </div>
@@ -4431,6 +4431,7 @@ DIRETRIZES:
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2.5 text-xs">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-teal-400 border border-teal-500"></span> Checklist Realizada</span>
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Emergencial/Corretiva</span>
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Preventiva Agendada</span>
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Concluída</span>
@@ -4442,14 +4443,14 @@ DIRETRIZES:
                     <p class="calendar-hint filter-note">Deslize o calendário para consultar todos os dias.</p>
                     <div class="calendar-scroll" tabindex="0" role="region" aria-label="Calendário de manutenção">
                     <div class="calendar-grid-content">
-                    <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-600 uppercase mb-1">
+                    <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-600 uppercase mb-1 shrink-0">
                         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                     </div>
 
-                    <!-- GRID DOS DIAS DO MÊS (COMPACTO) -->
-                    <div class="grid grid-cols-7 gap-1">
+                    <!-- GRID DOS DIAS DO MÊS (EXPANDIDO PARA PREENCHER TODA A ALTURA) -->
+                    <div class="calendar-days-grid grid grid-cols-7 gap-1.5 flex-1">
                         ${Array.from({ length: primeiroDia }).map(() => `
-                            <div class="min-h-[76px] sm:min-h-[82px] bg-slate-50/40 rounded-lg border border-slate-200/60 p-1"></div>
+                            <div class="calendar-day-card bg-slate-50/40 rounded-lg border border-slate-200/50 p-1 opacity-50 pointer-events-none"></div>
                         `).join('')}
 
                         ${Array.from({ length: totalDiasMes }).map((_, i) => {
@@ -4461,25 +4462,61 @@ DIRETRIZES:
                             const checklistsDoDia = cacheGestor.checklists.filter(c => c.created_at && c.created_at.split('T')[0] === dataIso);
                             const isHoje = new Date().toISOString().split('T')[0] === dataIso;
 
+                            // Agrupar máquinas que realizaram checklist neste dia
+                            const maquinasChecklistMap = {};
+                            checklistsDoDia.forEach(chk => {
+                                const nome = getNomeOuPlacaChecklist(chk);
+                                if (!maquinasChecklistMap[nome]) {
+                                    maquinasChecklistMap[nome] = { nome: nome, qtd: 0, temProblema: false, id: chk.id };
+                                }
+                                maquinasChecklistMap[nome].qtd++;
+                                const defs = extrairDefeitosChecklist(chk);
+                                if (chk.tem_problema || defs.length > 0) {
+                                    maquinasChecklistMap[nome].temProblema = true;
+                                }
+                            });
+                            const maquinasChecklist = Object.values(maquinasChecklistMap);
+
                             return `
-                            <div onclick="abrirModalDetalhesDia('${dataIso}')" class="min-h-[76px] sm:min-h-[82px] bg-slate-50 border ${isHoje ? 'border-orange-500 ring-2 ring-orange-400/40 bg-orange-50/20' : 'border-slate-200'} rounded-lg p-1.5 flex flex-col justify-between hover:border-orange-500 hover:shadow-xs cursor-pointer transition" title="Clique para ver o que ocorreu e agendar manutenção">
-                                <div class="flex justify-between items-center mb-0.5">
+                            <div onclick="abrirModalDetalhesDia('${dataIso}')" class="calendar-day-card ${isHoje ? 'border-orange-500 ring-2 ring-orange-400/40 bg-orange-50/20' : 'border-slate-200'} rounded-lg p-1.5 flex flex-col justify-start hover:border-orange-500 hover:shadow-xs cursor-pointer transition" title="Clique para ver o que ocorreu e agendar manutenção">
+                                <div class="flex justify-between items-center mb-1 shrink-0">
                                     <span class="text-xs font-mono-num font-bold ${isHoje ? 'text-orange-700 font-black' : 'text-slate-700'}">${diaNum}</span>
                                     <div class="flex items-center gap-1">
-                                        ${checklistsDoDia.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-emerald-100 text-emerald-800 px-1 rounded" title="${checklistsDoDia.length} checklist(s)"><i class="fa-solid fa-check text-[8px]"></i> ${checklistsDoDia.length}</span>` : ''}
-                                        ${eventosDoDia.length > 0 ? `<span class="text-[9px] font-mono-num font-bold bg-orange-100 text-orange-800 px-1 rounded" title="${eventosDoDia.length} manutenção(ões)"><i class="fa-solid fa-wrench text-[8px]"></i> ${eventosDoDia.length}</span>` : ''}
+                                        ${checklistsDoDia.length > 0 ? `
+                                            <span class="text-[9px] font-mono-num font-bold bg-teal-100 text-teal-800 border border-teal-200 px-1.5 py-0.2 rounded flex items-center gap-1 shadow-2xs" title="${checklistsDoDia.length} checklist(s) realizada(s) neste dia">
+                                                <i class="fa-solid fa-clipboard-check text-teal-600 text-[8.5px]"></i>
+                                                <span>${checklistsDoDia.length}</span>
+                                            </span>` : ''}
+                                        ${eventosDoDia.length > 0 ? `
+                                            <span class="text-[9px] font-mono-num font-bold bg-orange-100 text-orange-800 border border-orange-200 px-1.5 py-0.2 rounded flex items-center gap-1 shadow-2xs" title="${eventosDoDia.length} manutenção(ões) agendada(s)">
+                                                <i class="fa-solid fa-wrench text-orange-700 text-[8.5px]"></i>
+                                                <span>${eventosDoDia.length}</span>
+                                            </span>` : ''}
                                     </div>
                                 </div>
 
-                                <div class="space-y-1 overflow-y-auto max-h-[50px] flex-1 pr-0.5">
+                                <div class="space-y-1 overflow-y-auto flex-1 pr-0.5 mt-0.5">
+                                    <!-- Chips de Máquinas com Checklist Realizada (cor específica Teal) -->
+                                    ${maquinasChecklist.map(maq => `
+                                        <div class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${maq.temProblema ? 'bg-teal-50 border-teal-300 text-teal-900 ring-1 ring-red-400/70' : 'bg-teal-100 border-teal-300 text-teal-900'} truncate flex items-center justify-between gap-1 shadow-2xs hover:bg-teal-200 transition" title="Checklist realizada: ${escaparHTML(maq.nome)} (${maq.qtd} inspeção${maq.qtd > 1 ? 'ões' : ''}${maq.temProblema ? ' - COM DEFEITO' : ''})">
+                                            <span class="truncate flex items-center gap-1">
+                                                <i class="fa-solid fa-clipboard-check text-teal-700 text-[8.5px] shrink-0"></i>
+                                                <span class="truncate">${escaparHTML(maq.nome)}</span>
+                                            </span>
+                                            ${maq.temProblema ? `<i class="fa-solid fa-triangle-exclamation text-red-600 text-[8px] shrink-0" title="Apontamento de defeito"></i>` : (maq.qtd > 1 ? `<span class="text-[8px] bg-teal-200 text-teal-800 px-1 rounded-full font-mono shrink-0">${maq.qtd}</span>` : '')}
+                                        </div>
+                                    `).join('')}
+
+                                    <!-- Chips de Ordens de Manutenção -->
                                     ${eventosDoDia.map(ev => {
                                         let corPill = 'bg-amber-100 text-amber-800 border-amber-300';
                                         if (ev.status === 'concluido') corPill = 'bg-emerald-100 text-emerald-800 border-emerald-300';
                                         else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-100 text-red-800 border-red-300';
 
                                         return `
-                                        <div class="text-[10px] font-mono-num font-bold p-0.5 px-1 rounded border ${corPill} truncate" title="${ev.maquina_nome}: ${ev.titulo}">
-                                            ${ev.maquina_nome}
+                                        <div class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${corPill} truncate flex items-center gap-1 shadow-2xs hover:opacity-90 transition" title="${escaparHTML(ev.maquina_nome)}: ${escaparHTML(ev.titulo)}">
+                                            <i class="fa-solid fa-wrench text-[8px] opacity-75 shrink-0"></i>
+                                            <span class="truncate">${escaparHTML(ev.maquina_nome)}</span>
                                         </div>`;
                                     }).join('')}
                                 </div>
