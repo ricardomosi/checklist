@@ -976,7 +976,7 @@
     </div>
 
     <!-- ==================== MODAL DE FORMULÁRIO DE OPERADOR ==================== -->
-    <div id="modal-form-operador" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4" onclick="fecharModalFormOperador()">
+    <div id="modal-form-operador" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white border border-slate-300 rounded-3xl w-full max-w-md p-6 shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
                 <div class="flex items-center gap-2.5">
@@ -1059,7 +1059,7 @@
     </div>
 
     <!-- ==================== MODAL DE FORMULÁRIO DE EQUIPAMENTO (MÁQUINA / VEÍCULO) ==================== -->
-    <div id="modal-form-equipamento" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4" onclick="fecharModalFormEquipamento()">
+    <div id="modal-form-equipamento" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white border border-slate-300 rounded-3xl w-full max-w-lg p-6 shadow-2xl text-slate-900 overflow-hidden max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
@@ -1119,6 +1119,7 @@
                         <select id="equip-form-unidade" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium">
                             <option value="FILIAL">FILIAL</option>
                             <option value="MATRIZ">MATRIZ</option>
+                            <option value="MACAE">MACAÉ</option>
                         </select>
                     </div>
                 </div>
@@ -1255,7 +1256,10 @@
             { id: '17', codigo: 'Hyundai 01', nome: 'Hyundai 01', modelo: 'Escavadeira de Esteira Hyundai', marca: 'Hyundai', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'hyundai', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' },
 
             // MOTOCANA
-            { id: '18', codigo: 'Motocana 01', nome: 'Motocana 01', modelo: 'Carregadeira / Garra Motocana', marca: 'Motocana', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'motocana', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' }
+            { id: '18', codigo: 'Motocana 01', nome: 'Motocana 01', modelo: 'Carregadeira / Garra Motocana', marca: 'Motocana', unidade: 'MATRIZ', categoria: 'maquinas', tipo: 'motocana', tipo_controle: 'horas', horimetro_atual: 0, status_operacional: 'operando' },
+
+            // MACAÉ - MÁQUINAS E VEÍCULOS
+            { id: '19', codigo: 'EMP-MC01', nome: 'EMP-MC01', modelo: 'Empilhadeira Macaé 01', unidade: 'MACAE', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 450, horimetro_ultima_preventiva: 250, intervalo_preventiva_horas: 250, status_operacional: 'operando' }
         ];
 
         const OPERADORES_POR_TIPO = {
@@ -1463,6 +1467,13 @@
                     listaOperadores = ops;
                     try { localStorage.setItem('jp_operadores_cache', JSON.stringify(ops)); } catch (_) {}
                 }
+
+                const { data: chks } = await db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(100);
+                if (chks && chks.length > 0) {
+                    cacheGestor.checklists = chks;
+                    try { localStorage.setItem('jp_checklists_cache', JSON.stringify(chks)); } catch (_) {}
+                }
+
                 atualizarSelectSOS();
                 document.getElementById('count-maquinas').innerText = frotaTotal.length;
             } catch (e) {
@@ -1660,6 +1671,11 @@
         function selectEmpilhadeira(maqNome, maqId, horimetroAtual) {
             formData.empilhadeira = maqNome;
             formData.maquina_id = maqId;
+            const lista = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+            const encontrada = lista.find(m => String(m.id) === String(maqId) || m.codigo === maqNome || m.nome === maqNome);
+            if (encontrada && encontrada.unidade) {
+                formData.unidade = encontrada.unidade;
+            }
             // Horímetro começa zerado para digitação, guardando a última leitura registrada
             formData.ultimo_horimetro = horimetroAtual || 0;
             formData.horimetro = '';
@@ -1889,7 +1905,7 @@
                         <div class="w-full flex flex-col h-full items-center justify-between">
                             <div class="w-full flex justify-between items-center mt-1 shrink-0 px-1">
                                 <span class="text-[10px] font-mono-num font-bold text-orange-700 uppercase tracking-widest bg-orange-100 px-2 py-0.5 rounded">ETAPA 3/5</span>
-                                <button onclick="speakText('Escolha se a máquina é da Filial ou da Matriz e toque nela.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
+                                <button onclick="speakText('Escolha a sede da máquina e toque nela.')" class="bg-orange-100 text-orange-700 w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:bg-orange-200">
                                     <i class="fa-solid fa-volume-high text-base"></i>
                                 </button>
                             </div>
@@ -1899,18 +1915,27 @@
                                 <p class="text-xs text-slate-600">Escolha a Unidade e toque na foto ou código</p>
                             </div>
 
-                            <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ -->
-                            <div class="w-full grid grid-cols-2 gap-2 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
-                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-building"></i> FILIAL (${todasFrotas.filter(m => m.unidade === 'FILIAL' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
+                            <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ vs MACAÉ -->
+                            <div class="w-full grid grid-cols-3 gap-1.5 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
+                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-building text-[10px]"></i> FILIAL (${todasFrotas.filter(m => (m.unidade || 'FILIAL') === 'FILIAL' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
                                 </button>
-                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-industry"></i> MATRIZ (${todasFrotas.filter(m => m.unidade === 'MATRIZ' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
+                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-industry text-[10px]"></i> MATRIZ (${todasFrotas.filter(m => m.unidade === 'MATRIZ' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
+                                </button>
+                                <button onclick="toggleUnidade('MACAE')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${formData.unidade === 'MACAE' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-location-dot text-[10px]"></i> MACAÉ (${todasFrotas.filter(m => m.unidade === 'MACAE' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
                                 </button>
                             </div>
 
                             <!-- LISTA DE EMPILHADEIRAS COM FOTOS GRANDES -->
                             <div class="flex flex-col gap-2.5 w-full flex-1 overflow-y-auto pr-0.5 py-1">
+                                ${maquinasDaUnidade.length === 0 ? `
+                                    <div class="py-10 text-center text-slate-500 text-xs my-auto">
+                                        <i class="fa-solid fa-circle-info text-3xl text-slate-400 mb-2 block"></i>
+                                        Nenhuma empilhadeira cadastrada na unidade <strong>${escaparHTML(formData.unidade)}</strong>.
+                                    </div>
+                                ` : ''}
                                 ${maquinasDaUnidade.map(maq => {
                                     const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
                                     const horimetroVal = maq.horimetro_atual || maq.horimetro || 0;
@@ -2159,6 +2184,7 @@
                 const nokSelected = val === 'NÃO CONFORME';
                 const itemObs = observacoesList.filter(o => o.itemId === item.id);
                 const showObsSection = nokSelected || itemObs.length > 0 || !!itemObsAberto[item.id];
+                const reincItem = obterReincidenciaItemPergunta(formData.empilhadeira, item.id, formData.maquinaId);
 
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col h-full justify-between">
@@ -2187,6 +2213,27 @@
                                 <h2 class="text-xl font-bold text-slate-900 leading-snug px-2">${item.title}</h2>
                                 <p class="text-xs text-slate-600 font-medium mt-0.5 px-3">${item.question}</p>
                             </div>
+
+                            <!-- ALERTA DE DEFEITO REINCIDENTE NA PERGUNTA -->
+                            ${reincItem && reincItem.total > 0 ? `
+                                <div class="w-full bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl p-3 mb-2.5 flex items-start gap-2.5 shadow-xs text-left animate-pulse">
+                                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0 text-base">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="text-[11px] font-black text-amber-900 uppercase tracking-wide">Defeito Anterior Não Corrigido</span>
+                                            <span class="px-2 py-0.2 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 font-mono-num">${reincItem.total}x apontado</span>
+                                        </div>
+                                        <p class="text-[11px] text-amber-900/90 font-medium mt-0.5 leading-snug">
+                                            Este item já foi reprovado <strong>${reincItem.total} vez(es)</strong> nos checklists anteriores de <strong>${formData.empilhadeira}</strong> (último em ${reincItem.dataUltima}${reincItem.operadorUltimo ? ` por ${reincItem.operadorUltimo}` : ''}).
+                                        </p>
+                                        <p class="text-[10px] text-amber-950 font-bold mt-1">
+                                            👉 Se a anomalia persistir, marque <strong>PROBLEMA</strong> para registrar a reincidência.
+                                        </p>
+                                    </div>
+                                </div>
+                            ` : ''}
                             
                             <!-- BOTÕES DE SELEÇÃO: TUDO CERTO / PROBLEMA -->
                             <div class="w-full flex flex-col gap-2.5 shrink-0 mb-3">
@@ -2219,6 +2266,12 @@
                                             <i class="fa-solid fa-chevron-up"></i>
                                         </button>
                                     </div>
+                                    ${nokSelected && reincItem && reincItem.total > 0 ? `
+                                        <div class="text-[11px] font-bold text-red-800 bg-red-100/90 border border-red-200 rounded-xl p-2 mb-2 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-triangle-exclamation text-red-600 shrink-0"></i>
+                                            <span>Defeito Reincidente (${reincItem.total}x reportado anteriormente): ficará sinalizado no histórico do equipamento como pendente.</span>
+                                        </div>
+                                    ` : ''}
 
                                     <!-- GRAVADOR DE VOZ PARA ESTA PERGUNTA -->
                                     <div class="w-full flex items-center gap-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm mb-2">
@@ -3032,6 +3085,12 @@ DIRETRIZES:
                 if (chkError) throw chkError;
                 const checklistId = chkData.id;
 
+                if (chkData) {
+                    if (!cacheGestor.checklists) cacheGestor.checklists = [];
+                    cacheGestor.checklists.unshift(chkData);
+                    try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 100))); } catch (_) {}
+                }
+
                 // 2. Atualizar Horímetro e status na máquina
                 if (formData.empilhadeira) {
                     await db
@@ -3073,23 +3132,7 @@ DIRETRIZES:
                         }]);
                 }
 
-                // 4. Se houver defeito, abrir O.S. no Kanban
-                if (temProblema) {
-                    await db
-                        .from('ordens_manutencao')
-                        .insert([{
-                            maquina_nome: formData.empilhadeira,
-                            tipo: 'corretiva',
-                            origem: 'checklist',
-                            checklist_id: checklistId,
-                            titulo: `Reparo indicado no checklist - ${formData.empilhadeira} (${formData.unidade})`,
-                            descricao: checklistPayload.resumo_ia,
-                            prioridade: 'alta',
-                            status: 'pendente',
-                            horimetro_na_os: horimetroNum,
-                            data_prevista: new Date().toISOString().split('T')[0]
-                        }]);
-                }
+                // Não gera O.S. automaticamente. O gestor tem controle total para abrir O.S. manualmente na aba de Checklists ou no Histórico.
 
                 // Tela de Conclusão com Sucesso & Retorno à tela inicial
                 appOperador.innerHTML = `
@@ -3346,7 +3389,12 @@ DIRETRIZES:
         // Cache de dados do gestor
         let cacheGestor = {
             maquinas: [],
-            checklists: [],
+            checklists: (() => {
+                try {
+                    const raw = localStorage.getItem('jp_checklists_cache');
+                    return raw ? JSON.parse(raw) : [];
+                } catch (_) { return []; }
+            })(),
             ordens: [],
             chamados: []
         };
@@ -3620,6 +3668,105 @@ DIRETRIZES:
             return defeitos;
         }
 
+        // ==================== CÁLCULO DE REINCIDÊNCIA DE DEFEITOS ====================
+        function obterReincidenciaItemPergunta(maquinaNome, itemId, maquinaCodigo = null) {
+            if (!itemId || !cacheGestor.checklists || cacheGestor.checklists.length === 0) return null;
+            const nomeNorm = String(maquinaNome || '').trim().toLowerCase();
+            const codNorm = String(maquinaCodigo || '').trim().toLowerCase();
+            if (!nomeNorm && !codNorm) return null;
+
+            const chks = cacheGestor.checklists.filter(c => {
+                const maq = String(c.empilhadeira || c.maquina_codigo || c.maquina_nome || '').trim().toLowerCase();
+                const mCod = String(c.maquina_codigo || '').trim().toLowerCase();
+                return (nomeNorm && (maq === nomeNorm || maq.includes(nomeNorm) || nomeNorm.includes(maq))) ||
+                       (codNorm && (maq === codNorm || mCod === codNorm || maq.includes(codNorm) || codNorm.includes(maq)));
+            }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            let totalOcorrencias = 0;
+            let ultimoChecklist = null;
+
+            chks.forEach(c => {
+                const defs = extrairDefeitosChecklist(c);
+                const achou = defs.some(d => d.chave === itemId || (d.rotulo && d.rotulo.toLowerCase() === itemId.toLowerCase()));
+                if (achou) {
+                    totalOcorrencias++;
+                    if (!ultimoChecklist) ultimoChecklist = c;
+                }
+            });
+
+            if (totalOcorrencias === 0) return null;
+            return {
+                total: totalOcorrencias,
+                dataUltima: ultimoChecklist && ultimoChecklist.created_at ? new Date(ultimoChecklist.created_at).toLocaleDateString('pt-BR') : 'recente',
+                operadorUltimo: ultimoChecklist ? ultimoChecklist.operador : ''
+            };
+        }
+
+        function calcularReincidenciasChecklist(chk) {
+            if (!chk || !cacheGestor.checklists) return [];
+            const defs = extrairDefeitosChecklist(chk);
+            if (defs.length === 0) return [];
+
+            const maqNome = String(chk.empilhadeira || chk.maquina_codigo || chk.maquina_nome || '').trim().toLowerCase();
+            const dtChk = new Date(chk.created_at || Date.now());
+
+            const chksMaq = cacheGestor.checklists.filter(c => {
+                const nome = String(c.empilhadeira || c.maquina_codigo || c.maquina_nome || '').trim().toLowerCase();
+                return (nome === maqNome || (maqNome && nome.includes(maqNome))) && new Date(c.created_at || 0) <= dtChk;
+            });
+
+            return defs.map(d => {
+                let count = 0;
+                chksMaq.forEach(c => {
+                    const defsC = extrairDefeitosChecklist(c);
+                    if (defsC.some(item => item.chave === d.chave || (item.rotulo && d.rotulo && item.rotulo.toLowerCase() === d.rotulo.toLowerCase()))) {
+                        count++;
+                    }
+                });
+                return {
+                    ...d,
+                    totalVezes: count,
+                    ehReincidente: count > 1
+                };
+            });
+        }
+
+        function obterDefeitosReincidentesEquipamento(m) {
+            if (!m || !cacheGestor.checklists) return [];
+            const cod = String(m.codigo || '').trim().toLowerCase();
+            const mod = String(m.modelo || m.nome || '').trim().toLowerCase();
+
+            const chks = cacheGestor.checklists.filter(c => {
+                const nome = String(c.empilhadeira || c.maquina_codigo || c.maquina_nome || '').trim().toLowerCase();
+                return nome === cod || nome === mod || (cod && nome.includes(cod));
+            }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            const contagemPorChave = {};
+
+            chks.forEach(c => {
+                const defs = extrairDefeitosChecklist(c);
+                defs.forEach(d => {
+                    const chave = d.chave || d.rotulo;
+                    if (!contagemPorChave[chave]) {
+                        contagemPorChave[chave] = {
+                            chave: d.chave,
+                            rotulo: d.rotulo || d.chave,
+                            totalVezes: 0,
+                            dataUltima: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : 'recente',
+                            operadorUltimo: c.operador || 'Operador',
+                            checklistsIds: []
+                        };
+                    }
+                    contagemPorChave[chave].totalVezes++;
+                    contagemPorChave[chave].checklistsIds.push(c.id);
+                });
+            });
+
+            return Object.values(contagemPorChave)
+                .filter(item => item.totalVezes > 1)
+                .sort((a, b) => b.totalVezes - a.totalVezes);
+        }
+
         // ==================== ABA 1: INDICADORES COM MULTI-FILTRO ====================
         function renderAbaDashboard(container) {
             const maquinasElegiveis = getMaquinasElegiveisIndicadores();
@@ -3644,8 +3791,9 @@ DIRETRIZES:
             const taxaConformidade = checklistsFiltrados.length > 0 ? Math.round(((checklistsFiltrados.length - totalComProblema) / checklistsFiltrados.length) * 100) : 100;
 
             // Subgrupos APENAS dentro dos elegíveis (obedecendo Categoria e Unidade)
-            const maquinasFilial = maquinasElegiveis.filter(m => m.unidade === 'FILIAL');
+            const maquinasFilial = maquinasElegiveis.filter(m => (m.unidade || 'FILIAL') === 'FILIAL');
             const maquinasMatriz = maquinasElegiveis.filter(m => m.unidade === 'MATRIZ');
+            const maquinasMacae = maquinasElegiveis.filter(m => m.unidade === 'MACAE');
 
             const totalSelecionadas = filtroIndicadores.maquinasSelecionadas === null ? maquinasElegiveis.length : maquinasFiltradas.length;
             const textoStatusSel = filtroIndicadores.maquinasSelecionadas === null
@@ -3682,6 +3830,7 @@ DIRETRIZES:
                                     <option value="todas" ${filtroIndicadores.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
                                     <option value="FILIAL" ${filtroIndicadores.unidade === 'FILIAL' ? 'selected' : ''}>Unidade FILIAL</option>
                                     <option value="MATRIZ" ${filtroIndicadores.unidade === 'MATRIZ' ? 'selected' : ''}>Unidade MATRIZ</option>
+                                    <option value="MACAE" ${filtroIndicadores.unidade === 'MACAE' ? 'selected' : ''}>Unidade MACAÉ</option>
                                 </select>
                             </div>
 
@@ -3774,6 +3923,31 @@ DIRETRIZES:
                                         </div>
                                         <div class="flex flex-wrap gap-1">
                                             ${maquinasMatriz.map(m => {
+                                                const isSel = isMaquinaSelecionada(m.codigo);
+                                                return `
+                                                <button type="button" onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-0.5 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'}">
+                                                    ${isSel ? '✓ ' : ''}${m.codigo}
+                                                </button>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Grupo MACAÉ (obedecendo filtros) -->
+                                ${maquinasMacae.length > 0 ? `
+                                    <div class="space-y-1 ${maquinasFilial.length > 0 || maquinasMatriz.length > 0 ? 'pt-2 border-t border-slate-200/60' : ''}">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono-num text-cyan-800 font-bold uppercase flex items-center gap-1.5">
+                                                <span class="w-2 h-2 rounded-full bg-cyan-600"></span> MACAÉ (${maquinasMacae.length}):
+                                            </span>
+                                            <div class="flex items-center gap-1.5 text-[10px]">
+                                                <button type="button" onclick="selecionarMaquinasUnidade('MACAE', true)" class="text-cyan-800 hover:underline font-bold">Marcar Macaé</button>
+                                                <span class="text-slate-300">|</span>
+                                                <button type="button" onclick="selecionarMaquinasUnidade('MACAE', false)" class="text-slate-500 hover:underline font-medium">Desmarcar</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${maquinasMacae.map(m => {
                                                 const isSel = isMaquinaSelecionada(m.codigo);
                                                 return `
                                                 <button type="button" onclick="toggleFiltroMaquinaMulti('${m.codigo}')" class="px-2 py-0.5 rounded text-[11px] font-mono-num font-bold border transition ${isSel ? 'bg-orange-600 border-orange-500 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'}">
@@ -4089,18 +4263,24 @@ DIRETRIZES:
                                 <option value="todas" ${filtroChecklist.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
                                 <option value="FILIAL" ${filtroChecklist.unidade === 'FILIAL' ? 'selected' : ''}>FILIAL</option>
                                 <option value="MATRIZ" ${filtroChecklist.unidade === 'MATRIZ' ? 'selected' : ''}>MATRIZ</option>
+                                <option value="MACAE" ${filtroChecklist.unidade === 'MACAE' ? 'selected' : ''}>MACAÉ</option>
                             </select>
 
                             <!-- Filtro Equipamento Específico -->
                             <select onchange="filtroChecklist.equipamento = this.value; renderizarAbaAtualGestor();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none max-w-[180px]">
                                 <option value="todos" ${filtroChecklist.equipamento === 'todos' ? 'selected' : ''}>Todos Equipamentos</option>
                                 <optgroup label="FILIAL">
-                                    ${frotaTotal.filter(m => m.unidade === 'FILIAL').map(m => `
+                                    ${frotaTotal.filter(m => (m.unidade || 'FILIAL') === 'FILIAL').map(m => `
                                         <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
                                     `).join('')}
                                 </optgroup>
                                 <optgroup label="MATRIZ">
                                     ${frotaTotal.filter(m => m.unidade === 'MATRIZ').map(m => `
+                                        <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
+                                    `).join('')}
+                                </optgroup>
+                                <optgroup label="MACAÉ">
+                                    ${frotaTotal.filter(m => m.unidade === 'MACAE').map(m => `
                                         <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
                                     `).join('')}
                                 </optgroup>
@@ -4180,7 +4360,7 @@ DIRETRIZES:
                                             </td>
                                             <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
                                             <td>
-                                                <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-800/50' : 'bg-orange-50 text-orange-700 border border-orange-800/50'}">
+                                                <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-800/50' : c.unidade === 'MACAE' ? 'bg-cyan-50 text-cyan-800 border border-cyan-700/50' : 'bg-orange-50 text-orange-700 border border-orange-800/50'}">
                                                     ${c.unidade || 'FILIAL'}
                                                 </span>
                                             </td>
@@ -4188,20 +4368,48 @@ DIRETRIZES:
                                             <td class="truncate max-w-[140px]" title="${c.operador}">${c.operador}</td>
                                             <td class="text-right font-mono-num font-bold text-slate-600">${c.horimetro} h</td>
                                             <td class="text-center">
-                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block ${c.tem_problema ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300'}">
-                                                    ${c.tem_problema ? 'COM DEFEITO' : 'CONFORME'}
-                                                </span>
+                                                ${(() => {
+                                                    const reincs = calcularReincidenciasChecklist(c).filter(d => d.ehReincidente);
+                                                    if (c.tem_problema && reincs.length > 0) {
+                                                        return `
+                                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-flex items-center gap-1 bg-red-100 text-red-800 border-red-300" title="${reincs.length} defeito(s) reincidente(s) não corrigido(s)">
+                                                                <span>COM DEFEITO</span>
+                                                                <span class="bg-red-600 text-white font-mono-num text-[9px] px-1 rounded-full font-black animate-pulse">
+                                                                    ${reincs.length}x ⚠️
+                                                                </span>
+                                                            </span>
+                                                        `;
+                                                    } else if (c.tem_problema) {
+                                                        return `
+                                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block bg-red-50 text-red-700 border-red-300">
+                                                                COM DEFEITO
+                                                            </span>
+                                                        `;
+                                                    } else {
+                                                        return `
+                                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block bg-emerald-50 text-emerald-700 border-emerald-300">
+                                                                CONFORME
+                                                            </span>
+                                                        `;
+                                                    }
+                                                })()}
                                             </td>
                                             <td class="text-xs text-slate-700">
-                                                ${defs.length > 0 ? `
-                                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200 inline-block max-w-[180px] truncate" title="${defs.join(', ')}">
-                                                        ${defs.join(', ')}
-                                                    </span>
-                                                ` : (c.tem_problema ? `
-                                                    <span class="text-[10px] font-semibold text-red-700">Apontamento em obs.</span>
-                                                ` : `
-                                                    <span class="text-[10px] font-medium text-emerald-700">— Nenhum (OK)</span>
-                                                `)}
+                                                ${(() => {
+                                                    const defsReinc = calcularReincidenciasChecklist(c);
+                                                    if (defsReinc.length > 0) {
+                                                        const txtLista = defsReinc.map(d => `${d.rotulo || d.chave}${d.ehReincidente ? ` [${d.totalVezes}x]` : ''}`).join(', ');
+                                                        return `
+                                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200 inline-block max-w-[200px] truncate" title="${txtLista}">
+                                                                ${txtLista}
+                                                            </span>
+                                                        `;
+                                                    } else if (c.tem_problema) {
+                                                        return `<span class="text-[10px] font-semibold text-red-700">Apontamento em obs.</span>`;
+                                                    } else {
+                                                        return `<span class="text-[10px] font-medium text-emerald-700">— Nenhum (OK)</span>`;
+                                                    }
+                                                })()}
                                             </td>
                                             <td class="text-xs text-slate-600 max-w-xs">
                                                 <span class="line-clamp-2" title="${c.observacao_texto || c.resumo_ia || '-'}">
@@ -4791,6 +4999,7 @@ DIRETRIZES:
                                 <option value="todas" ${filtroFrota.unidade === 'todas' ? 'selected' : ''}>Todas as Unidades</option>
                                 <option value="FILIAL" ${filtroFrota.unidade === 'FILIAL' ? 'selected' : ''}>FILIAL</option>
                                 <option value="MATRIZ" ${filtroFrota.unidade === 'MATRIZ' ? 'selected' : ''}>MATRIZ</option>
+                                <option value="MACAE" ${filtroFrota.unidade === 'MACAE' ? 'selected' : ''}>MACAÉ</option>
                             </select>
 
                             <!-- Busca por código ou placa -->
@@ -5095,6 +5304,19 @@ DIRETRIZES:
                 elFotoImg.classList.add('hidden');
                 elIcone.classList.remove('hidden');
             }
+
+            // Atualiza badge de alerta numerado de defeitos reincidentes na sub-aba Histórico
+            try {
+                const reincidentes = obterDefeitosReincidentesEquipamento(maq);
+                const btnHist = document.getElementById('subaba-btn-historico');
+                if (btnHist) {
+                    if (reincidentes && reincidentes.length > 0) {
+                        btnHist.innerHTML = `<i class="fa-solid fa-chart-line"></i> Histórico & KPIs Diretoria <span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-red-600 text-white animate-pulse shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> ${reincidentes.length}</span>`;
+                    } else {
+                        btnHist.innerHTML = `<i class="fa-solid fa-chart-line"></i> Histórico & KPIs Diretoria`;
+                    }
+                }
+            } catch (_) {}
         }
 
         // ==================== ABA HISTÓRICO & KPIS INDIVIDUAIS DO EQUIPAMENTO ====================
@@ -5406,6 +5628,7 @@ DIRETRIZES:
             const periodo = window.periodoHistoricoFiltro || '90d';
             const dados = coletarHistoricoEquipamento(m, periodo);
             const k = dados.kpis;
+            const reincidentes = obterDefeitosReincidentesEquipamento(m);
 
             const periodoLabels = {
                 '30d': 'Últimos 30 Dias',
@@ -5676,11 +5899,74 @@ DIRETRIZES:
                                     <div class="mt-1.5">
                                         <div class="text-xl sm:text-2xl font-black font-mono-num ${k.defeitosChecklistCount > 0 ? 'text-amber-600' : 'text-slate-900'}">${k.defeitosChecklistCount}</div>
                                         <div class="text-[10px] text-slate-500 mt-0.5">em ${k.totalChecklists} inspeções 5S</div>
+                                        ${reincidentes && reincidentes.length > 0 ? `
+                                            <div class="mt-1.5">
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black bg-red-100 text-red-700 border border-red-200 animate-pulse">
+                                                    <i class="fa-solid fa-triangle-exclamation"></i> ${reincidentes.length} ${reincidentes.length === 1 ? 'reincidente' : 'reincidentes'}
+                                                </span>
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- PAINEL DE ALERTAS VISUAIS NUMERADOS DE DEFEITOS REINCIDENTES -->
+                    ${reincidentes && reincidentes.length > 0 ? `
+                        <div class="bg-red-50/95 border-2 border-red-300 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center text-lg font-bold shadow-sm shrink-0 animate-bounce">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <h4 class="font-black text-sm text-red-950 uppercase tracking-wide">
+                                                Alertas de Defeitos Não Corrigidos (${reincidentes.length})
+                                            </h4>
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-600 text-white uppercase tracking-wider">
+                                                Reincidentes
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-red-800 font-medium mt-0.5">
+                                            Estes itens foram apontados como NÃO CONFORME em múltiplos checklists deste equipamento e ainda aguardam regularização mecânica.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" onclick="abrirAgendamentoParaDefeitosReincidentes('${escaparHTML(m.codigo)}')" class="btn-industrial bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-wrench"></i> Abrir O.S. Unificada (${reincidentes.length})
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Grid numerado visual de defeitos recorrentes -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
+                                ${reincidentes.map((def, idx) => `
+                                    <div class="bg-white p-3 rounded-xl border border-red-200 shadow-xs flex items-center justify-between gap-3 hover:border-red-300 transition">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-black text-xs font-mono-num shrink-0 shadow-xs">
+                                                #${idx + 1}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <h5 class="font-bold text-slate-900 text-xs truncate" title="${escaparHTML(def.rotulo)}">${escaparHTML(def.rotulo)}</h5>
+                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 shrink-0 font-mono-num">${def.totalVezes}x apontado</span>
+                                                </div>
+                                                <p class="text-[10px] text-slate-500 mt-0.5 truncate">
+                                                    Último registro: <strong>${def.dataUltima}</strong> ${def.operadorUltimo ? `• Op: ${escaparHTML(def.operadorUltimo)}` : ''}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button type="button" onclick="abrirAgendamentoParaDefeitoUnico('${escaparHTML(m.codigo)}', '${escaparHTML(def.rotulo)}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-900 text-[11px] font-bold border border-red-200 hover:border-red-300 transition shrink-0 flex items-center gap-1" title="Gerar O.S. para este defeito">
+                                            <i class="fa-solid fa-wrench text-red-600"></i> Gerar O.S.
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
 
                     <!-- Seção Gráfica: Linha do Tempo de Paradas & Intervalos Operados -->
                     <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
@@ -6552,8 +6838,9 @@ DIRETRIZES:
                                 <div>
                                     <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Unidade</label>
                                     <select id="dados-unidade" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-bold">
-                                        <option value="FILIAL" ${m.unidade === 'FILIAL' ? 'selected' : ''}>FILIAL</option>
+                                        <option value="FILIAL" ${(m.unidade || 'FILIAL') === 'FILIAL' ? 'selected' : ''}>FILIAL</option>
                                         <option value="MATRIZ" ${m.unidade === 'MATRIZ' ? 'selected' : ''}>MATRIZ</option>
+                                        <option value="MACAE" ${m.unidade === 'MACAE' ? 'selected' : ''}>MACAÉ</option>
                                     </select>
                                 </div>
                             </div>
@@ -8528,6 +8815,7 @@ DIRETRIZES:
                 
                 const maquinasFilial = listaMaquinas.filter(m => (m.unidade || 'FILIAL') === 'FILIAL' && (m.categoria !== 'veiculos' && !m.placa));
                 const maquinasMatriz = listaMaquinas.filter(m => m.unidade === 'MATRIZ' && (m.categoria !== 'veiculos' && !m.placa));
+                const maquinasMacae = listaMaquinas.filter(m => m.unidade === 'MACAE' && (m.categoria !== 'veiculos' && !m.placa));
                 const veiculosFrota = listaMaquinas.filter(m => m.categoria === 'veiculos' || m.placa);
                 
                 if (maquinasFilial.length > 0) {
@@ -8542,6 +8830,14 @@ DIRETRIZES:
                     optionsHtml += `<optgroup label="Matriz - Empilhadeiras & Máquinas">`;
                     maquinasMatriz.forEach(m => {
                         optionsHtml += `<option value="${escaparHTML(m.codigo)}">[MATRIZ] ${escaparHTML(m.codigo)} - ${escaparHTML(m.modelo || m.nome || '')}</option>`;
+                    });
+                    optionsHtml += `</optgroup>`;
+                }
+
+                if (maquinasMacae.length > 0) {
+                    optionsHtml += `<optgroup label="Macaé - Empilhadeiras & Máquinas">`;
+                    maquinasMacae.forEach(m => {
+                        optionsHtml += `<option value="${escaparHTML(m.codigo)}">[MACAÉ] ${escaparHTML(m.codigo)} - ${escaparHTML(m.modelo || m.nome || '')}</option>`;
                     });
                     optionsHtml += `</optgroup>`;
                 }
@@ -8625,6 +8921,7 @@ DIRETRIZES:
             if (modal) modal.classList.add('hidden');
             const inputOsId = document.getElementById('agendar-os-id');
             if (inputOsId) inputOsId.value = '';
+            window.agendarOrigemChecklistId = null;
         }
 
         function aoMudarTipoAgendarDia() {
@@ -8829,7 +9126,8 @@ DIRETRIZES:
                 const payload = {
                     maquina_nome: equipValor,
                     tipo: tipoBanco,
-                    origem: 'calendario_gestor',
+                    origem: window.agendarOrigemChecklistId ? 'checklist' : 'calendario_gestor',
+                    checklist_id: window.agendarOrigemChecklistId || null,
                     titulo: inputTitulo.value.trim(),
                     descricao: descFinal,
                     prioridade: selectPrioridade ? selectPrioridade.value : 'media',
@@ -8853,6 +9151,7 @@ DIRETRIZES:
                     }
 
                     alert(`Manutenção programada com sucesso para ${equipValor} no dia ${inputData.value}!${osIdentificador}`);
+                    window.agendarOrigemChecklistId = null;
                     fecharModalAgendarDia();
                     renderizarAbaAtualGestor();
 
@@ -9174,8 +9473,9 @@ DIRETRIZES:
             const modal = document.getElementById('modal-detalhes-checklist');
             if (!modal) return;
 
-            const defs = extrairDefeitosChecklist(c);
+            const defs = calcularReincidenciasChecklist(c);
             const temProblema = c.tem_problema || defs.length > 0;
+            const reincidentes = defs.filter(d => d.ehReincidente);
 
             const wrapIcon = document.getElementById('chk-modal-icon-wrap');
             const icon = document.getElementById('chk-modal-icon');
@@ -9191,7 +9491,10 @@ DIRETRIZES:
             document.getElementById('chk-modal-unidade').textContent = c.unidade || 'FILIAL';
 
             const badge = document.getElementById('chk-modal-status-badge');
-            if (temProblema) {
+            if (temProblema && reincidentes.length > 0) {
+                badge.innerHTML = `<span class="flex items-center gap-1">COM DEFEITO (${reincidentes.length} REINCIDENTE${reincidentes.length > 1 ? 'S' : ''})</span>`;
+                badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-red-600 text-white font-mono-num shadow-xs animate-pulse';
+            } else if (temProblema) {
                 badge.textContent = 'COM DEFEITO';
                 badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-red-100 text-red-800 font-mono-num';
             } else {
@@ -9207,16 +9510,36 @@ DIRETRIZES:
 
             if (defs.length > 0) {
                 corpoHtml += `
-                    <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 space-y-1.5">
-                        <h4 class="text-xs font-bold text-red-900 uppercase flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-exclamation text-red-600"></i> ${defs.length} Item(ns) com Não Conformidade Identificada:
-                        </h4>
-                        <div class="flex flex-wrap gap-1.5 pt-1">
-                            ${defs.map(d => `
-                                <span class="bg-red-200/80 text-red-900 text-xs font-bold px-2.5 py-1 rounded-md border border-red-300">
-                                    <i class="fa-solid fa-triangle-exclamation text-red-600 mr-1"></i>${escaparHTML(d.rotulo || d.chave || String(d))}
+                    <div class="space-y-2.5">
+                        ${reincidentes.length > 0 ? `
+                            <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-950 font-medium shadow-xs">
+                                <span class="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5 shadow-2xs">
+                                    !
                                 </span>
-                            `).join('')}
+                                <div>
+                                    <strong class="font-bold text-amber-900 block text-xs">⚠️ Atenção: Defeito(s) Reincidente(s) Detectado(s)!</strong>
+                                    <span class="text-[11px] text-amber-800">Esta máquina possui <strong>${reincidentes.length} item(ns)</strong> com defeito que já haviam sido reportados em checklists anteriores e ainda não foram corrigidos pela equipe de manutenção.</span>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 space-y-2">
+                            <h4 class="text-xs font-bold text-red-900 uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-exclamation text-red-600"></i> ${defs.length} Item(ns) com Não Conformidade Identificada:
+                            </h4>
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                ${defs.map(d => `
+                                    <span class="bg-red-100 text-red-900 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-red-300 inline-flex items-center gap-1.5 flex-wrap">
+                                        <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+                                        <span>${escaparHTML(d.rotulo || d.chave || String(d))}</span>
+                                        ${d.ehReincidente ? `
+                                            <span class="bg-red-600 text-white font-mono-num font-black text-[10px] px-1.5 py-0.5 rounded-full shadow-2xs animate-pulse" title="Apontado ${d.totalVezes} vezes nesta máquina">
+                                                <i class="fa-solid fa-repeat text-[8px]"></i> ${d.totalVezes}x não corrigido
+                                            </span>
+                                        ` : ''}
+                                    </span>
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -9249,7 +9572,8 @@ DIRETRIZES:
 
             itensExibicao.forEach(it => {
                 const valSalvo = c[it.id] || (c.respostas_customizadas && c.respostas_customizadas[it.id]);
-                const isDefeito = defs.some(d => d.chave === it.id || (d.rotulo && d.rotulo.toLowerCase() === it.title.toLowerCase())) ||
+                const defObj = defs.find(d => d.chave === it.id || (d.rotulo && d.rotulo.toLowerCase() === it.title.toLowerCase()));
+                const isDefeito = !!defObj ||
                                   (valSalvo && (String(valSalvo).toUpperCase().includes('NÃO') || String(valSalvo).toUpperCase().includes('NAO') || String(valSalvo).toUpperCase().includes('DEFEITO') || valSalvo === false));
 
                 corpoHtml += `
@@ -9258,8 +9582,11 @@ DIRETRIZES:
                             <span class="font-medium text-slate-800 block">${it.title}</span>
                             ${it.secao ? `<span class="text-[9px] text-slate-600 font-semibold uppercase">${it.secao}</span>` : ''}
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ml-2 ${isDefeito ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
-                            ${isDefeito ? '<i class="fa-solid fa-xmark mr-1"></i> NÃO CONFORME' : '<i class="fa-solid fa-check mr-1"></i> CONFORME'}
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ml-2 ${isDefeito ? 'bg-red-100 text-red-800 border border-red-300 flex items-center gap-1' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+                            ${isDefeito ? `
+                                <i class="fa-solid fa-xmark mr-1"></i> NÃO CONFORME
+                                ${defObj && defObj.ehReincidente ? `<span class="bg-red-600 text-white font-mono-num text-[9px] px-1 rounded-full font-black animate-pulse" title="${defObj.totalVezes} vezes apontado">${defObj.totalVezes}x</span>` : ''}
+                            ` : '<i class="fa-solid fa-check mr-1"></i> CONFORME'}
                         </span>
                     </div>
                 `;
@@ -9296,21 +9623,144 @@ DIRETRIZES:
             const ordemVinculada = cacheGestor.ordens.find(o => o.checklist_id === c.id);
             if (ordemVinculada) {
                 osLinkDiv.innerHTML = `
-                    <button onclick="fecharModalDetalhesChecklist(); abrirModalDetalhesOS('${ordemVinculada.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
-                        <i class="fa-solid fa-wrench"></i> Ver O.S. Gerada (#${ordemVinculada.numero_os || ordemVinculada.id.substring(0,6)})
-                    </button>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="fecharModalDetalhesChecklist(); abrirModalDetalhesOS('${ordemVinculada.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-wrench"></i> Ver O.S. Aberta (#${ordemVinculada.numero_os || String(ordemVinculada.id).substring(0,6)})
+                        </button>
+                        <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i> Abrir Outra O.S.
+                        </button>
+                    </div>
                 `;
             } else if (temProblema) {
                 osLinkDiv.innerHTML = `
-                    <button onclick="fecharModalDetalhesChecklist(); abrirAgendamentoParaDia('${c.created_at ? c.created_at.split('T')[0] : ''}')" class="text-xs text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-plus"></i> Abrir O.S. para esta Não Conformidade
+                    <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
+                        <span>Gerar Ordem de Serviço (O.S.)</span>
                     </button>
                 `;
             } else {
-                osLinkDiv.innerHTML = '';
+                osLinkDiv.innerHTML = `
+                    <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-plus"></i> Abrir O.S. Preventiva
+                    </button>
+                `;
             }
 
             modal.classList.remove('hidden');
+        }
+
+        // ==================== CRIAÇÃO DE O.S. MANUAL PELO GESTOR ====================
+        function abrirAgendamentoParaChecklist(chkId) {
+            const c = cacheGestor.checklists.find(item => item.id === chkId);
+            if (!c) {
+                alert("Checklist não encontrado.");
+                return;
+            }
+
+            fecharModalDetalhesChecklist();
+            window.agendarOrigemChecklistId = c.id;
+
+            const dataHoje = new Date().toISOString().split('T')[0];
+            abrirAgendamentoParaDia(dataHoje);
+
+            setTimeout(() => {
+                const selectEquip = document.getElementById('agendar-equipamento-select');
+                const selectTipo = document.getElementById('agendar-tipo-select');
+                const selectPrioridade = document.getElementById('agendar-prioridade-select');
+                const inputTitulo = document.getElementById('agendar-titulo-input');
+                const textareaObs = document.getElementById('agendar-obs-textarea');
+                const modalTitulo = document.getElementById('agendar-modal-titulo');
+                const modalSubtitulo = document.getElementById('agendar-modal-subtitulo');
+
+                const equipCod = c.empilhadeira || c.maquina_codigo || c.maquina_nome || '';
+                if (selectEquip && equipCod) selectEquip.value = equipCod;
+                if (selectTipo) selectTipo.value = 'corretiva';
+                if (selectPrioridade) selectPrioridade.value = 'alta';
+                if (modalTitulo) modalTitulo.textContent = 'Gerar O.S. a partir de Checklist';
+                if (modalSubtitulo) modalSubtitulo.textContent = `Vincular manutenção aos apontamentos de ${equipCod}`;
+                if (inputTitulo) inputTitulo.value = `Reparo de Defeito(s) - ${equipCod}`;
+
+                const defs = calcularReincidenciasChecklist(c);
+                let texto = `[APONTAMENTOS IDENTIFICADOS NO CHECKLIST]\n`;
+                if (defs.length > 0) {
+                    defs.forEach(d => {
+                        const reincTxt = d.ehReincidente ? ` (⚠️ REINCIDENTE: ${d.totalVezes}x apontado sem correção)` : '';
+                        texto += `• ${d.rotulo || d.chave}: Não Conforme${reincTxt}\n`;
+                    });
+                } else {
+                    texto += `• Apontamento de não conformidade reportado no checklist.\n`;
+                }
+                if (c.observacao_texto) {
+                    texto += `\n[RELATO DO OPERADOR]\n"${c.observacao_texto}"\n`;
+                }
+                if (c.operador) {
+                    texto += `\nOperador responsável: ${c.operador} • Data da Inspeção: ${c.created_at ? new Date(c.created_at).toLocaleString('pt-BR') : 'Hoje'}`;
+                }
+
+                if (textareaObs) textareaObs.value = texto;
+                aoMudarEquipamentoAgendarDia();
+            }, 60);
+        }
+
+        function abrirAgendamentoParaDefeitosReincidentes(codigo) {
+            const maq = (cacheGestor.maquinas || []).find(m => m.codigo === codigo) || (frotaTotal || []).find(m => m.codigo === codigo);
+            if (!maq) return;
+            const reincidentes = obterDefeitosReincidentesEquipamento(maq);
+            if (reincidentes.length === 0) {
+                alert("Nenhum defeito reincidente registrado para este equipamento.");
+                return;
+            }
+
+            fecharModalPerfil();
+            abrirAgendamentoParaDia(new Date().toISOString().split('T')[0]);
+
+            setTimeout(() => {
+                const selectEquip = document.getElementById('agendar-equipamento-select');
+                const selectTipo = document.getElementById('agendar-tipo-select');
+                const selectPrioridade = document.getElementById('agendar-prioridade-select');
+                const inputTitulo = document.getElementById('agendar-titulo-input');
+                const textareaObs = document.getElementById('agendar-obs-textarea');
+                const modalTitulo = document.getElementById('agendar-modal-titulo');
+                const modalSubtitulo = document.getElementById('agendar-modal-subtitulo');
+
+                if (selectEquip) selectEquip.value = codigo;
+                if (selectTipo) selectTipo.value = 'corretiva';
+                if (selectPrioridade) selectPrioridade.value = 'alta';
+                if (modalTitulo) modalTitulo.textContent = 'Gerar O.S. para Defeitos Reincidentes';
+                if (modalSubtitulo) modalSubtitulo.textContent = `Intervenção mecânica corretiva para ${codigo}`;
+                if (inputTitulo) inputTitulo.value = `Reparo de Defeitos Reincidentes - ${codigo}`;
+
+                let textoObs = `[DEFEITOS REINCIDENTES PENDENTES DE CORREÇÃO]\n`;
+                reincidentes.forEach((r, idx) => {
+                    textoObs += `${idx + 1}. ${r.rotulo}: apontado ${r.totalVezes} vezes (Última ocorrência em ${r.dataUltima} por ${r.operadorUltimo})\n`;
+                });
+                textoObs += `\nSolicita-se intervenção mecânica para solução definitiva destas anomalias reincidentes.`;
+
+                if (textareaObs) textareaObs.value = textoObs;
+                aoMudarEquipamentoAgendarDia();
+            }, 60);
+        }
+
+        function abrirAgendamentoParaDefeitoUnico(codigo, nomeDefeito) {
+            fecharModalPerfil();
+            abrirAgendamentoParaDia(new Date().toISOString().split('T')[0]);
+
+            setTimeout(() => {
+                const selectEquip = document.getElementById('agendar-equipamento-select');
+                const selectTipo = document.getElementById('agendar-tipo-select');
+                const selectPrioridade = document.getElementById('agendar-prioridade-select');
+                const inputTitulo = document.getElementById('agendar-titulo-input');
+                const textareaObs = document.getElementById('agendar-obs-textarea');
+
+                if (selectEquip) selectEquip.value = codigo;
+                if (selectTipo) selectTipo.value = 'corretiva';
+                if (selectPrioridade) selectPrioridade.value = 'alta';
+                if (inputTitulo) inputTitulo.value = `Reparo Corretivo: ${nomeDefeito} - ${codigo}`;
+                if (textareaObs) textareaObs.value = `[DEFEITO REINCIDENTE]\nItem com defeito: ${nomeDefeito}\nEquipamento: ${codigo}\nProblema apontado repetidamente em checklists operacionais e ainda não solucionado.`;
+
+                aoMudarEquipamentoAgendarDia();
+            }, 60);
         }
 
         function fecharModalDetalhesChecklist() {
