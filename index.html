@@ -521,13 +521,16 @@
                     </select>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="imprimirOSAtual()" class="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm">
+                    <button onclick="imprimirOSAtual()" class="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer">
                         <i class="fa-solid fa-print"></i> Imprimir O.S.
                     </button>
-                    <button onclick="fecharModalDetalhesOS(); if (osAtivaInspecionada) abrirAgendamentoParaDia(null, osAtivaInspecionada.id);" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm" title="Editar máquina, data, status ou detalhes">
+                    <button onclick="fecharModalDetalhesOS(); if (osAtivaInspecionada) abrirAgendamentoParaDia(null, osAtivaInspecionada.id);" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer" title="Editar máquina, data, status ou detalhes">
                         <i class="fa-solid fa-pen-to-square text-orange-600"></i> Editar O.S.
                     </button>
-                    <button onclick="fecharModalDetalhesOS()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
+                    <button type="button" onclick="confirmarExclusaoOSModal()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 hover:border-red-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer" title="Excluir permanentemente esta Ordem de Serviço">
+                        <i class="fa-solid fa-trash-can"></i> Excluir O.S.
+                    </button>
+                    <button onclick="fecharModalDetalhesOS()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition cursor-pointer">
                         Fechar
                     </button>
                 </div>
@@ -599,11 +602,16 @@
             </div>
 
             <!-- Rodapé -->
-            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-between items-center gap-2 shrink-0">
-                <div id="chk-modal-os-link">
-                    <!-- Link para O.S. se houver -->
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div id="chk-modal-os-link">
+                        <!-- Link para O.S. se houver -->
+                    </div>
+                    <button type="button" onclick="confirmarExclusaoChecklistModal()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 hover:border-red-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer" title="Excluir este checklist permanentemente">
+                        <i class="fa-solid fa-trash-can"></i> Excluir Checklist
+                    </button>
                 </div>
-                <button onclick="fecharModalDetalhesChecklist()" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition">
+                <button onclick="fecharModalDetalhesChecklist()" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition cursor-pointer">
                     Fechar
                 </button>
             </div>
@@ -3970,8 +3978,10 @@ DIRETRIZES:
         }
 
         // ==================== ABA 2: CHECKLISTS COMPACTO (VISUAL DE PLANILHA) ====================
-        function renderAbaChecklists(container) {
-            let filtrados = cacheGestor.checklists.filter(c => {
+        let checklistsSelecionados = new Set();
+
+        function obterChecklistsFiltrados() {
+            return cacheGestor.checklists.filter(c => {
                 if (filtroChecklist.unidade !== 'todas' && (c.unidade || 'FILIAL') !== filtroChecklist.unidade) return false;
                 if (filtroChecklist.equipamento !== 'todos' && c.empilhadeira !== filtroChecklist.equipamento) return false;
                 if (filtroChecklist.status === 'ok' && c.tem_problema) return false;
@@ -3985,6 +3995,89 @@ DIRETRIZES:
                 }
                 return true;
             });
+        }
+
+        function toggleItemChecklist(id, checked) {
+            if (checked) checklistsSelecionados.add(id);
+            else checklistsSelecionados.delete(id);
+            renderizarAbaAtualGestor();
+        }
+
+        function toggleSelecionarTodosChecklists(checked) {
+            const filtrados = obterChecklistsFiltrados();
+            if (checked) {
+                filtrados.forEach(c => checklistsSelecionados.add(c.id));
+            } else {
+                filtrados.forEach(c => checklistsSelecionados.delete(c.id));
+            }
+            renderizarAbaAtualGestor();
+        }
+
+        function desmarcarTodosChecklists() {
+            checklistsSelecionados.clear();
+            renderizarAbaAtualGestor();
+        }
+
+        async function confirmarExcluirChecklistsEmLote() {
+            const ids = Array.from(checklistsSelecionados);
+            if (ids.length === 0) return;
+            if (!confirm(`Deseja realmente excluir permanentemente os ${ids.length} checklists selecionados? Esta ação não pode ser desfeita.`)) return;
+            await excluirChecklists(ids);
+        }
+
+        async function confirmarExcluirChecklist(chkId, descricao = '', dataIsoDia = null) {
+            if (!chkId) return;
+            const msg = descricao ? `Deseja realmente excluir permanentemente o checklist de "${descricao}"?` : `Deseja realmente excluir este checklist?`;
+            if (!confirm(msg + " Esta ação não pode ser desfeita.")) return;
+            await excluirChecklists([chkId], dataIsoDia);
+        }
+
+        async function excluirChecklists(ids, dataIsoDia = null) {
+            if (!ids || ids.length === 0) return;
+            try {
+                if (db) {
+                    // Desvincular de ordens de manutenção
+                    await db.from('ordens_manutencao').update({ checklist_id: null }).in('checklist_id', ids);
+                    // Excluir observações vinculadas
+                    await db.from('checklist_observacoes').delete().in('checklist_id', ids);
+                    // Excluir checklists
+                    const { error } = await db.from('checklists').delete().in('id', ids);
+                    if (error) throw error;
+                }
+
+                const idsSet = new Set(ids);
+                cacheGestor.checklists = cacheGestor.checklists.filter(c => !idsSet.has(c.id));
+                cacheGestor.ordens.forEach(o => {
+                    if (idsSet.has(o.checklist_id)) o.checklist_id = null;
+                });
+
+                // Limpar do conjunto de selecionados
+                ids.forEach(id => checklistsSelecionados.delete(id));
+
+                // Atualizar contador de checklists na interface
+                const elCountChk = document.getElementById('count-checklists');
+                if (elCountChk) elCountChk.innerText = cacheGestor.checklists.length;
+
+                // Se o modal do dia estava aberto, atualizar ele
+                if (dataIsoDia || diaAtivoInspecionado) {
+                    const dataAlvo = dataIsoDia || diaAtivoInspecionado;
+                    const modalDia = document.getElementById('modal-detalhes-dia');
+                    if (modalDia && !modalDia.classList.contains('hidden')) {
+                        abrirModalDetalhesDia(dataAlvo);
+                    }
+                }
+
+                renderizarAbaAtualGestor();
+                alert(`${ids.length === 1 ? 'Checklist excluído' : `${ids.length} checklists excluídos`} com sucesso.`);
+            } catch (err) {
+                console.error("Erro ao excluir checklist:", err);
+                alert("Erro ao excluir checklist: " + (err.message || "Tente novamente."));
+            }
+        }
+
+        function renderAbaChecklists(container) {
+            const filtrados = obterChecklistsFiltrados();
+            const todosSelecionados = filtrados.length > 0 && filtrados.every(c => checklistsSelecionados.has(c.id));
 
             container.innerHTML = `
                 <div class="space-y-3">
@@ -4032,12 +4125,33 @@ DIRETRIZES:
                         </div>
                     </div>
 
+                    <!-- BARRA DE AÇÃO EM LOTE (QUANDO HOUVER SELECIONADOS) -->
+                    ${checklistsSelecionados.size > 0 ? `
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-2.5 px-4 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+                            <div class="flex items-center gap-2 text-xs font-bold text-red-900">
+                                <i class="fa-solid fa-check-double text-red-600"></i>
+                                <span>${checklistsSelecionados.size} checklist(s) selecionada(s) para exclusão</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="desmarcarTodosChecklists()" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition cursor-pointer">
+                                    Desmarcar todos
+                                </button>
+                                <button type="button" onclick="confirmarExcluirChecklistsEmLote()" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-trash-can"></i> Excluir Selecionadas (${checklistsSelecionados.size})
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+
                     <!-- TABELA COMPACTA ESTILO PLANILHA (DENSIDADE ALTA) -->
                     <div class="bg-white border border-slate-200 rounded-xl shadow-md overflow-hidden">
                         <div class="overflow-x-auto max-h-[72vh]">
                             <table class="w-full text-left data-table-compact">
                                 <thead class="sticky top-0 z-10">
                                     <tr>
+                                        <th class="w-10 text-center">
+                                            <input type="checkbox" id="chk-select-all" ${todosSelecionados ? 'checked' : ''} onchange="toggleSelecionarTodosChecklists(this.checked)" class="w-3.5 h-3.5 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer" title="Selecionar todos os checklists visíveis">
+                                        </th>
                                         <th class="w-28">Data / Hora</th>
                                         <th class="w-20">Unidade</th>
                                         <th class="w-28">Equipamento</th>
@@ -4047,6 +4161,7 @@ DIRETRIZES:
                                         <th class="w-44">Defeito Identificado</th>
                                         <th>Observações & Transcrição</th>
                                         <th class="w-32">Áudio</th>
+                                        <th class="w-14 text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200/60 text-slate-700">
@@ -4056,9 +4171,13 @@ DIRETRIZES:
                                         const audios = c.checklist_observacoes || [];
                                         const primeiroAudio = audios.find(a => a.audio_url);
                                         const defs = extrairDefeitosChecklist(c);
+                                        const isSel = checklistsSelecionados.has(c.id);
 
                                         return `
-                                        <tr onclick="abrirModalDetalhesChecklist('${c.id}')" class="cursor-pointer hover:bg-orange-50/50 transition" title="Clique para ver os detalhes completos deste checklist">
+                                        <tr onclick="abrirModalDetalhesChecklist('${c.id}')" class="cursor-pointer hover:bg-orange-50/50 transition ${isSel ? 'bg-orange-50/40' : ''}" title="Clique para ver os detalhes completos deste checklist">
+                                            <td class="text-center" onclick="event.stopPropagation()">
+                                                <input type="checkbox" class="chk-item-select w-3.5 h-3.5 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer" value="${c.id}" ${isSel ? 'checked' : ''} onchange="toggleItemChecklist('${c.id}', this.checked)">
+                                            </td>
                                             <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
                                             <td>
                                                 <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-800/50' : 'bg-orange-50 text-orange-700 border border-orange-800/50'}">
@@ -4094,10 +4213,15 @@ DIRETRIZES:
                                                     <audio controls src="${primeiroAudio.audio_url}" class="h-6 w-28"></audio>
                                                 ` : '<span class="text-[10px] text-slate-600">-</span>'}
                                             </td>
+                                            <td class="text-center" onclick="event.stopPropagation()">
+                                                <button type="button" onclick="confirmarExcluirChecklist('${c.id}', '${escaparHTML(c.empilhadeira)} - ${escaparHTML(c.operador)}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer mx-auto" title="Excluir este checklist">
+                                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                                </button>
+                                            </td>
                                         </tr>`;
                                     }).join('') : `
                                         <tr>
-                                            <td colspan="9" class="p-8 text-center text-slate-600 text-xs italic">
+                                            <td colspan="11" class="p-8 text-center text-slate-600 text-xs italic">
                                                 Nenhum checklist localizado com os filtros selecionados.
                                             </td>
                                         </tr>
@@ -4199,7 +4323,12 @@ DIRETRIZES:
                                             <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${item.prioridade === 'urgente' ? 'bg-red-500/20 text-red-700' : 'bg-orange-500/20 text-orange-700'}">
                                                 ${item.prioridade}
                                             </span>
-                                            <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || (item.id ? String(item.id).substring(0, 5) : '—')}</span>
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${item.numero_os || (item.id ? String(item.id).substring(0, 5) : '—')}</span>
+                                                <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${item.id}', '${escaparHTML(item.titulo || item.maquina_nome)}')" class="w-5 h-5 rounded hover:bg-red-100 text-slate-400 hover:text-red-600 flex items-center justify-center transition cursor-pointer" title="Excluir O.S.">
+                                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <h5 class="text-xs font-bold text-slate-900 mb-0.5 leading-snug">${item.titulo}</h5>
@@ -4372,9 +4501,14 @@ DIRETRIZES:
                                                 </div>
                                                 <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-[10px] text-slate-500">
                                                     <span class="truncate max-w-[85px]"><i class="fa-solid fa-user-gear mr-1 text-slate-400"></i>${escaparHTML(ev.responsavel_mecanico || 'Mecânica')}</span>
-                                                    <button type="button" onclick="event.stopPropagation(); abrirAgendamentoParaDia('${dia.dataIso}', '${ev.id}')" class="px-1.5 py-0.5 bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 font-bold rounded border border-slate-200 hover:border-orange-300 transition" title="Editar máquina, data ou detalhes">
-                                                        <i class="fa-solid fa-pen-to-square text-orange-600"></i> Editar
-                                                    </button>
+                                                    <div class="flex items-center gap-1">
+                                                        <button type="button" onclick="event.stopPropagation(); abrirAgendamentoParaDia('${dia.dataIso}', '${ev.id}')" class="px-1.5 py-0.5 bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 font-bold rounded border border-slate-200 hover:border-orange-300 transition cursor-pointer" title="Editar máquina, data ou detalhes">
+                                                            <i class="fa-solid fa-pen-to-square text-orange-600"></i> Editar
+                                                        </button>
+                                                        <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ev.id}', '${escaparHTML(ev.titulo || ev.maquina_nome)}')" class="px-1.5 py-0.5 bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-red-700 font-bold rounded border border-slate-200 hover:border-red-300 transition cursor-pointer" title="Excluir O.S.">
+                                                            <i class="fa-solid fa-trash-can text-red-600 text-[9px]"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>`;
                                         }).join('')}
@@ -4486,12 +4620,19 @@ DIRETRIZES:
                                 <div class="space-y-1 overflow-y-auto flex-1 pr-0.5 mt-0.5">
                                     <!-- Chips de Máquinas com Checklist Realizada (cor específica Teal) -->
                                     ${maquinasChecklist.map(maq => `
-                                        <div class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${maq.temProblema ? 'bg-teal-50 border-teal-300 text-teal-900 ring-1 ring-red-400/70' : 'bg-teal-100 border-teal-300 text-teal-900'} truncate flex items-center justify-between gap-1 shadow-2xs hover:bg-teal-200 transition" title="Checklist realizada: ${escaparHTML(maq.nome)} (${maq.qtd} inspeção${maq.qtd > 1 ? 'ões' : ''}${maq.temProblema ? ' - COM DEFEITO' : ''})">
+                                        <div onclick="event.stopPropagation(); abrirModalDetalhesChecklist('${maq.id}')" class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${maq.temProblema ? 'bg-teal-50 border-teal-300 text-teal-900 ring-1 ring-red-400/70' : 'bg-teal-100 border-teal-300 text-teal-900'} truncate flex items-center justify-between gap-1 shadow-2xs hover:bg-teal-200 transition cursor-pointer" title="Checklist realizada: ${escaparHTML(maq.nome)} (${maq.qtd} inspeção${maq.qtd > 1 ? 'ões' : ''}${maq.temProblema ? ' - COM DEFEITO' : ''}) - Clique para ver detalhes">
                                             <span class="truncate flex items-center gap-1">
                                                 <i class="fa-solid fa-clipboard-check text-teal-700 text-[8.5px] shrink-0"></i>
                                                 <span class="truncate">${escaparHTML(maq.nome)}</span>
                                             </span>
-                                            ${maq.temProblema ? `<i class="fa-solid fa-triangle-exclamation text-red-600 text-[8px] shrink-0" title="Apontamento de defeito"></i>` : (maq.qtd > 1 ? `<span class="text-[8px] bg-teal-200 text-teal-800 px-1 rounded-full font-mono shrink-0">${maq.qtd}</span>` : '')}
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                ${maq.temProblema ? `<i class="fa-solid fa-triangle-exclamation text-red-600 text-[8px]" title="Apontamento de defeito"></i>` : (maq.qtd > 1 ? `<span class="text-[8px] bg-teal-200 text-teal-800 px-1 rounded-full font-mono">${maq.qtd}</span>` : '')}
+                                                ${maq.qtd === 1 ? `
+                                                    <button type="button" onclick="event.stopPropagation(); confirmarExcluirChecklist('${maq.id}', '${escaparHTML(maq.nome)}')" class="text-slate-500 hover:text-red-700 p-0.5 rounded transition shrink-0 opacity-70 hover:opacity-100 cursor-pointer" title="Excluir este checklist">
+                                                        <i class="fa-solid fa-trash-can text-[8px]"></i>
+                                                    </button>
+                                                ` : ''}
+                                            </div>
                                         </div>
                                     `).join('')}
 
@@ -4502,9 +4643,14 @@ DIRETRIZES:
                                         else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-100 text-red-800 border-red-300';
 
                                         return `
-                                        <div class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${corPill} truncate flex items-center gap-1 shadow-2xs hover:opacity-90 transition" title="${escaparHTML(ev.maquina_nome)}: ${escaparHTML(ev.titulo)}">
-                                            <i class="fa-solid fa-wrench text-[8px] opacity-75 shrink-0"></i>
-                                            <span class="truncate">${escaparHTML(ev.maquina_nome)}</span>
+                                        <div onclick="event.stopPropagation(); abrirModalDetalhesOS('${ev.id}')" class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${corPill} truncate flex items-center justify-between gap-1 shadow-2xs hover:opacity-90 transition cursor-pointer" title="${escaparHTML(ev.maquina_nome)}: ${escaparHTML(ev.titulo)} - Clique para ver ou excluir">
+                                            <span class="truncate flex items-center gap-1">
+                                                <i class="fa-solid fa-wrench text-[8px] opacity-75 shrink-0"></i>
+                                                <span class="truncate">${escaparHTML(ev.maquina_nome)}</span>
+                                            </span>
+                                            <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ev.id}', '${escaparHTML(ev.titulo || ev.maquina_nome)}')" class="text-slate-500 hover:text-red-700 p-0.5 rounded transition shrink-0 opacity-70 hover:opacity-100 cursor-pointer" title="Excluir O.S.">
+                                                <i class="fa-solid fa-trash-can text-[8px]"></i>
+                                            </button>
                                         </div>`;
                                     }).join('')}
                                 </div>
@@ -8226,7 +8372,12 @@ DIRETRIZES:
                                 <div class="text-right shrink-0">
                                     <span class="text-[10px] font-mono-num text-slate-400">O.S. #${escaparHTML(ordem.numero_os || ordem.id.substring(0,6))}</span>
                                     ${dtHora ? `<p class="text-[10px] text-slate-400 font-mono">${dtHora}</p>` : ''}
-                                    <span class="text-[11px] font-bold text-orange-600 block mt-2 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                    <div class="flex items-center gap-1.5 mt-2 justify-end">
+                                        <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ordem.id}', '${escaparHTML(ordem.titulo || ordem.maquina_nome)}', '${dataIso}')" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded text-[10px] transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Excluir O.S.">
+                                            <i class="fa-solid fa-trash-can text-[9px]"></i> Excluir
+                                        </button>
+                                        <span class="text-[11px] font-bold text-orange-600 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -8287,7 +8438,12 @@ DIRETRIZES:
                                 </div>
                                 <div class="text-right shrink-0">
                                     <span class="text-[10px] font-mono-num text-slate-500 font-bold">${dtHora}</span>
-                                    <span class="text-[11px] font-bold text-emerald-600 block mt-2 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                    <div class="flex items-center gap-1.5 mt-2 justify-end">
+                                        <button type="button" onclick="event.stopPropagation(); confirmarExcluirChecklist('${chk.id}', '${escaparHTML(chk.empilhadeira)} - ${escaparHTML(chk.operador)}', '${dataIso}')" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded text-[10px] transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Excluir este checklist">
+                                            <i class="fa-solid fa-trash-can text-[9px]"></i> Excluir
+                                        </button>
+                                        <span class="text-[11px] font-bold text-emerald-600 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -8710,24 +8866,46 @@ DIRETRIZES:
             }
         }
 
-        async function excluirOSAgendada() {
-            const osId = document.getElementById('agendar-os-id')?.value;
+        async function confirmarExcluirOS(osId, descricao = '', dataIsoDia = null) {
             if (!osId) return;
-            if (!confirm("Deseja realmente cancelar e excluir esta ordem de manutenção?")) return;
+            const msg = descricao ? `Deseja realmente excluir a ordem de manutenção "${descricao}"?` : `Deseja realmente excluir esta ordem de manutenção?`;
+            if (!confirm(msg + " Esta ação não pode ser desfeita.")) return;
+            await executarExclusaoOS(osId, dataIsoDia);
+        }
 
+        async function executarExclusaoOS(osId, dataIsoDia = null) {
+            if (!osId) return;
             try {
                 if (db) {
                     const { error } = await db.from('ordens_manutencao').delete().eq('id', osId);
                     if (error) throw error;
                 }
                 cacheGestor.ordens = cacheGestor.ordens.filter(o => String(o.id) !== String(osId));
-                alert("Ordem de manutenção excluída com sucesso.");
-                fecharModalAgendarDia();
+                const elCount = document.getElementById('count-os');
+                if (elCount) elCount.innerText = cacheGestor.ordens.filter(o => o.status !== 'concluido').length;
+
+                if (dataIsoDia || diaAtivoInspecionado) {
+                    const dataAlvo = dataIsoDia || diaAtivoInspecionado;
+                    const modalDia = document.getElementById('modal-detalhes-dia');
+                    if (modalDia && !modalDia.classList.contains('hidden')) {
+                        abrirModalDetalhesDia(dataAlvo);
+                    }
+                }
+
                 renderizarAbaAtualGestor();
-            } catch(err) {
+                alert("Ordem de manutenção excluída com sucesso.");
+            } catch (err) {
                 console.error("Erro ao excluir OS:", err);
                 alert("Erro ao excluir OS: " + (err.message || "Tente novamente."));
             }
+        }
+
+        async function excluirOSAgendada() {
+            const osId = document.getElementById('agendar-os-id')?.value;
+            if (!osId) return;
+            if (!confirm("Deseja realmente cancelar e excluir esta ordem de manutenção?")) return;
+            fecharModalAgendarDia();
+            await executarExclusaoOS(osId);
         }
 
         // ==================== MODAL DE DETALHES DA O.S. ====================
@@ -8820,6 +8998,18 @@ DIRETRIZES:
             const modal = document.getElementById('modal-detalhes-os');
             if (modal) modal.classList.add('hidden');
             osAtivaInspecionada = null;
+        }
+
+        async function confirmarExclusaoOSModal() {
+            if (!osAtivaInspecionada) return;
+            const ordem = osAtivaInspecionada;
+            const numOs = ordem.numero_os || (ordem.id ? ordem.id.substring(0, 6) : '');
+            const titulo = ordem.titulo || ordem.maquina_nome || 'Ordem de Serviço';
+            if (!confirm(`Deseja realmente excluir a O.S. #${numOs} ("${titulo}")? Esta ação não pode ser desfeita.`)) return;
+
+            const osId = ordem.id;
+            fecharModalDetalhesOS();
+            await executarExclusaoOS(osId);
         }
 
         async function atualizarStatusOSModal(novoStatus) {
@@ -8971,12 +9161,15 @@ DIRETRIZES:
             { key: 'garfos_torre', rotulo: 'Garfos e Torre de Elevação' }
         ];
 
+        let chkAtivoInspecionado = null;
+
         function abrirModalDetalhesChecklist(chkId) {
             const c = cacheGestor.checklists.find(item => item.id === chkId);
             if (!c) {
                 alert("Checklist não encontrado.");
                 return;
             }
+            chkAtivoInspecionado = c;
 
             const modal = document.getElementById('modal-detalhes-checklist');
             if (!modal) return;
@@ -9123,6 +9316,20 @@ DIRETRIZES:
         function fecharModalDetalhesChecklist() {
             const modal = document.getElementById('modal-detalhes-checklist');
             if (modal) modal.classList.add('hidden');
+            chkAtivoInspecionado = null;
+        }
+
+        async function confirmarExclusaoChecklistModal() {
+            if (!chkAtivoInspecionado) return;
+            const c = chkAtivoInspecionado;
+            const equip = getNomeOuPlacaChecklist(c);
+            const op = c.operador || 'Operador';
+            const dt = c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '';
+            if (!confirm(`Deseja realmente excluir permanentemente o checklist de "${equip}" (Operador: ${op} • Data: ${dt})? Esta ação não pode ser desfeita.`)) return;
+
+            const chkId = c.id;
+            fecharModalDetalhesChecklist();
+            await excluirChecklists([chkId]);
         }
 
         // ==================== SOS MODAL ====================
