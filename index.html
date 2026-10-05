@@ -188,6 +188,12 @@
                 <span id="status-text" class="text-slate-600 text-[11px]">Online</span>
             </div>
 
+            <!-- Botão Consultar Checklists Feitas -->
+            <button id="btn-consultar-checklists-operador" type="button" onclick="abrirModalConsultaChecklistsOperador()" class="bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer" title="Consultar Checklists Realizadas e Relatórios">
+                <i class="fa-solid fa-clipboard-check text-teal-600"></i>
+                <span class="hidden md:inline">Checklists Feitas</span>
+            </button>
+
             <!-- Botão Baixar / Instalar App (PWA) -->
             <button id="btn-instalar-app" type="button" onclick="acionarInstalacaoPWA()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 hover:text-amber-800 border border-amber-500/30 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95" title="Baixar / Instalar Aplicativo de Checklist">
                 <i class="fa-solid fa-cloud-arrow-down text-orange-600"></i>
@@ -240,19 +246,19 @@
             
             <nav class="manager-nav" aria-label="Áreas de gestão">
                 <button onclick="mudarAbaGestor('kanban')" id="tab-btn-kanban" class="tab-gestor-btn bg-orange-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2 transition" title="Manutenções">
-                    <i class="fa-solid fa-calendar-days shrink-0"></i> <span class="sidebar-text">Manutenções</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-os">0</span>)</span>
+                    <i class="fa-solid fa-calendar-days shrink-0"></i> <span class="sidebar-text">Manutenções</span> <span class="sidebar-count text-[11px] font-mono-num"><span class="count-paren hidden sm:inline">(</span><span id="count-os">0</span><span class="count-paren hidden sm:inline">)</span></span>
                 </button>
                 <button onclick="mudarAbaGestor('chamados')" id="tab-btn-chamados" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Chamados SOS">
-                    <i class="fa-solid fa-bell text-red-700 shrink-0"></i> <span class="sidebar-text">SOS</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-sos">0</span>)</span>
+                    <i class="fa-solid fa-bell text-red-700 shrink-0"></i> <span class="sidebar-text">SOS</span> <span class="sidebar-count text-[11px] font-mono-num"><span class="count-paren hidden sm:inline">(</span><span id="count-sos">0</span><span class="count-paren hidden sm:inline">)</span></span>
                 </button>
                 <button onclick="mudarAbaGestor('dashboard')" id="tab-btn-dashboard" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Indicadores">
                     <i class="fa-solid fa-chart-pie shrink-0"></i> <span class="sidebar-text">Indicadores</span>
                 </button>
                 <button onclick="mudarAbaGestor('checklists')" id="tab-btn-checklists" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Checklists Realizados">
-                    <i class="fa-solid fa-table-list shrink-0"></i> <span class="sidebar-text">Checklists</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-checklists">0</span>)</span>
+                    <i class="fa-solid fa-table-list shrink-0"></i> <span class="sidebar-text">Checklists</span> <span class="sidebar-count text-[11px] font-mono-num"><span class="count-paren hidden sm:inline">(</span><span id="count-checklists">0</span><span class="count-paren hidden sm:inline">)</span></span>
                 </button>
                 <button onclick="mudarAbaGestor('maquinas')" id="tab-btn-maquinas" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Frotas de Máquinas e Veículos">
-                    <i class="fa-solid fa-truck-ramp-box shrink-0"></i> <span class="sidebar-text">Frotas</span> <span class="sidebar-count text-[11px] font-mono-num">(<span id="count-maquinas">0</span>)</span>
+                    <i class="fa-solid fa-truck-ramp-box shrink-0"></i> <span class="sidebar-text">Frotas</span> <span class="sidebar-count text-[11px] font-mono-num"><span class="count-paren hidden sm:inline">(</span><span id="count-maquinas">0</span><span class="count-paren hidden sm:inline">)</span></span>
                 </button>
                 <button onclick="mudarAbaGestor('configuracoes')" id="tab-btn-configuracoes" class="tab-gestor-btn bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-2" title="Configurações do Sistema">
                     <i class="fa-solid fa-gear text-orange-600 shrink-0"></i> <span class="sidebar-text">Configurações</span>
@@ -573,6 +579,77 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL DE CONSULTA PÚBLICA DE CHECKLISTS (ACESSO OPERADOR & RELATÓRIOS) ==================== -->
+    <div id="modal-consulta-checklists-operador" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Cabeçalho -->
+            <div class="p-3.5 sm:p-4 px-4 sm:px-6 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-800 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900">Checklists Realizadas</h3>
+                        <p class="text-xs text-slate-500 font-medium">Consulte inspeções 5S e baixe relatórios com histórico do equipamento</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalConsultaChecklistsOperador()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition cursor-pointer" title="Fechar consulta">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Barra de Filtros e Busca (Semelhante à Gestão de Checklists) -->
+            <div class="p-3 sm:p-3.5 border-b border-slate-200 bg-white shrink-0">
+                <div class="flex flex-wrap gap-2 items-center justify-between">
+                    <div class="flex flex-wrap gap-2 items-center flex-1 min-w-[280px]">
+                        <!-- Filtro Unidade -->
+                        <select id="op-chk-filtro-unidade" onchange="filtroChecklistOperador.unidade = this.value; renderListaChecklistsOperador();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none cursor-pointer">
+                            <option value="todas">Todas as Unidades</option>
+                            <option value="FILIAL">FILIAL</option>
+                            <option value="MATRIZ">MATRIZ</option>
+                            <option value="MACAE">MACAÉ</option>
+                        </select>
+
+                        <!-- Filtro Equipamento -->
+                        <select id="op-chk-filtro-equipamento" onchange="filtroChecklistOperador.equipamento = this.value; renderListaChecklistsOperador();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none max-w-[170px] cursor-pointer">
+                            <option value="todos">Todos Equipamentos</option>
+                        </select>
+
+                        <!-- Filtro Status 5S -->
+                        <select id="op-chk-filtro-status" onchange="filtroChecklistOperador.status = this.value; renderListaChecklistsOperador();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none cursor-pointer">
+                            <option value="todos">Todos os Status</option>
+                            <option value="ok">100% Conforme</option>
+                            <option value="nok">Com Apontamento</option>
+                        </select>
+
+                        <!-- Busca Textual -->
+                        <div class="relative flex-1 min-w-[180px]">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-xs text-slate-400"></i>
+                            <input type="text" id="op-chk-filtro-busca" placeholder="Operador, equipamento ou defeito..." oninput="filtroChecklistOperador.busca = this.value; renderListaChecklistsOperador();" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg pl-7 p-1.5 focus:outline-none focus:border-teal-500">
+                        </div>
+                    </div>
+
+                    <div id="op-chk-contagem" class="text-[11px] text-slate-600 font-mono-num font-bold shrink-0">
+                        Exibindo 0 registros
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista / Tabela de Checklists Feitas -->
+            <div id="op-chk-conteudo" class="p-3 sm:p-4 overflow-y-auto flex-1 bg-slate-50">
+                <!-- Preenchido via JavaScript -->
+            </div>
+
+            <!-- Rodapé -->
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
+                <span class="text-[11px] text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-lock text-slate-400"></i> Modo Consulta Leitura • Sem permissão de alteração ou exclusão</span>
+                <button type="button" onclick="fecharModalConsultaChecklistsOperador()" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition cursor-pointer">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== MODAL DE DETALHES COMPLETOS DO CHECKLIST ==================== -->
     <div id="modal-detalhes-checklist" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
@@ -607,7 +684,7 @@
                     <div id="chk-modal-os-link">
                         <!-- Link para O.S. se houver -->
                     </div>
-                    <button type="button" onclick="confirmarExclusaoChecklistModal()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 hover:border-red-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer" title="Excluir este checklist permanentemente">
+                    <button type="button" id="chk-modal-btn-excluir" onclick="confirmarExclusaoChecklistModal()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 hover:border-red-300 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer" title="Excluir este checklist permanentemente">
                         <i class="fa-solid fa-trash-can"></i> Excluir Checklist
                     </button>
                 </div>
@@ -1775,6 +1852,13 @@
                                     </div>
                                 </div>
                                 <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                            </button>
+                        </div>
+
+                        <!-- Atalho Operacional: Consultar Checklists Feitas & Relatórios -->
+                        <div class="w-full max-w-sm px-1 my-1 shrink-0">
+                            <button type="button" onclick="abrirModalConsultaChecklistsOperador()" class="w-full btn-industrial bg-white hover:bg-teal-50 text-slate-800 hover:text-teal-900 border-2 border-slate-200 hover:border-teal-500 rounded-xl py-2.5 px-3 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer">
+                                <i class="fa-solid fa-clipboard-check text-teal-600"></i> Consultar Checklists Feitas & Relatórios
                             </button>
                         </div>
 
@@ -4442,10 +4526,494 @@ DIRETRIZES:
             `;
         }
 
+        // ==================== CONSULTA PÚBLICA DE CHECKLISTS FEITAS (MODO LEITURA / RELATÓRIOS) ====================
+        let filtroChecklistOperador = {
+            unidade: 'todas',
+            equipamento: 'todos',
+            status: 'todos',
+            busca: ''
+        };
+
+        async function abrirModalConsultaChecklistsOperador() {
+            const modal = document.getElementById('modal-consulta-checklists-operador');
+            if (!modal) return;
+
+            // Popular o select de equipamentos se ainda não foi preenchido
+            const selectEquip = document.getElementById('op-chk-filtro-equipamento');
+            if (selectEquip && selectEquip.options.length <= 1) {
+                const listaFrota = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : frotaTotal;
+                const unidades = ['FILIAL', 'MATRIZ', 'MACAE'];
+                unidades.forEach(u => {
+                    const maqsUnidade = listaFrota.filter(m => (m.unidade || 'FILIAL') === u);
+                    if (maqsUnidade.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = u;
+                        maqsUnidade.forEach(m => {
+                            const opt = document.createElement('option');
+                            opt.value = m.codigo;
+                            opt.textContent = m.codigo;
+                            optgroup.appendChild(opt);
+                        });
+                        selectEquip.appendChild(optgroup);
+                    }
+                });
+            }
+
+            modal.classList.remove('hidden');
+
+            if (!dadosGestorCarregados) {
+                const conteudo = document.getElementById('op-chk-conteudo');
+                if (conteudo) conteudo.innerHTML = '<div class="py-12 text-center text-teal-800 text-sm font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando checklists realizadas em tempo real...</div>';
+                await carregarDadosGestor();
+            }
+
+            renderListaChecklistsOperador();
+        }
+
+        function fecharModalConsultaChecklistsOperador() {
+            const modal = document.getElementById('modal-consulta-checklists-operador');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function obterChecklistsFiltradosOperador() {
+            return (cacheGestor.checklists || []).filter(c => {
+                if (filtroChecklistOperador.unidade !== 'todas' && (c.unidade || 'FILIAL') !== filtroChecklistOperador.unidade) return false;
+                if (filtroChecklistOperador.equipamento !== 'todos' && c.empilhadeira !== filtroChecklistOperador.equipamento && c.maquina_id !== filtroChecklistOperador.equipamento) return false;
+                
+                const defs = extrairDefeitosChecklist(c);
+                const temProblema = c.tem_problema || defs.length > 0;
+                if (filtroChecklistOperador.status === 'ok' && temProblema) return false;
+                if (filtroChecklistOperador.status === 'nok' && !temProblema) return false;
+
+                if (filtroChecklistOperador.busca) {
+                    const termo = normalizarBusca(filtroChecklistOperador.busca);
+                    const equip = normalizarBusca(c.empilhadeira || c.maquina_nome || '');
+                    const op = normalizarBusca(c.operador || '');
+                    const obs = normalizarBusca(c.observacao_texto || c.resumo_ia || '');
+                    const defsTxt = normalizarBusca(defs.map(d => d.rotulo || d.chave || '').join(' '));
+                    if (!equip.includes(termo) && !op.includes(termo) && !obs.includes(termo) && !defsTxt.includes(termo)) return false;
+                }
+                return true;
+            }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        }
+
+        function renderListaChecklistsOperador() {
+            const container = document.getElementById('op-chk-conteudo');
+            const contagemEl = document.getElementById('op-chk-contagem');
+            if (!container) return;
+
+            const filtrados = obterChecklistsFiltradosOperador();
+            if (contagemEl) {
+                contagemEl.textContent = `Exibindo ${filtrados.length} registro${filtrados.length === 1 ? '' : 's'}`;
+            }
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-slate-500 bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+                        <i class="fa-solid fa-clipboard-question text-3xl text-slate-300 mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-700">Nenhum checklist localizado com os filtros selecionados.</p>
+                        <p class="text-xs text-slate-400 mt-1">Tente ajustar a unidade, o equipamento ou o termo de busca.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <!-- VISÃO MOBILE: CARDS RESPONSIVOS ELEVADOS -->
+                <div class="space-y-2.5 sm:hidden">
+                    ${filtrados.map(c => {
+                        const dt = new Date(c.created_at);
+                        const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                        const defs = extrairDefeitosChecklist(c);
+                        const reincs = calcularReincidenciasChecklist(c).filter(d => d.ehReincidente);
+                        const temProblema = c.tem_problema || defs.length > 0;
+                        const equipNome = getNomeOuPlacaChecklist(c);
+
+                        return `
+                        <div class="bg-white border ${temProblema ? 'border-red-200' : 'border-slate-200'} rounded-xl p-3 shadow-xs space-y-2">
+                            <div class="flex items-center justify-between gap-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono-num font-bold text-xs text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">${escaparHTML(equipNome)}</span>
+                                    <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-300' : c.unidade === 'MACAE' ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
+                                        ${c.unidade || 'FILIAL'}
+                                    </span>
+                                </div>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${temProblema ? 'bg-red-50 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}">
+                                    ${temProblema ? (reincs.length > 0 ? `DEFEITO (${reincs.length}x ⚠️)` : 'COM DEFEITO') : 'CONFORME'}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs text-slate-600">
+                                <span><i class="fa-solid fa-user text-slate-400 mr-1 text-[11px]"></i>${escaparHTML(c.operador || 'Não informado')}</span>
+                                <span class="font-mono-num font-semibold text-slate-500">${c.horimetro ? c.horimetro + ' h' : '—'}</span>
+                            </div>
+
+                            <div class="text-[11px] text-slate-500 font-mono-num flex items-center justify-between pt-1 border-t border-slate-100">
+                                <span><i class="fa-regular fa-clock mr-1 text-[10px]"></i>${dataFmt}</span>
+                                ${c.observacao_texto ? '<span class="text-[10px] text-amber-700 font-semibold truncate max-w-[140px]" title="' + escaparHTML(c.observacao_texto) + '"><i class="fa-regular fa-comment mr-1"></i>Obs. inclusa</span>' : ''}
+                            </div>
+
+                            <div class="flex items-center gap-2 pt-1 border-t border-slate-100">
+                                <button type="button" onclick="abrirModalDetalhesChecklist('${c.id}', true)" class="flex-1 py-2 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-eye text-slate-600"></i> Ver Detalhes
+                                </button>
+                                <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="flex-1 py-2 px-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition text-center flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-file-pdf"></i> Baixar Relatório
+                                </button>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+
+                <!-- VISÃO DESKTOP / TABLET: TABELA DENSIDADE ALTA -->
+                <div class="hidden sm:block bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+                    <div class="overflow-x-auto max-h-[64vh]">
+                        <table class="w-full text-left data-table-compact">
+                            <thead class="sticky top-0 z-10 bg-slate-100">
+                                <tr>
+                                    <th class="w-28">Data / Hora</th>
+                                    <th class="w-20">Unidade</th>
+                                    <th class="w-28">Equipamento</th>
+                                    <th class="w-36">Operador</th>
+                                    <th class="w-20 text-right">Horímetro</th>
+                                    <th class="w-28 text-center">Status 5S</th>
+                                    <th class="w-44">Defeito Identificado</th>
+                                    <th>Observações</th>
+                                    <th class="w-36 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-slate-700">
+                                ${filtrados.map(c => {
+                                    const dt = new Date(c.created_at);
+                                    const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                                    const defs = extrairDefeitosChecklist(c);
+                                    const reincs = calcularReincidenciasChecklist(c).filter(d => d.ehReincidente);
+                                    const temProblema = c.tem_problema || defs.length > 0;
+                                    const equipNome = getNomeOuPlacaChecklist(c);
+
+                                    return `
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
+                                        <td>
+                                            <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-300' : c.unidade === 'MACAE' ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
+                                                ${c.unidade || 'FILIAL'}
+                                            </span>
+                                        </td>
+                                        <td class="font-mono-num font-bold text-slate-900 whitespace-nowrap">${escaparHTML(equipNome)}</td>
+                                        <td class="truncate max-w-[130px]" title="${escaparHTML(c.operador)}">${escaparHTML(c.operador)}</td>
+                                        <td class="text-right font-mono-num font-bold text-slate-600">${c.horimetro || '—'} h</td>
+                                        <td class="text-center">
+                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block ${temProblema ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300'}">
+                                                ${temProblema ? (reincs.length > 0 ? `COM DEFEITO (${reincs.length}x ⚠️)` : 'COM DEFEITO') : 'CONFORME'}
+                                            </span>
+                                        </td>
+                                        <td class="text-xs text-slate-700">
+                                            ${defs.length > 0 ? `
+                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200 inline-block max-w-[180px] truncate" title="${defs.map(d => d.rotulo || d.chave).join(', ')}">
+                                                    ${defs.map(d => d.rotulo || d.chave).join(', ')}
+                                                </span>
+                                            ` : '<span class="text-[10px] font-medium text-emerald-700">— Nenhum (OK)</span>'}
+                                        </td>
+                                        <td class="text-xs text-slate-600 max-w-xs truncate" title="${escaparHTML(c.observacao_texto || c.resumo_ia || '-')}">
+                                            ${escaparHTML(c.observacao_texto || c.resumo_ia || '-')}
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <button type="button" onclick="abrirModalDetalhesChecklist('${c.id}', true)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg border border-slate-300 transition cursor-pointer" title="Ver detalhes completos desta checklist">
+                                                    <i class="fa-solid fa-eye text-slate-600"></i>
+                                                </button>
+                                                <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition shadow-2xs flex items-center gap-1 cursor-pointer" title="Baixar relatório individual com histórico da máquina em PDF">
+                                                    <i class="fa-solid fa-file-pdf"></i> PDF
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function coletarDefeitosHistoricosEquipamento(m) {
+            if (!m || !cacheGestor.checklists) return [];
+            const cod = String(m.codigo || '').trim().toLowerCase();
+            const mod = String(m.modelo || m.nome || '').trim().toLowerCase();
+
+            const chks = cacheGestor.checklists.filter(c => {
+                const nome = String(c.empilhadeira || c.maquina_codigo || c.maquina_nome || '').trim().toLowerCase();
+                return nome === cod || nome === mod || (cod && nome.includes(cod));
+            }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            const contagemPorChave = {};
+
+            chks.forEach(c => {
+                const defs = extrairDefeitosChecklist(c);
+                defs.forEach(d => {
+                    const chave = d.chave || d.rotulo;
+                    if (!contagemPorChave[chave]) {
+                        contagemPorChave[chave] = {
+                            chave: d.chave,
+                            rotulo: d.rotulo || d.chave,
+                            totalVezes: 0,
+                            dataUltima: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : 'recente',
+                            operadorUltimo: c.operador || 'Operador'
+                        };
+                    }
+                    contagemPorChave[chave].totalVezes++;
+                });
+            });
+
+            return Object.values(contagemPorChave).sort((a, b) => b.totalVezes - a.totalVezes);
+        }
+
+        function imprimirRelatorioChecklistComHistorico(chkId) {
+            const c = cacheGestor.checklists.find(item => item.id === chkId);
+            if (!c) {
+                alert("Checklist não encontrado.");
+                return;
+            }
+
+            const cod = c.empilhadeira || c.maquina_id;
+            const m = (cacheGestor.maquinas || frotaTotal || []).find(maq => maq.codigo === cod || maq.id === c.maquina_id) || {
+                codigo: cod || 'EQUIPAMENTO',
+                modelo: cod || 'Equipamento',
+                unidade: c.unidade || 'FILIAL',
+                horimetro_atual: c.horimetro || 0
+            };
+
+            const dados = coletarHistoricoEquipamento(m, 'tudo');
+            const k = dados.kpis || {};
+            const paradas = dados.paradas || [];
+            const defs = calcularReincidenciasChecklist(c);
+            const temProblema = c.tem_problema || defs.length > 0;
+
+            let itensExibicao = checklistItemsEmpilhadeira;
+            let nomeChecklist = 'Checklist 5S Industrial (16 Itens)';
+            if (c.tipo_maquina === 'doosan' || c.tipo_checklist === 'doosan' || (c.empilhadeira && c.empilhadeira.toLowerCase().includes('doosan'))) {
+                itensExibicao = checklistItemsDoosan;
+                nomeChecklist = 'Checklist Escavadeira DOOSAN';
+            } else if (c.tipo_maquina === 'hyundai' || c.tipo_checklist === 'hyundai' || (c.empilhadeira && c.empilhadeira.toLowerCase().includes('hyundai'))) {
+                itensExibicao = checklistItemsHyundai;
+                nomeChecklist = 'Checklist Escavadeira HYUNDAI';
+            }
+
+            const dataInspecaoFmt = c.created_at ? new Date(c.created_at).toLocaleString('pt-BR') : '—';
+            const dataEmissao = new Date().toLocaleString('pt-BR');
+
+            const area = document.getElementById('area-impressao-requisicao');
+            if (!area) return;
+
+            area.innerHTML = `
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #111; width: 100%; max-width: 860px; margin: 0 auto; line-height: 1.35; padding: 12px;">
+                    <!-- Cabeçalho Institucional -->
+                    <div class="print-card-block" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" style="height: 38px; filter: invert(1);">
+                            <div>
+                                <h1 style="margin: 0; font-size: 18px; font-weight: 900; text-transform: uppercase;">J. PATRÍCIO METAIS</h1>
+                                <p style="margin: 2px 0 0 0; font-size: 10px; color: #333; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Laudo de Checklist 5S & Histórico de Confiabilidade da Máquina</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="display: inline-block; background: ${temProblema ? '#b91c1c' : '#047857'}; color: #fff; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">
+                                ${temProblema ? 'LAUDO COM NÃO CONFORMIDADE' : 'LAUDO 100% CONFORME'}
+                            </span>
+                            <div style="font-size: 10px; color: #333; margin-top: 3px;">Emissão: <strong>${dataEmissao}</strong></div>
+                            <div style="font-size: 10px; color: #555;">Unidade: <strong>${escaparHTML(c.unidade || m.unidade || 'FILIAL')}</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 1 (FOCO): Ficha do Checklist Inspecionado -->
+                    <div class="print-card-block" style="border: 2px solid #000; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: #fafafa; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #a84613; margin-bottom: 6px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+                            📋 1. DADOS DA INSPEÇÃO SELECIONADA
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 11px;">
+                            <div>
+                                <span style="font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase; display: block;">Equipamento Inspecionado</span>
+                                <strong style="font-size: 15px; color: #000;">${escaparHTML(m.codigo)}</strong>
+                                <div style="font-size: 9px; color: #555;">${escaparHTML(m.modelo || m.nome || '')}</div>
+                            </div>
+                            <div>
+                                <span style="font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase; display: block;">Operador Responsável</span>
+                                <strong style="font-size: 13px; color: #111;">${escaparHTML(c.operador || 'Não informado')}</strong>
+                            </div>
+                            <div>
+                                <span style="font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase; display: block;">Data / Hora da Inspeção</span>
+                                <strong style="font-size: 12px; color: #111;">${dataInspecaoFmt}</strong>
+                            </div>
+                            <div>
+                                <span style="font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase; display: block;">Horímetro na Inspeção</span>
+                                <strong style="font-size: 14px; color: #a84613;">${c.horimetro ? c.horimetro + ' h' : '—'}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 2 (FOCO): Avaliação dos Itens Inspecionados -->
+                    <div class="print-card-block" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: #fff; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; display: flex; justify-content: space-between;">
+                            <span>🔍 2. ITENS DE SEGURANÇA E CONFORMIDADE AVALIADOS (${nomeChecklist})</span>
+                            <span style="font-size: 10px; font-weight: bold; color: ${temProblema ? '#b91c1c' : '#047857'};">
+                                ${temProblema ? `${defs.length} NÃO CONFORMIDADE(S)` : 'TODOS CONFORMES'}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10px;">
+                            ${itensExibicao.map(it => {
+                                const valSalvo = c[it.id] || (c.respostas_customizadas && c.respostas_customizadas[it.id]);
+                                const defObj = defs.find(d => d.chave === it.id || (d.rotulo && d.rotulo.toLowerCase() === it.title.toLowerCase()));
+                                const isDefeito = !!defObj || (valSalvo && (String(valSalvo).toUpperCase().includes('NÃO') || String(valSalvo).toUpperCase().includes('NAO') || String(valSalvo).toUpperCase().includes('DEFEITO') || valSalvo === false));
+
+                                return `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; background: ${isDefeito ? '#fef2f2' : '#f8fafc'}; border: 1px solid ${isDefeito ? '#fca5a5' : '#e2e8f0'}; border-radius: 4px;">
+                                        <span style="font-weight: 600; color: #1e293b;">${it.title}</span>
+                                        <span style="font-weight: bold; font-size: 8.5px; padding: 2px 5px; border-radius: 3px; background: ${isDefeito ? '#b91c1c' : '#047857'}; color: #fff;">
+                                            ${isDefeito ? (defObj && defObj.ehReincidente ? `NÃO CONFORME (${defObj.totalVezes}x)` : 'NÃO CONFORME') : 'CONFORME'}
+                                        </span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        ${(c.observacao_texto || (c.checklist_observacoes && c.checklist_observacoes[0])) ? `
+                            <div style="margin-top: 8px; padding: 6px 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; font-size: 10px;">
+                                <strong style="color: #92400e;">Observação e Relato do Operador:</strong>
+                                <span style="color: #78350f;">"${escaparHTML(c.observacao_texto || c.checklist_observacoes[0].texto_observacao)}"</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Bloco 3: Situação Atual da Máquina & KPIs de Confiabilidade -->
+                    <div class="print-card-block" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: #fdfdfd; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                            ⚙️ 3. SITUAÇÃO ATUAL & INDICADORES DE CONFIABILIDADE DO EQUIPAMENTO
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; font-size: 10px; text-align: center;">
+                            <div style="background: #f1f5f9; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 8.5px; color: #64748b; font-weight: bold; text-transform: uppercase; display: block;">Horímetro Atual</span>
+                                <strong style="font-size: 13px; color: #0f172a;">${(k.leituraAtual || m.horimetro_atual || 0).toLocaleString('pt-BR')} h</strong>
+                            </div>
+                            <div style="background: #f1f5f9; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 8.5px; color: #64748b; font-weight: bold; text-transform: uppercase; display: block;">Total Checklists</span>
+                                <strong style="font-size: 13px; color: #047857;">${k.totalChecklists || 0}</strong>
+                            </div>
+                            <div style="background: #f1f5f9; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 8.5px; color: #64748b; font-weight: bold; text-transform: uppercase; display: block;">Conformidade 5S</span>
+                                <strong style="font-size: 13px; color: ${(k.taxaConformidade || 100) >= 90 ? '#047857' : '#b45309'};">${(k.taxaConformidade || 100).toFixed(1)}%</strong>
+                            </div>
+                            <div style="background: #f1f5f9; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 8.5px; color: #64748b; font-weight: bold; text-transform: uppercase; display: block;">Paradas Corretivas</span>
+                                <strong style="font-size: 13px; color: #b91c1c;">${k.paradasCorretivas || 0}</strong>
+                            </div>
+                            <div style="background: #f1f5f9; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 8.5px; color: #64748b; font-weight: bold; text-transform: uppercase; display: block;">Chamados SOS</span>
+                                <strong style="font-size: 13px; color: #b91c1c;">${k.chamadosSOS || 0}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 4: Problemas e Defeitos Apresentados pelo Equipamento -->
+                    <div class="print-card-block" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: #fff; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                            ⚠️ 4. HISTÓRICO DE PROBLEMAS & DEFEITOS REGISTRADOS NESTA MÁQUINA
+                        </div>
+                        ${(() => {
+                            const defsTotais = coletarDefeitosHistoricosEquipamento(m);
+                            if (defsTotais.length === 0) {
+                                return '<div style="font-size: 10px; color: #64748b; font-style: italic; padding: 4px 0;">Nenhum problema crônico ou defeito recorrente registrado nas inspeções anteriores deste equipamento.</div>';
+                            }
+                            return `
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 10px;">
+                                    ${defsTotais.slice(0, 10).map(d => `
+                                        <span style="background: #fee2e2; color: #991b1b; border: 1px solid #f87171; border-radius: 4px; padding: 3px 6px; font-weight: 600;">
+                                            ${escaparHTML(d.rotulo || d.chave)} (${d.totalVezes}x apontado)
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            `;
+                        })()}
+                    </div>
+
+                    <!-- Bloco 5: Histórico Recente de Paradas & Manutenções da Máquina -->
+                    <div class="print-card-block" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; background: #fff; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                            🛠️ 5. HISTÓRICO DE PARADAS & ORDENS DE SERVIÇO DA MÁQUINA
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left;">
+                            <thead>
+                                <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1; font-weight: bold; text-transform: uppercase; font-size: 8.5px;">
+                                    <th style="padding: 4px 6px;">Data</th>
+                                    <th style="padding: 4px 6px;">Tipo</th>
+                                    <th style="padding: 4px 6px;">Horímetro</th>
+                                    <th style="padding: 4px 6px;">Serviço Executado / Apontamento</th>
+                                    <th style="padding: 4px 6px;">Responsável</th>
+                                    <th style="padding: 4px 6px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${paradas.length === 0 ? '<tr><td colspan="6" style="padding: 8px; text-align: center; color: #64748b;">Nenhuma parada ou ordem de serviço registrada para este equipamento.</td></tr>' : paradas.slice(0, 6).map(p => `
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 4px 6px; font-weight: bold;">${p.data ? new Date(p.data).toLocaleDateString('pt-BR') : '-'}</td>
+                                        <td style="padding: 4px 6px; text-transform: uppercase; font-size: 8.5px; font-weight: 700; color: ${p.tipo === 'emergencial' || p.tipo === 'corretiva' ? '#b91c1c' : '#047857'};">${p.tipo}</td>
+                                        <td style="padding: 4px 6px; font-family: monospace;">${p.leitura ? p.leitura + ' h' : '-'}</td>
+                                        <td style="padding: 4px 6px; font-weight: 600; color: #1e293b;">${escaparHTML(p.titulo || p.descricao || 'Manutenção')}</td>
+                                        <td style="padding: 4px 6px; color: #64748b;">${escaparHTML(p.mecanico || 'Mecânica')}</td>
+                                        <td style="padding: 4px 6px; text-transform: uppercase; font-size: 8.5px;">${p.status || 'concluído'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Bloco 6: Assinaturas de Responsabilidade Técnica -->
+                    <div class="print-card-block" style="display: flex; justify-content: space-between; margin-top: 20px; padding: 0 40px; font-size: 10px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="width: 44%;">
+                            <div style="border-top: 1px solid #000; padding-top: 4px;">
+                                <strong>${escaparHTML(c.operador || 'Operador')}</strong><br>
+                                Operador Responsável pela Inspeção<br>
+                                Data: ${dataInspecaoFmt.split(' ')[0]}
+                            </div>
+                        </div>
+                        <div style="width: 44%;">
+                            <div style="border-top: 1px solid #000; padding-top: 4px;">
+                                <strong>Gestão de Frota & Manutenção Industrial</strong><br>
+                                J. Patrício Metais<br>
+                                Ciência & Acompanhamento
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            window.print();
+        }
+
         // ==================== ABA 3: KANBAN, SEMANAL E CALENDÁRIO MENSAL ====================
         function alternarVisualizacaoManutencao(modo) {
             visualizacaoManutencao = modo;
             renderizarAbaAtualGestor();
+        }
+
+        window.kanbanMobileColuna = window.kanbanMobileColuna || 'pendente';
+        window.semanalDiaMobile = window.semanalDiaMobile || null;
+        window.diaSelecionadoMobile = window.diaSelecionadoMobile || new Date().toISOString().split('T')[0];
+
+        function setKanbanMobileColuna(col) {
+            window.kanbanMobileColuna = col;
+            const container = document.getElementById('gestor-conteudo');
+            if (container) renderAbaKanban(container);
+        }
+
+        function setSemanalDiaMobile(dataIso) {
+            window.semanalDiaMobile = dataIso;
+            const container = document.getElementById('gestor-conteudo');
+            if (container) renderAbaKanban(container);
+        }
+
+        function setDiaSelecionadoMobile(dataIso) {
+            window.diaSelecionadoMobile = dataIso;
+            const container = document.getElementById('gestor-conteudo');
+            if (container) renderAbaKanban(container);
         }
 
         function renderAbaKanban(container) {
@@ -4455,9 +5023,9 @@ DIRETRIZES:
 
             container.innerHTML = `
                 <div class="flex-1 flex flex-col gap-1.5 h-full min-h-0 overflow-hidden">
-                    <!-- CONTROLES UNIFICADOS DE MANUTENÇÃO (COMPACTO & SEM ESPAÇO MORTO) -->
-                    <div class="flex flex-wrap justify-between items-center bg-white border border-slate-200 p-1.5 px-3 rounded-xl gap-2 shadow-xs shrink-0">
-                        <div class="flex flex-wrap items-center gap-2">
+                    <!-- CONTROLES UNIFICADOS DE MANUTENÇÃO (COMPACTO & RESPONSIVO) -->
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white border border-slate-200 p-2 sm:p-1.5 px-3 rounded-xl gap-2 shadow-xs shrink-0">
+                        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             <span class="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5 mr-1">
                                 <i class="fa-solid fa-wrench text-orange-700"></i> Manutenções
                             </span>
@@ -4472,22 +5040,22 @@ DIRETRIZES:
                             </a>
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                             <!-- TOGGLE VISÃO: KANBAN vs SEMANAL vs MENSAL -->
-                            <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
-                                <button type="button" onclick="alternarVisualizacaoManutencao('kanban')" class="px-2.5 py-1 text-xs font-bold rounded-md ${visualizacaoManutencao === 'kanban' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer">
+                            <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 flex-1 sm:flex-initial justify-between sm:justify-start">
+                                <button type="button" onclick="alternarVisualizacaoManutencao('kanban')" class="flex-1 sm:flex-initial px-2.5 py-1 text-xs font-bold rounded-md ${visualizacaoManutencao === 'kanban' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer text-center">
                                     <i class="fa-solid fa-table-columns mr-1"></i> Kanban
                                 </button>
-                                <button type="button" onclick="alternarVisualizacaoManutencao('semanal')" class="px-2.5 py-1 text-xs font-bold rounded-md ${visualizacaoManutencao === 'semanal' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer">
+                                <button type="button" onclick="alternarVisualizacaoManutencao('semanal')" class="flex-1 sm:flex-initial px-2.5 py-1 text-xs font-bold rounded-md ${visualizacaoManutencao === 'semanal' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer text-center">
                                     <i class="fa-solid fa-calendar-week mr-1"></i> Semanal
                                 </button>
-                                <button type="button" onclick="alternarVisualizacaoManutencao('calendario')" class="px-2.5 py-1 text-xs font-bold rounded-md ${visualizacaoManutencao === 'calendario' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer">
+                                <button type="button" onclick="alternarVisualizacaoManutencao('calendario')" class="flex-1 sm:flex-initial px-2.5 py-1 text-xs font-bold rounded-md ${visualizacaoManutencao === 'calendario' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'} transition cursor-pointer text-center">
                                     <i class="fa-solid fa-calendar-days mr-1"></i> Mensal
                                 </button>
                             </div>
 
                             <!-- BOTÃO ADICIONAR / PROGRAMAR MANUTENÇÃO -->
-                            <button type="button" onclick="abrirAgendamentoParaDia()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+                            <button type="button" onclick="abrirAgendamentoParaDia()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0">
                                 <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Programar</span> Manutenção
                             </button>
                         </div>
@@ -4506,12 +5074,43 @@ DIRETRIZES:
                 { id: 'concluido', titulo: 'Concluído', cor: 'border-emerald-500', icone: 'fa-circle-check text-emerald-700' }
             ];
 
+            const countPendente = cacheGestor.ordens.filter(o => o.status === 'pendente').length;
+            const countPecas = cacheGestor.ordens.filter(o => o.status === 'analise_pecas').length;
+            const countManut = cacheGestor.ordens.filter(o => o.status === 'em_manutencao').length;
+            const countConcluido = cacheGestor.ordens.filter(o => o.status === 'concluido').length;
+            const countTodas = cacheGestor.ordens.length;
+
             return `
-                <div class="kanban-grid grid gap-3 items-stretch flex-1">
+                <!-- BARRA DE SUB-COLUNAS KANBAN NO MOBILE (ESTILO SEGMENTED CONTROL) -->
+                <div class="md:hidden bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center gap-1 overflow-x-auto shrink-0 mb-1">
+                    <button type="button" onclick="setKanbanMobileColuna('pendente')" class="flex-1 min-w-[70px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'pendente' ? 'bg-white text-amber-900 border border-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span>Pendente</span>
+                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'pendente' ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-700'}">${countPendente}</span>
+                    </button>
+                    <button type="button" onclick="setKanbanMobileColuna('analise_pecas')" class="flex-1 min-w-[65px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'analise_pecas' ? 'bg-white text-orange-900 border border-orange-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span>Peças</span>
+                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'analise_pecas' ? 'bg-orange-100 text-orange-900' : 'bg-slate-200 text-slate-700'}">${countPecas}</span>
+                    </button>
+                    <button type="button" onclick="setKanbanMobileColuna('em_manutencao')" class="flex-1 min-w-[65px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'em_manutencao' ? 'bg-white text-blue-900 border border-blue-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span>Manut.</span>
+                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'em_manutencao' ? 'bg-blue-100 text-blue-900' : 'bg-slate-200 text-slate-700'}">${countManut}</span>
+                    </button>
+                    <button type="button" onclick="setKanbanMobileColuna('concluido')" class="flex-1 min-w-[65px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'concluido' ? 'bg-white text-emerald-900 border border-emerald-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span>Pronto</span>
+                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'concluido' ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-200 text-slate-700'}">${countConcluido}</span>
+                    </button>
+                    <button type="button" onclick="setKanbanMobileColuna('todas')" class="min-w-[55px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'todas' ? 'bg-white text-slate-900 border border-slate-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span>Todas</span>
+                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'todas' ? 'bg-slate-300 text-slate-900' : 'bg-slate-200 text-slate-700'}">${countTodas}</span>
+                    </button>
+                </div>
+
+                <div class="kanban-grid grid md:grid-cols-4 gap-3 items-stretch flex-1 overflow-y-auto">
                     ${colunas.map(col => {
                         const itens = cacheGestor.ordens.filter(o => o.status === col.id).sort((a,b) => Number(b.prioridade === 'urgente') - Number(a.prioridade === 'urgente'));
+                        const isVisivel = (window.kanbanMobileColuna === 'todas' || window.kanbanMobileColuna === col.id);
                         return `
-                        <div class="bg-white border-t-4 ${col.cor} border-x border-b border-slate-200 rounded-xl p-3 shadow-sm min-h-[420px] flex flex-col flex-1">
+                        <div class="bg-white border-t-4 ${col.cor} border-x border-b border-slate-200 rounded-xl p-3 shadow-sm min-h-[380px] md:min-h-[420px] ${isVisivel ? 'flex' : 'hidden md:flex'} flex-col flex-1">
                             <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-200 shrink-0">
                                 <h4 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
                                     <i class="fa-solid ${col.icone}"></i> ${col.titulo}
@@ -4520,7 +5119,7 @@ DIRETRIZES:
                             </div>
 
                             <div class="space-y-2 flex-1 overflow-y-auto pr-0.5">
-                                ${itens.length === 0 ? '<p class="text-sm text-slate-600 py-6">Nenhuma ordem nesta etapa.</p>' : ''}
+                                ${itens.length === 0 ? '<p class="text-sm text-slate-500 py-6 text-center">Nenhuma ordem nesta etapa.</p>' : ''}
                                 ${itens.map(item => {
                                     const dtCriacao = item.created_at ? new Date(item.created_at) : null;
                                     const dtFmt = dtCriacao ? (dtCriacao.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dtCriacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) : '';
@@ -4593,6 +5192,10 @@ DIRETRIZES:
             const domingoIso = domingo.toISOString().split('T')[0];
             const isSemanaAtual = (hojeIso >= segundaIso && hojeIso <= domingoIso);
 
+            if (!window.semanalDiaMobile || window.semanalDiaMobile < segundaIso || window.semanalDiaMobile > domingoIso) {
+                window.semanalDiaMobile = isSemanaAtual ? hojeIso : segundaIso;
+            }
+
             const mesesNomesCurto = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
             const segStr = `${String(segunda.getDate()).padStart(2, '0')}/${mesesNomesCurto[segunda.getMonth()]}`;
             const domStr = `${String(domingo.getDate()).padStart(2, '0')}/${mesesNomesCurto[domingo.getMonth()]} de ${domingo.getFullYear()}`;
@@ -4649,8 +5252,96 @@ DIRETRIZES:
                         </div>
                     </div>
 
-                    <!-- GRADE DE 7 DIAS DA SEMANA ESTILO PAINEL DE LOGÍSTICA -->
-                    <div class="weekly-scroll" tabindex="0" role="region" aria-label="Quadro semanal de manutenções">
+                    <!-- BARRA DE DIAS DA SEMANA NO MOBILE (ESTILO SEGMENTED BAR) -->
+                    <div class="md:hidden bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center gap-1 overflow-x-auto shrink-0 mb-1">
+                        ${diasSemana.map(dia => {
+                            const isAtivo = (window.semanalDiaMobile === dia.dataIso);
+                            const sigla = dia.nome.substring(0, 3);
+                            const temEventos = dia.ordens.length > 0 || dia.checklists.length > 0;
+                            return `
+                            <button type="button" onclick="setSemanalDiaMobile('${dia.dataIso}')" class="flex-1 min-w-[42px] py-1.5 px-1 rounded-lg text-center transition cursor-pointer flex flex-col items-center justify-center relative ${isAtivo ? 'bg-white text-orange-950 border border-orange-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                                <span class="text-[9px] font-bold uppercase leading-none">${sigla}</span>
+                                <span class="text-[11px] font-mono-num font-black leading-tight mt-0.5">${dia.diaMes.split('/')[0]}</span>
+                                ${dia.isHoje ? '<span class="text-[7.5px] font-black text-orange-600 leading-none">HOJE</span>' : ''}
+                                ${temEventos ? `
+                                    <div class="flex items-center gap-0.5 mt-0.5">
+                                        ${dia.ordens.length > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span>' : ''}
+                                        ${dia.checklists.length > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>' : ''}
+                                    </div>
+                                ` : '<span class="w-1.5 h-1.5 mt-0.5"></span>'}
+                            </button>`;
+                        }).join('')}
+                    </div>
+
+                    <!-- EXIBIÇÃO DO DIA SELECIONADO NO MOBILE -->
+                    <div class="md:hidden flex-1 overflow-y-auto">
+                        ${(() => {
+                            const dia = diasSemana.find(d => d.dataIso === window.semanalDiaMobile) || diasSemana[0];
+                            return `
+                            <div class="weekly-day-col dia-mobile-ativo bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2.5">
+                                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                                    <div>
+                                        <span class="text-xs font-extrabold uppercase text-slate-900">${dia.nome}</span>
+                                        <span class="text-xs font-mono-num font-bold text-slate-500 ml-1.5">${dia.diaMes}</span>
+                                        ${dia.isHoje ? '<span class="bg-orange-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded font-mono-num ml-2">HOJE</span>' : ''}
+                                    </div>
+                                    <button type="button" onclick="abrirAgendamentoParaDia('${dia.dataIso}')" class="py-1 px-2.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-700 text-white shadow-xs transition flex items-center gap-1 cursor-pointer">
+                                        <i class="fa-solid fa-plus text-[10px]"></i> Agendar
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    ${dia.ordens.length === 0 ? `
+                                        <div class="py-8 border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400 text-center p-3">
+                                            <i class="fa-regular fa-calendar-check text-slate-300 text-2xl mb-1.5"></i>
+                                            <span class="text-xs font-medium">Nenhuma manutenção agendada para este dia</span>
+                                        </div>
+                                    ` : dia.ordens.map(ev => {
+                                        let corPill = 'bg-amber-100 text-amber-800 border-amber-300';
+                                        let statusLabel = 'Pendente';
+                                        if (ev.status === 'concluido') {
+                                            corPill = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                                            statusLabel = 'Concluído';
+                                        } else if (ev.status === 'em_manutencao') {
+                                            corPill = 'bg-blue-100 text-blue-800 border-blue-300';
+                                            statusLabel = 'Em Manutenção';
+                                        } else if (ev.status === 'analise_pecas') {
+                                            corPill = 'bg-orange-100 text-orange-800 border-orange-300';
+                                            statusLabel = 'Peças';
+                                        } else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') {
+                                            corPill = 'bg-red-100 text-red-800 border-red-300';
+                                            statusLabel = 'Urgente';
+                                        }
+
+                                        return `
+                                        <div class="weekly-card space-y-1.5 cursor-pointer bg-slate-50 border border-slate-200 rounded-lg p-2.5 shadow-2xs hover:border-orange-400 transition" onclick="abrirModalDetalhesOS('${ev.id}')" title="Clique para ver os detalhes da O.S.">
+                                            <div class="flex items-center justify-between gap-1">
+                                                <span class="font-mono-num font-bold text-xs text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">${escaparHTML(ev.maquina_nome)}</span>
+                                                <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded border ${corPill} shrink-0">${statusLabel}</span>
+                                            </div>
+                                            <div class="text-xs font-semibold text-slate-800 leading-snug">
+                                                ${escaparHTML(ev.titulo)}
+                                            </div>
+                                            <div class="flex items-center justify-between pt-1 border-t border-slate-200 text-[10px] text-slate-500">
+                                                <span><i class="fa-solid fa-user-gear mr-1 text-slate-400"></i>${escaparHTML(ev.responsavel_mecanico || 'Mecânica')}</span>
+                                                <div class="flex items-center gap-1.5">
+                                                    <button type="button" onclick="event.stopPropagation(); abrirAgendamentoParaDia('${dia.dataIso}', '${ev.id}')" class="px-2 py-0.5 bg-white hover:bg-orange-50 text-slate-700 font-bold rounded border border-slate-200 transition cursor-pointer">
+                                                        <i class="fa-solid fa-pen-to-square text-orange-600"></i> Editar
+                                                    </button>
+                                                    <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ev.id}', '${escaparHTML(ev.titulo || ev.maquina_nome)}')" class="px-1.5 py-0.5 bg-white hover:bg-red-50 text-slate-700 font-bold rounded border border-slate-200 transition cursor-pointer">
+                                                        <i class="fa-solid fa-trash-can text-red-600 text-[9px]"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>`;
+                                    }).join('')}
+                                </div>
+                            </div>`;
+                        })()}
+                    </div>
+
+                    <!-- GRADE DE 7 DIAS DA SEMANA NO DESKTOP -->
+                    <div class="hidden md:block weekly-scroll" tabindex="0" role="region" aria-label="Quadro semanal de manutenções">
                         <div class="weekly-grid">
                             ${diasSemana.map(dia => `
                                 <div class="weekly-day-col ${dia.isHoje ? 'dia-hoje' : ''}">
@@ -4744,8 +5435,19 @@ DIRETRIZES:
                 }
             });
 
+            // Dados do dia selecionado no mobile
+            const eventosDoDiaSel = eventosPorData[window.diaSelecionadoMobile] || [];
+            const checklistsDoDiaSel = cacheGestor.checklists.filter(c => c.created_at && c.created_at.split('T')[0] === window.diaSelecionadoMobile);
+            const dtParts = (window.diaSelecionadoMobile || '').split('-');
+            let tituloDataSel = window.diaSelecionadoMobile;
+            if (dtParts.length === 3) {
+                const dtObj = new Date(parseInt(dtParts[0]), parseInt(dtParts[1]) - 1, parseInt(dtParts[2]));
+                const diasSemanaNomes = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                tituloDataSel = `${dtParts[2]}/${dtParts[1]}/${dtParts[0]} (${diasSemanaNomes[dtObj.getDay()]})`;
+            }
+
             return `
-                <div class="calendar-panel bg-white border border-slate-200 rounded-xl p-2 sm:p-2.5 shadow-xs flex flex-col gap-1 flex-1 min-h-0 overflow-hidden">
+                <div class="calendar-panel bg-white border border-slate-200 rounded-xl p-2 sm:p-2.5 shadow-xs flex flex-col gap-1.5 flex-1 min-h-0 overflow-hidden">
                     <!-- NAVEGADOR DO MÊS (COMPACTO) -->
                     <div class="calendar-toolbar flex flex-wrap gap-2 justify-between items-center border-b border-slate-200 pb-1.5 shrink-0">
                         <div class="flex items-center gap-2">
@@ -4769,103 +5471,236 @@ DIRETRIZES:
                         </div>
                     </div>
 
-                    <!-- GRID DOS DIAS DA SEMANA -->
-                    <p class="calendar-hint filter-note">Deslize o calendário para consultar todos os dias.</p>
-                    <div class="calendar-scroll" tabindex="0" role="region" aria-label="Calendário de manutenção">
-                    <div class="calendar-grid-content">
-                    <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-600 uppercase mb-1 shrink-0">
-                        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-                    </div>
+                    <!-- ==================== VISÃO MOBILE: ESTILO GOOGLE CALENDAR ==================== -->
+                    <div class="md:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-hidden">
+                        <!-- Grade Mensal Compacta (100% largura) -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 shadow-2xs shrink-0">
+                            <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-500 uppercase mb-1">
+                                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center">
+                                ${Array.from({ length: primeiroDia }).map(() => `
+                                    <div class="h-9 rounded-lg bg-slate-100/50 opacity-40"></div>
+                                `).join('')}
 
-                    <!-- GRID DOS DIAS DO MÊS (EXPANDIDO PARA PREENCHER TODA A ALTURA) -->
-                    <div class="calendar-days-grid grid grid-cols-7 gap-1 flex-1 min-h-0 h-full">
-                        ${Array.from({ length: primeiroDia }).map(() => `
-                            <div class="calendar-day-card bg-slate-50/40 rounded-lg border border-slate-200/50 p-1 opacity-50 pointer-events-none"></div>
-                        `).join('')}
+                                ${Array.from({ length: totalDiasMes }).map((_, i) => {
+                                    const diaNum = i + 1;
+                                    const mesFmt = String(mesAtualCalendario + 1).padStart(2, '0');
+                                    const diaFmt = String(diaNum).padStart(2, '0');
+                                    const dataIso = `${anoAtualCalendario}-${mesFmt}-${diaFmt}`;
+                                    const eventos = eventosPorData[dataIso] || [];
+                                    const chks = cacheGestor.checklists.filter(c => c.created_at && c.created_at.split('T')[0] === dataIso);
+                                    const isHoje = new Date().toISOString().split('T')[0] === dataIso;
+                                    const isSel = (window.diaSelecionadoMobile === dataIso);
+                                    const temUrgente = eventos.some(e => e.prioridade === 'urgente' || e.tipo === 'emergencial');
+                                    const temManut = eventos.some(e => e.status !== 'concluido' && e.prioridade !== 'urgente');
+                                    const temConcluido = eventos.some(e => e.status === 'concluido');
+                                    const temChk = chks.length > 0;
 
-                        ${Array.from({ length: totalDiasMes }).map((_, i) => {
-                            const diaNum = i + 1;
-                            const mesFmt = String(mesAtualCalendario + 1).padStart(2, '0');
-                            const diaFmt = String(diaNum).padStart(2, '0');
-                            const dataIso = `${anoAtualCalendario}-${mesFmt}-${diaFmt}`;
-                            const eventosDoDia = eventosPorData[dataIso] || [];
-                            const checklistsDoDia = cacheGestor.checklists.filter(c => c.created_at && c.created_at.split('T')[0] === dataIso);
-                            const isHoje = new Date().toISOString().split('T')[0] === dataIso;
+                                    return `
+                                    <button type="button" onclick="setDiaSelecionadoMobile('${dataIso}')" class="h-10 rounded-lg p-0.5 flex flex-col items-center justify-between transition cursor-pointer relative ${isSel ? 'bg-orange-600 text-white font-black shadow-xs ring-2 ring-orange-300' : (isHoje ? 'border-2 border-orange-500 bg-orange-50/50 text-orange-950 font-bold' : 'bg-white hover:bg-slate-100 text-slate-800 border border-slate-200')}">
+                                        <span class="text-[11px] font-mono-num leading-tight">${diaNum}</span>
+                                        <div class="flex items-center justify-center gap-0.5 pb-0.5">
+                                            ${temUrgente ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' : ''}
+                                            ${temManut ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>' : ''}
+                                            ${temChk ? '<span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>' : ''}
+                                            ${temConcluido ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>' : ''}
+                                        </div>
+                                    </button>`;
+                                }).join('')}
+                            </div>
+                        </div>
 
-                            // Agrupar máquinas que realizaram checklist neste dia
-                            const maquinasChecklistMap = {};
-                            checklistsDoDia.forEach(chk => {
-                                const nome = getNomeOuPlacaChecklist(chk);
-                                if (!maquinasChecklistMap[nome]) {
-                                    maquinasChecklistMap[nome] = { nome: nome, qtd: 0, temProblema: false, id: chk.id };
-                                }
-                                maquinasChecklistMap[nome].qtd++;
-                                const defs = extrairDefeitosChecklist(chk);
-                                if (chk.tem_problema || defs.length > 0) {
-                                    maquinasChecklistMap[nome].temProblema = true;
-                                }
-                            });
-                            const maquinasChecklist = Object.values(maquinasChecklistMap);
-
-                            return `
-                            <div onclick="abrirModalDetalhesDia('${dataIso}')" class="calendar-day-card ${isHoje ? 'border-orange-500 ring-2 ring-orange-400/40 bg-orange-50/20' : 'border-slate-200'} rounded-lg p-1.5 flex flex-col justify-start hover:border-orange-500 hover:shadow-xs cursor-pointer transition" title="Clique para ver o que ocorreu e agendar manutenção">
-                                <div class="flex justify-between items-center mb-1 shrink-0">
-                                    <span class="text-xs font-mono-num font-bold ${isHoje ? 'text-orange-700 font-black' : 'text-slate-700'}">${diaNum}</span>
-                                    <div class="flex items-center gap-1">
-                                        ${checklistsDoDia.length > 0 ? `
-                                            <span class="text-[9px] font-mono-num font-bold bg-teal-100 text-teal-800 border border-teal-200 px-1.5 py-0.2 rounded flex items-center gap-1 shadow-2xs" title="${checklistsDoDia.length} checklist(s) realizada(s) neste dia">
-                                                <i class="fa-solid fa-clipboard-check text-teal-600 text-[8.5px]"></i>
-                                                <span>${checklistsDoDia.length}</span>
-                                            </span>` : ''}
-                                        ${eventosDoDia.length > 0 ? `
-                                            <span class="text-[9px] font-mono-num font-bold bg-orange-100 text-orange-800 border border-orange-200 px-1.5 py-0.2 rounded flex items-center gap-1 shadow-2xs" title="${eventosDoDia.length} manutenção(ões) agendada(s)">
-                                                <i class="fa-solid fa-wrench text-orange-700 text-[8.5px]"></i>
-                                                <span>${eventosDoDia.length}</span>
-                                            </span>` : ''}
-                                    </div>
+                        <!-- AGENDA DO DIA SELECIONADO (ESTILO GOOGLE CALENDAR) -->
+                        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200 shrink-0">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
+                                        <i class="fa-regular fa-calendar-check text-orange-600"></i> ${tituloDataSel}
+                                    </h4>
+                                    <p class="text-[10px] text-slate-500">${eventosDoDiaSel.length} manutenção(ões) • ${checklistsDoDiaSel.length} checklist(s)</p>
                                 </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="abrirModalDetalhesDia('${window.diaSelecionadoMobile}')" class="px-2 py-1 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition cursor-pointer" title="Ver painel completo do dia">
+                                        <i class="fa-solid fa-expand mr-1 text-[10px]"></i> Ver Tudo
+                                    </button>
+                                    <button type="button" onclick="abrirAgendamentoParaDia('${window.diaSelecionadoMobile}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-orange-600 hover:bg-orange-700 text-white shadow-xs transition flex items-center gap-1 cursor-pointer">
+                                        <i class="fa-solid fa-plus text-[10px]"></i> Programar
+                                    </button>
+                                </div>
+                            </div>
 
-                                <div class="space-y-1 overflow-y-auto flex-1 pr-0.5 mt-0.5">
-                                    <!-- Chips de Máquinas com Checklist Realizada (cor específica Teal) -->
-                                    ${maquinasChecklist.map(maq => `
-                                        <div onclick="event.stopPropagation(); abrirModalDetalhesChecklist('${maq.id}')" class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${maq.temProblema ? 'bg-teal-50 border-teal-300 text-teal-900 ring-1 ring-red-400/70' : 'bg-teal-100 border-teal-300 text-teal-900'} truncate flex items-center justify-between gap-1 shadow-2xs hover:bg-teal-200 transition cursor-pointer" title="Checklist realizada: ${escaparHTML(maq.nome)} (${maq.qtd} inspeção${maq.qtd > 1 ? 'ões' : ''}${maq.temProblema ? ' - COM DEFEITO' : ''}) - Clique para ver detalhes">
-                                            <span class="truncate flex items-center gap-1">
-                                                <i class="fa-solid fa-clipboard-check text-teal-700 text-[8.5px] shrink-0"></i>
-                                                <span class="truncate">${escaparHTML(maq.nome)}</span>
-                                            </span>
-                                            <div class="flex items-center gap-1 shrink-0">
-                                                ${maq.temProblema ? `<i class="fa-solid fa-triangle-exclamation text-red-600 text-[8px]" title="Apontamento de defeito"></i>` : (maq.qtd > 1 ? `<span class="text-[8px] bg-teal-200 text-teal-800 px-1 rounded-full font-mono">${maq.qtd}</span>` : '')}
-                                                ${maq.qtd === 1 ? `
-                                                    <button type="button" onclick="event.stopPropagation(); confirmarExcluirChecklist('${maq.id}', '${escaparHTML(maq.nome)}')" class="text-slate-500 hover:text-red-700 p-0.5 rounded transition shrink-0 opacity-70 hover:opacity-100 cursor-pointer" title="Excluir este checklist">
-                                                        <i class="fa-solid fa-trash-can text-[8px]"></i>
-                                                    </button>
-                                                ` : ''}
+                            <div class="space-y-2 overflow-y-auto flex-1 pt-2 pr-0.5">
+                                ${eventosDoDiaSel.length === 0 && checklistsDoDiaSel.length === 0 ? `
+                                    <div class="py-8 text-center text-slate-400 space-y-1">
+                                        <i class="fa-regular fa-calendar-xmark text-2xl text-slate-300"></i>
+                                        <p class="text-xs font-medium text-slate-600">Nenhuma atividade registrada para esta data.</p>
+                                        <p class="text-[11px] text-slate-400">Toque em "Programar" para agendar uma manutenção.</p>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Manutenções do dia -->
+                                ${eventosDoDiaSel.map(ev => {
+                                    let corPill = 'bg-amber-100 text-amber-800 border-amber-300';
+                                    let statusLabel = 'Pendente';
+                                    if (ev.status === 'concluido') { corPill = 'bg-emerald-100 text-emerald-800 border-emerald-300'; statusLabel = 'Concluído'; }
+                                    else if (ev.status === 'em_manutencao') { corPill = 'bg-blue-100 text-blue-800 border-blue-300'; statusLabel = 'Em Manutenção'; }
+                                    else if (ev.status === 'analise_pecas') { corPill = 'bg-orange-100 text-orange-800 border-orange-300'; statusLabel = 'Peças'; }
+                                    else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') { corPill = 'bg-red-100 text-red-800 border-red-300'; statusLabel = 'Urgente'; }
+
+                                    return `
+                                    <div onclick="abrirModalDetalhesOS('${ev.id}')" class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 shadow-2xs hover:border-orange-400 transition cursor-pointer">
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-mono-num font-bold text-xs text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">${escaparHTML(ev.maquina_nome)}</span>
+                                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded border ${corPill}">${statusLabel}</span>
+                                            </div>
+                                            <span class="text-[10px] text-slate-500 font-mono-num">O.S. #${ev.numero_os || String(ev.id).substring(0,5)}</span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-800 leading-snug">${escaparHTML(ev.titulo)}</div>
+                                        <div class="flex items-center justify-between pt-1 border-t border-slate-200 text-[10px] text-slate-500 mt-1.5">
+                                            <span><i class="fa-solid fa-user-gear mr-1 text-slate-400"></i>${escaparHTML(ev.responsavel_mecanico || 'Mecânica')}</span>
+                                            <div class="flex items-center gap-1.5">
+                                                <button type="button" onclick="event.stopPropagation(); abrirAgendamentoParaDia('${window.diaSelecionadoMobile}', '${ev.id}')" class="px-2 py-0.5 bg-white hover:bg-orange-50 text-slate-700 font-bold rounded border border-slate-200 transition cursor-pointer">
+                                                    <i class="fa-solid fa-pen-to-square text-orange-600"></i> Editar
+                                                </button>
+                                                <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ev.id}', '${escaparHTML(ev.titulo || ev.maquina_nome)}')" class="px-1.5 py-0.5 bg-white hover:bg-red-50 text-slate-700 font-bold rounded border border-slate-200 transition cursor-pointer">
+                                                    <i class="fa-solid fa-trash-can text-red-600 text-[9px]"></i>
+                                                </button>
                                             </div>
                                         </div>
+                                    </div>`;
+                                }).join('')}
+
+                                <!-- Checklists do dia -->
+                                ${checklistsDoDiaSel.map(chk => {
+                                    const defs = extrairDefeitosChecklist(chk);
+                                    const temProblema = chk.tem_problema || defs.length > 0;
+                                    const equipNome = getNomeOuPlacaChecklist(chk);
+
+                                    return `
+                                    <div class="bg-teal-50/50 border ${temProblema ? 'border-red-300 ring-1 ring-red-200' : 'border-teal-200'} rounded-lg p-2.5 shadow-2xs space-y-1.5">
+                                        <div class="flex items-center justify-between gap-1">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-mono-num font-bold text-xs text-teal-950 bg-teal-100 px-2 py-0.5 rounded border border-teal-300">${escaparHTML(equipNome)}</span>
+                                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${temProblema ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+                                                    ${temProblema ? 'COM DEFEITO' : 'CONFORME'}
+                                                </span>
+                                            </div>
+                                            <span class="text-[10px] text-slate-500 font-mono-num">${chk.horimetro ? chk.horimetro + ' h' : '—'}</span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-600 flex items-center justify-between">
+                                            <span><i class="fa-solid fa-user text-slate-400 mr-1 text-[10px]"></i>${escaparHTML(chk.operador || 'Operador')}</span>
+                                            ${defs.length > 0 ? `<span class="text-[10px] text-red-700 font-bold">${defs.length} defeito(s)</span>` : ''}
+                                        </div>
+                                        <div class="flex items-center gap-1.5 pt-1 border-t border-teal-100">
+                                            <button type="button" onclick="abrirModalDetalhesChecklist('${chk.id}')" class="flex-1 py-1 px-2 bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded border border-slate-300 transition text-center cursor-pointer">
+                                                <i class="fa-solid fa-eye mr-1 text-slate-500"></i> Detalhes
+                                            </button>
+                                            <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${chk.id}')" class="flex-1 py-1 px-2 bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold rounded shadow-2xs transition text-center cursor-pointer">
+                                                <i class="fa-solid fa-file-pdf mr-1"></i> Relatório PDF
+                                            </button>
+                                        </div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== VISÃO DESKTOP: GRADE MENSAL EXPANDIDA ==================== -->
+                    <div class="hidden md:flex flex-col flex-1 min-h-0 overflow-hidden">
+                        <div class="calendar-scroll" tabindex="0" role="region" aria-label="Calendário de manutenção">
+                            <div class="calendar-grid-content">
+                                <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-600 uppercase mb-1 shrink-0">
+                                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                                </div>
+
+                                <div class="calendar-days-grid grid grid-cols-7 gap-1 flex-1 min-h-0 h-full">
+                                    ${Array.from({ length: primeiroDia }).map(() => `
+                                        <div class="calendar-day-card bg-slate-50/40 rounded-lg border border-slate-200/50 p-1 opacity-50 pointer-events-none"></div>
                                     `).join('')}
 
-                                    <!-- Chips de Ordens de Manutenção -->
-                                    ${eventosDoDia.map(ev => {
-                                        let corPill = 'bg-amber-100 text-amber-800 border-amber-300';
-                                        if (ev.status === 'concluido') corPill = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-                                        else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-100 text-red-800 border-red-300';
+                                    ${Array.from({ length: totalDiasMes }).map((_, i) => {
+                                        const diaNum = i + 1;
+                                        const mesFmt = String(mesAtualCalendario + 1).padStart(2, '0');
+                                        const diaFmt = String(diaNum).padStart(2, '0');
+                                        const dataIso = `${anoAtualCalendario}-${mesFmt}-${diaFmt}`;
+                                        const eventosDoDia = eventosPorData[dataIso] || [];
+                                        const checklistsDoDia = cacheGestor.checklists.filter(c => c.created_at && c.created_at.split('T')[0] === dataIso);
+                                        const isHoje = new Date().toISOString().split('T')[0] === dataIso;
+
+                                        const maquinasChecklistMap = {};
+                                        checklistsDoDia.forEach(chk => {
+                                            const nome = getNomeOuPlacaChecklist(chk);
+                                            if (!maquinasChecklistMap[nome]) {
+                                                maquinasChecklistMap[nome] = { nome: nome, qtd: 0, temProblema: false, id: chk.id };
+                                            }
+                                            maquinasChecklistMap[nome].qtd++;
+                                            const defs = extrairDefeitosChecklist(chk);
+                                            if (chk.tem_problema || defs.length > 0) {
+                                                maquinasChecklistMap[nome].temProblema = true;
+                                            }
+                                        });
+                                        const maquinasChecklist = Object.values(maquinasChecklistMap);
 
                                         return `
-                                        <div onclick="event.stopPropagation(); abrirModalDetalhesOS('${ev.id}')" class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${corPill} truncate flex items-center justify-between gap-1 shadow-2xs hover:opacity-90 transition cursor-pointer" title="${escaparHTML(ev.maquina_nome)}: ${escaparHTML(ev.titulo)} - Clique para ver ou excluir">
-                                            <span class="truncate flex items-center gap-1">
-                                                <i class="fa-solid fa-wrench text-[8px] opacity-75 shrink-0"></i>
-                                                <span class="truncate">${escaparHTML(ev.maquina_nome)}</span>
-                                            </span>
-                                            <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ev.id}', '${escaparHTML(ev.titulo || ev.maquina_nome)}')" class="text-slate-500 hover:text-red-700 p-0.5 rounded transition shrink-0 opacity-70 hover:opacity-100 cursor-pointer" title="Excluir O.S.">
-                                                <i class="fa-solid fa-trash-can text-[8px]"></i>
-                                            </button>
+                                        <div onclick="abrirModalDetalhesDia('${dataIso}')" class="calendar-day-card ${isHoje ? 'border-orange-500 ring-2 ring-orange-400/40 bg-orange-50/20' : 'border-slate-200'} rounded-lg p-1.5 flex flex-col justify-start hover:border-orange-500 hover:shadow-xs cursor-pointer transition" title="Clique para ver o que ocorreu e agendar manutenção">
+                                            <div class="flex justify-between items-center mb-1 shrink-0">
+                                                <span class="text-xs font-mono-num font-bold ${isHoje ? 'text-orange-700 font-black' : 'text-slate-700'}">${diaNum}</span>
+                                                <div class="flex items-center gap-1">
+                                                    ${checklistsDoDia.length > 0 ? `
+                                                        <span class="text-[9px] font-mono-num font-bold bg-teal-100 text-teal-800 border border-teal-200 px-1.5 py-0.2 rounded flex items-center gap-1 shadow-2xs" title="${checklistsDoDia.length} checklist(s) realizada(s) neste dia">
+                                                            <i class="fa-solid fa-clipboard-check text-teal-600 text-[8.5px]"></i>
+                                                            <span>${checklistsDoDia.length}</span>
+                                                        </span>` : ''}
+                                                    ${eventosDoDia.length > 0 ? `
+                                                        <span class="text-[9px] font-mono-num font-bold bg-orange-100 text-orange-800 border border-orange-200 px-1.5 py-0.2 rounded flex items-center gap-1 shadow-2xs" title="${eventosDoDia.length} manutenção(ões) agendada(s)">
+                                                            <i class="fa-solid fa-wrench text-orange-700 text-[8.5px]"></i>
+                                                            <span>${eventosDoDia.length}</span>
+                                                        </span>` : ''}
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-1 overflow-y-auto flex-1 pr-0.5 mt-0.5">
+                                                ${maquinasChecklist.map(maq => `
+                                                    <div onclick="event.stopPropagation(); abrirModalDetalhesChecklist('${maq.id}')" class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${maq.temProblema ? 'bg-teal-50 border-teal-300 text-teal-900 ring-1 ring-red-400/70' : 'bg-teal-100 border-teal-300 text-teal-900'} truncate flex items-center justify-between gap-1 shadow-2xs hover:bg-teal-200 transition cursor-pointer" title="Checklist realizada: ${escaparHTML(maq.nome)} (${maq.qtd} inspeção${maq.qtd > 1 ? 'ões' : ''}${maq.temProblema ? ' - COM DEFEITO' : ''}) - Clique para ver detalhes">
+                                                        <span class="truncate flex items-center gap-1">
+                                                            <i class="fa-solid fa-clipboard-check text-teal-700 text-[8.5px] shrink-0"></i>
+                                                            <span class="truncate">${escaparHTML(maq.nome)}</span>
+                                                        </span>
+                                                        <div class="flex items-center gap-1 shrink-0">
+                                                            ${maq.temProblema ? `<i class="fa-solid fa-triangle-exclamation text-red-600 text-[8px]" title="Apontamento de defeito"></i>` : (maq.qtd > 1 ? `<span class="text-[8px] bg-teal-200 text-teal-800 px-1 rounded-full font-mono">${maq.qtd}</span>` : '')}
+                                                            ${maq.qtd === 1 ? `
+                                                                <button type="button" onclick="event.stopPropagation(); confirmarExcluirChecklist('${maq.id}', '${escaparHTML(maq.nome)}')" class="text-slate-500 hover:text-red-700 p-0.5 rounded transition shrink-0 opacity-70 hover:opacity-100 cursor-pointer" title="Excluir este checklist">
+                                                                    <i class="fa-solid fa-trash-can text-[8px]"></i>
+                                                                </button>
+                                                            ` : ''}
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+
+                                                ${eventosDoDia.map(ev => {
+                                                    let corPill = 'bg-amber-100 text-amber-800 border-amber-300';
+                                                    if (ev.status === 'concluido') corPill = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                                                    else if (ev.prioridade === 'urgente' || ev.tipo === 'emergencial') corPill = 'bg-red-100 text-red-800 border-red-300';
+
+                                                    return `
+                                                    <div onclick="event.stopPropagation(); abrirModalDetalhesOS('${ev.id}')" class="text-[9.5px] font-mono-num font-bold p-0.5 px-1.5 rounded border ${corPill} truncate flex items-center justify-between gap-1 shadow-2xs hover:opacity-90 transition cursor-pointer" title="${escaparHTML(ev.maquina_nome)}: ${escaparHTML(ev.titulo)} - Clique para ver ou excluir">
+                                                        <span class="truncate flex items-center gap-1">
+                                                            <i class="fa-solid fa-wrench text-[8px] opacity-75 shrink-0"></i>
+                                                            <span class="truncate">${escaparHTML(ev.maquina_nome)}</span>
+                                                        </span>
+                                                        <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ev.id}', '${escaparHTML(ev.titulo || ev.maquina_nome)}')" class="text-slate-500 hover:text-red-700 p-0.5 rounded transition shrink-0 opacity-70 hover:opacity-100 cursor-pointer" title="Excluir O.S.">
+                                                            <i class="fa-solid fa-trash-can text-[8px]"></i>
+                                                        </button>
+                                                    </div>`;
+                                                }).join('')}
+                                            </div>
                                         </div>`;
                                     }).join('')}
                                 </div>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                    </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -9462,7 +10297,7 @@ DIRETRIZES:
 
         let chkAtivoInspecionado = null;
 
-        function abrirModalDetalhesChecklist(chkId) {
+        function abrirModalDetalhesChecklist(chkId, modoLeitura = false) {
             const c = cacheGestor.checklists.find(item => item.id === chkId);
             if (!c) {
                 alert("Checklist não encontrado.");
@@ -9472,6 +10307,16 @@ DIRETRIZES:
 
             const modal = document.getElementById('modal-detalhes-checklist');
             if (!modal) return;
+
+            // Segurança: Ocultar botão de exclusão e ações restritas quando aberto por operador
+            const btnExcluir = document.getElementById('chk-modal-btn-excluir');
+            if (btnExcluir) {
+                if (modoLeitura) {
+                    btnExcluir.classList.add('hidden');
+                } else {
+                    btnExcluir.classList.remove('hidden');
+                }
+            }
 
             const defs = calcularReincidenciasChecklist(c);
             const temProblema = c.tem_problema || defs.length > 0;
@@ -9621,7 +10466,15 @@ DIRETRIZES:
 
             const osLinkDiv = document.getElementById('chk-modal-os-link');
             const ordemVinculada = cacheGestor.ordens.find(o => o.checklist_id === c.id);
-            if (ordemVinculada) {
+
+            if (modoLeitura) {
+                // Modo Operador / Leitura: Totalmente seguro, sem permitir gerar O.S. de gestor ou alterar dados
+                osLinkDiv.innerHTML = `
+                    <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 cursor-pointer" title="Baixar relatório completo em PDF com dados da checklist e histórico da máquina">
+                        <i class="fa-solid fa-file-pdf"></i> Baixar Relatório Desta Checklist (PDF)
+                    </button>
+                `;
+            } else if (ordemVinculada) {
                 osLinkDiv.innerHTML = `
                     <div class="flex items-center gap-2 flex-wrap">
                         <button onclick="fecharModalDetalhesChecklist(); abrirModalDetalhesOS('${ordemVinculada.id}')" class="btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 cursor-pointer">
@@ -9630,20 +10483,33 @@ DIRETRIZES:
                         <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-plus"></i> Abrir Outra O.S.
                         </button>
+                        <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer" title="Baixar relatório individual em PDF">
+                            <i class="fa-solid fa-file-pdf text-orange-600"></i> Relatório PDF
+                        </button>
                     </div>
                 `;
             } else if (temProblema) {
                 osLinkDiv.innerHTML = `
-                    <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
-                        <span>Gerar Ordem de Serviço (O.S.)</span>
-                    </button>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
+                            <span>Gerar Ordem de Serviço (O.S.)</span>
+                        </button>
+                        <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer" title="Baixar relatório individual em PDF">
+                            <i class="fa-solid fa-file-pdf text-orange-600"></i> Relatório PDF
+                        </button>
+                    </div>
                 `;
             } else {
                 osLinkDiv.innerHTML = `
-                    <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-plus"></i> Abrir O.S. Preventiva
-                    </button>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="abrirAgendamentoParaChecklist('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i> Abrir O.S. Preventiva
+                        </button>
+                        <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="btn-industrial bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl transition border border-slate-300 flex items-center gap-1.5 cursor-pointer" title="Baixar relatório individual em PDF">
+                            <i class="fa-solid fa-file-pdf text-orange-600"></i> Relatório PDF
+                        </button>
+                    </div>
                 `;
             }
 
