@@ -1625,53 +1625,23 @@
             { icon: 'fa-anchor', label: 'Patolas' }
         ];
 
-        // BIBLIOTECA DE ILUSTRAÇÕES DE COMPONENTES DAS MÁQUINAS (FUNCIONAMENTO OFFLINE E ONLINE)
-        const ILUSTRACOES_PADRAO_COMPONENTES = {
-            // Cilindros
-            'cilindros_elevacao': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=700&auto=format&fit=crop&q=80',
-            'cilindros_inclinacao': './imagens/Componentes/hyundai/CILINDROS DE INCLINAÇÃO.jpeg',
-            'cilindros_patolas': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=700&auto=format&fit=crop&q=80',
-            'cilindros_direcao': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=700&auto=format&fit=crop&q=80',
-            'cilindros_garra': './imagens/Componentes/hyundai/garra.jpeg',
-            'garra': './imagens/Componentes/hyundai/garra.jpeg',
-
-            // Hidráulica & Mangueiras
-            'mangueiras_conexoes': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&auto=format&fit=crop&q=80',
-            'mangueiras_cilindros': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&auto=format&fit=crop&q=80',
-            'mangueiras_garra': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&auto=format&fit=crop&q=80',
-            'bomba_hidraulica': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=700&auto=format&fit=crop&q=80',
-            'comando_hidraulico': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=700&auto=format&fit=crop&q=80',
-
-            // Motor, Óleo e Arrefecimento
-            'nivel_oleo_motor': 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=700&auto=format&fit=crop&q=80',
-            'nivel_oleo_hidraulico': 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=700&auto=format&fit=crop&q=80',
-            'vazamentos_motor_caixa': 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=700&auto=format&fit=crop&q=80',
-            'vazamentos_motor': 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=700&auto=format&fit=crop&q=80',
-            'nivel_arrefecimento': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=700&auto=format&fit=crop&q=80',
-            'mangotes_agua': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=700&auto=format&fit=crop&q=80',
-            'radiador': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=700&auto=format&fit=crop&q=80',
-
-            // Elétrica & Cabine
-            'estado_lanternas': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=700&auto=format&fit=crop&q=80',
-            'farois_lanternas': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=700&auto=format&fit=crop&q=80',
-            'buzina_sirene': 'https://images.unsplash.com/photo-1508873696983-2df5703bc20d?w=700&auto=format&fit=crop&q=80',
-            'buzina_sirenes': 'https://images.unsplash.com/photo-1508873696983-2df5703bc20d?w=700&auto=format&fit=crop&q=80',
-            'funcionamento_painel': 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=700&auto=format&fit=crop&q=80',
-            'painel_instrumentos': 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=700&auto=format&fit=crop&q=80',
-            'ar_condicionado': 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=700&auto=format&fit=crop&q=80',
-
-            // Freios & Rodagem
-            'freio_servico': 'https://images.unsplash.com/photo-1613214149922-f1809c99b414?w=700&auto=format&fit=crop&q=80',
-            'freio_pe': 'https://images.unsplash.com/photo-1613214149922-f1809c99b414?w=700&auto=format&fit=crop&q=80',
-            'freio_estacionamento': 'https://images.unsplash.com/photo-1613214149922-f1809c99b414?w=700&auto=format&fit=crop&q=80',
-            'parafusos_pneu': 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?w=700&auto=format&fit=crop&q=80',
-            'parafusos_rodas': 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?w=700&auto=format&fit=crop&q=80',
-            'estado_pneus': 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?w=700&auto=format&fit=crop&q=80'
-        };
+        // VALIDAÇÃO E GESTÃO DE FOTOS DE COMPONENTES
+        // Não busca imagens genéricas da internet. Caso não tenha foto adicionada manualmente, mantém o ícone da pergunta.
+        function ehFotoManualValida(url) {
+            if (!url || typeof url !== 'string') return false;
+            const u = url.trim();
+            if (!u) return false;
+            // Bloqueia qualquer imagem genérica ou externa de busca da internet (Unsplash, placeholders, etc.)
+            if (u.includes('unsplash.com') || u.includes('images.unsplash.com') || u.includes('placeholder')) {
+                return false;
+            }
+            // Aceita apenas fotos reais adicionadas pelo usuário/gestor: base64 (data:image/...), uploads no Supabase/Cloudinary ou arquivos locais específicos
+            return true;
+        }
 
         function obterFotoIlustrativaComponente(item, m) {
             if (!item) return null;
-            if (item.foto_url && typeof item.foto_url === 'string' && item.foto_url.trim()) {
+            if (ehFotoManualValida(item.foto_url)) {
                 return item.foto_url.trim();
             }
 
@@ -1686,7 +1656,7 @@
                     if (raw) {
                         const parsed = JSON.parse(raw);
                         const p = parsed.find(x => x.id === item.id || (x.title && x.title.toLowerCase().trim() === tituloItem));
-                        if (p && p.foto_url) return p.foto_url;
+                        if (p && ehFotoManualValida(p.foto_url)) return p.foto_url.trim();
                     }
                 } catch (_) {}
             }
@@ -1694,10 +1664,10 @@
             // 2. Tenta foto em maquina_especificacoes desta máquina
             if (m && Array.isArray(m.maquina_especificacoes)) {
                 const sf = m.maquina_especificacoes.find(s => 
-                    s.categoria === 'componente_foto' && s.especificacao &&
+                    s.categoria === 'componente_foto' && ehFotoManualValida(s.especificacao) &&
                     (s.item_nome === item.id || (s.item_nome && s.item_nome.toLowerCase().trim() === tituloItem))
                 );
-                if (sf && sf.especificacao) return sf.especificacao;
+                if (sf && sf.especificacao) return sf.especificacao.trim();
             }
 
             // 3. Tenta cache global de maquina_especificacoes (jp_specs_cache)
@@ -1707,38 +1677,14 @@
                     const specs = JSON.parse(cachedSpecs);
                     if (Array.isArray(specs)) {
                         if (m && m.id) {
-                            const sf = specs.find(s => String(s.maquina_id) === String(m.id) && s.categoria === 'componente_foto' && s.especificacao && (s.item_nome === item.id || (s.item_nome && s.item_nome.toLowerCase().trim() === tituloItem)));
-                            if (sf && sf.especificacao) return sf.especificacao;
+                            const sf = specs.find(s => String(s.maquina_id) === String(m.id) && s.categoria === 'componente_foto' && ehFotoManualValida(s.especificacao) && (s.item_nome === item.id || (s.item_nome && s.item_nome.toLowerCase().trim() === tituloItem)));
+                            if (sf && sf.especificacao) return sf.especificacao.trim();
                         }
-                        const sfGeral = specs.find(s => s.categoria === 'componente_foto' && s.especificacao && (s.item_nome === item.id || (s.item_nome && s.item_nome.toLowerCase().trim() === tituloItem)));
-                        if (sfGeral && sfGeral.especificacao) return sfGeral.especificacao;
                     }
                 }
             } catch (_) {}
 
-            // 4. Mapeamento direto de ilustrações industriais padrão
-            if (ILUSTRACOES_PADRAO_COMPONENTES[item.id]) return ILUSTRACOES_PADRAO_COMPONENTES[item.id];
-            
-            // 5. Busca inteligente por palavras-chave
-            const chaves = Object.keys(ILUSTRACOES_PADRAO_COMPONENTES);
-            for (const k of chaves) {
-                if (idItem.includes(k) || k.includes(idItem)) {
-                    return ILUSTRACOES_PADRAO_COMPONENTES[k];
-                }
-            }
-            if (idItem.includes('inclinacao') || tituloItem.includes('inclina')) return ILUSTRACOES_PADRAO_COMPONENTES['cilindros_inclinacao'];
-            if (idItem.includes('elevacao') || tituloItem.includes('eleva')) return ILUSTRACOES_PADRAO_COMPONENTES['cilindros_elevacao'];
-            if (idItem.includes('garra') || tituloItem.includes('garra')) return ILUSTRACOES_PADRAO_COMPONENTES['garra'];
-            if (idItem.includes('oleo') || tituloItem.includes('óleo')) return ILUSTRACOES_PADRAO_COMPONENTES['nivel_oleo_motor'];
-            if (idItem.includes('radiador') || idItem.includes('arrefecimento') || tituloItem.includes('radiador') || tituloItem.includes('água')) return ILUSTRACOES_PADRAO_COMPONENTES['radiador'];
-            if (idItem.includes('mangueira') || idItem.includes('mangote') || tituloItem.includes('mangueira') || tituloItem.includes('mangote')) return ILUSTRACOES_PADRAO_COMPONENTES['mangueiras_conexoes'];
-            if (idItem.includes('lanterna') || idItem.includes('farol') || tituloItem.includes('lanterna') || tituloItem.includes('faró')) return ILUSTRACOES_PADRAO_COMPONENTES['estado_lanternas'];
-            if (idItem.includes('buzina') || idItem.includes('sirene') || tituloItem.includes('buzina') || tituloItem.includes('sirene')) return ILUSTRACOES_PADRAO_COMPONENTES['buzina_sirene'];
-            if (idItem.includes('painel') || tituloItem.includes('painel')) return ILUSTRACOES_PADRAO_COMPONENTES['funcionamento_painel'];
-            if (idItem.includes('freio') || tituloItem.includes('freio')) return ILUSTRACOES_PADRAO_COMPONENTES['freio_servico'];
-            if (idItem.includes('pneu') || idItem.includes('roda') || tituloItem.includes('pneu') || tituloItem.includes('roda')) return ILUSTRACOES_PADRAO_COMPONENTES['estado_pneus'];
-            if (idItem.includes('direcao') || tituloItem.includes('direção')) return ILUSTRACOES_PADRAO_COMPONENTES['cilindros_direcao'];
-
+            // Caso não tenha foto adicionada manualmente, retorna null para manter o ícone original da pergunta
             return null;
         }
 
@@ -1750,7 +1696,9 @@
             // Se o objeto já possui checklist_customizado pré-carregado do banco
             if (Array.isArray(m.checklist_customizado) && m.checklist_customizado.length > 0) {
                 m.checklist_customizado.forEach(item => {
-                    if (!item.foto_url) item.foto_url = obterFotoIlustrativaComponente(item, m);
+                    if (item.foto_url && !ehFotoManualValida(item.foto_url)) {
+                        item.foto_url = null;
+                    }
                 });
                 return m.checklist_customizado;
             }
@@ -1762,17 +1710,20 @@
                     if (raw) {
                         const parsed = JSON.parse(raw);
                         if (Array.isArray(parsed) && parsed.length > 0) {
-                            // Mescla fotos salvas em maquina_especificacoes se houver
+                            // Limpa fotos genéricas antigas que possam ter ficado em cache
+                            parsed.forEach(item => {
+                                if (item.foto_url && !ehFotoManualValida(item.foto_url)) {
+                                    item.foto_url = null;
+                                }
+                            });
+                            // Mescla fotos manuais salvas em maquina_especificacoes se houver
                             if (Array.isArray(m.maquina_especificacoes)) {
-                                const specsFotos = m.maquina_especificacoes.filter(s => s.categoria === 'componente_foto');
+                                const specsFotos = m.maquina_especificacoes.filter(s => s.categoria === 'componente_foto' && ehFotoManualValida(s.especificacao));
                                 specsFotos.forEach(sf => {
                                     const p = parsed.find(x => x.id === sf.item_nome || (x.title && x.title.toLowerCase().trim() === String(sf.item_nome).toLowerCase().trim()));
-                                    if (p && !p.foto_url && sf.especificacao) p.foto_url = sf.especificacao;
+                                    if (p && !p.foto_url) p.foto_url = sf.especificacao.trim();
                                 });
                             }
-                            parsed.forEach(item => {
-                                if (!item.foto_url) item.foto_url = obterFotoIlustrativaComponente(item, m);
-                            });
                             return parsed;
                         }
                     }
@@ -1787,7 +1738,9 @@
                         const parsedTipo = JSON.parse(rawTipo);
                         if (Array.isArray(parsedTipo) && parsedTipo.length > 0) {
                             parsedTipo.forEach(item => {
-                                if (!item.foto_url) item.foto_url = obterFotoIlustrativaComponente(item, m);
+                                if (item.foto_url && !ehFotoManualValida(item.foto_url)) {
+                                    item.foto_url = null;
+                                }
                             });
                             return parsedTipo;
                         }
@@ -1795,7 +1748,7 @@
                 } catch(e){}
             }
 
-            // 3. Fallback de fábrica conforme o tipo (com injeção de fotos salvas no banco se existirem)
+            // 3. Fallback de fábrica conforme o tipo (com injeção de fotos manuais se existirem)
             let baseLista = [];
             const tipoLimpo = String(tipo).toLowerCase();
             if (tipoLimpo.includes('doosan') || tipoLimpo.includes('motocana')) {
@@ -1807,19 +1760,12 @@
             }
 
             if (Array.isArray(m.maquina_especificacoes)) {
-                const specsFotos = m.maquina_especificacoes.filter(s => s.categoria === 'componente_foto');
+                const specsFotos = m.maquina_especificacoes.filter(s => s.categoria === 'componente_foto' && ehFotoManualValida(s.especificacao));
                 specsFotos.forEach(sf => {
                     const item = baseLista.find(x => x.id === sf.item_nome || (x.title && x.title.toLowerCase().trim() === String(sf.item_nome).toLowerCase().trim()));
-                    if (item && sf.especificacao) item.foto_url = sf.especificacao;
+                    if (item && sf.especificacao) item.foto_url = sf.especificacao.trim();
                 });
             }
-
-            // Garante que todas as perguntas tenham a foto ilustrativa resolvida para exibição perfeita no celular
-            baseLista.forEach(item => {
-                if (!item.foto_url) {
-                    item.foto_url = obterFotoIlustrativaComponente(item, m);
-                }
-            });
 
             return baseLista;
         }
@@ -2712,7 +2658,7 @@
                 const itemObs = observacoesList.filter(o => o.itemId === item.id);
                 const showObsSection = nokSelected || itemObs.length > 0 || !!itemObsAberto[item.id];
                 const reincItem = obterReincidenciaItemPergunta(formData.empilhadeira, item.id, formData.maquinaId);
-                const fotoExibicao = (item.foto_url && String(item.foto_url).trim()) ? String(item.foto_url).trim() : (typeof obterFotoIlustrativaComponente === 'function' ? obterFotoIlustrativaComponente(item, { codigo: formData.empilhadeira, tipo: formData.tipo_maquina, id: formData.maquina_id }) : null);
+                const fotoExibicao = (item.foto_url && ehFotoManualValida(item.foto_url)) ? String(item.foto_url).trim() : (typeof obterFotoIlustrativaComponente === 'function' ? obterFotoIlustrativaComponente(item, { codigo: formData.empilhadeira, tipo: formData.tipo_maquina, id: formData.maquina_id }) : null);
 
                 appOperador.innerHTML = `
                     <div class="w-full flex flex-col h-full justify-between">
