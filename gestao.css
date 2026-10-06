@@ -224,7 +224,12 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         overflow-x: hidden !important;
     }
 
-    .kanban-grid { grid-template-columns: minmax(0, 1fr); }
+    .kanban-grid { 
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        gap: 8px !important;
+    }
     .calendar-hint { display: none !important; }
     .filter-toolbar { display: flex; flex-direction: column; align-items: stretch; }
     .filter-toolbar > div:first-child { width: 100%; }

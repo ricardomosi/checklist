@@ -310,46 +310,46 @@
     </div>
 
     <!-- ==================== MODAL DE EVENTOS DO DIA (CALENDÁRIO) ==================== -->
-    <div id="modal-detalhes-dia" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+    <div id="modal-detalhes-dia" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-full sm:max-w-2xl max-h-[94vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
             <!-- Cabeçalho do Dia -->
-            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-xl font-bold">
+            <div class="p-3.5 sm:p-4 px-4 sm:px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50 gap-2">
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-500/20 text-orange-700 flex items-center justify-center text-lg sm:text-xl font-bold shrink-0">
                         <i class="fa-solid fa-calendar-day"></i>
                     </div>
-                    <div>
-                        <h3 id="detalhes-dia-titulo" class="text-base sm:text-lg font-bold text-slate-900">12 de Setembro de 2026</h3>
-                        <p id="detalhes-dia-subtitulo" class="text-xs text-slate-500 font-medium">Resumo operacional e manutenções programadas</p>
+                    <div class="min-w-0">
+                        <h3 id="detalhes-dia-titulo" class="text-sm sm:text-lg font-bold text-slate-900 truncate">12 de Setembro de 2026</h3>
+                        <p id="detalhes-dia-subtitulo" class="text-[11px] sm:text-xs text-slate-500 font-medium truncate">Resumo operacional e manutenções programadas</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="abrirAgendamentoParaDia()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <button onclick="abrirAgendamentoParaDia()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-2.5 sm:px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap">
                         <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Agendar</span> Manutenção
                     </button>
-                    <button onclick="fecharModalDetalhesDia()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition">
+                    <button onclick="fecharModalDetalhesDia()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition cursor-pointer">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Conteúdo com Manutenções, Checklists e SOS -->
-            <div id="detalhes-dia-conteudo" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4">
+            <div id="detalhes-dia-conteudo" class="p-3 sm:p-5 overflow-y-auto flex-1 space-y-3 sm:space-y-4">
                 <!-- Preenchido via JavaScript -->
             </div>
 
             <!-- Rodapé com atalhos de navegação rápida -->
-            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
-                <div class="flex gap-2">
-                    <button onclick="navegarDoDiaPara('kanban')" class="text-xs text-slate-600 hover:text-orange-700 font-semibold flex items-center gap-1">
+            <div class="p-2.5 sm:p-3 px-3 sm:px-5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="navegarDoDiaPara('kanban')" class="text-xs text-slate-600 hover:text-orange-700 font-semibold flex items-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-table-columns"></i> Ver Quadro Kanban
                     </button>
                     <span class="text-slate-300">•</span>
-                    <button onclick="navegarDoDiaPara('checklists')" class="text-xs text-slate-600 hover:text-orange-700 font-semibold flex items-center gap-1">
+                    <button onclick="navegarDoDiaPara('checklists')" class="text-xs text-slate-600 hover:text-orange-700 font-semibold flex items-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-clipboard-check"></i> Ver Tabela de Checklists
                     </button>
                 </div>
-                <button onclick="fecharModalDetalhesDia()" class="text-xs font-semibold text-slate-500 hover:text-slate-800">
+                <button onclick="fecharModalDetalhesDia()" class="text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer">
                     Fechar
                 </button>
             </div>
@@ -1642,6 +1642,7 @@
         // Estado do Formulário
         let currentStepIndex = -5;
         let formData = {
+            _client_id: 'chk_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
             categoria: 'maquinas',
             tipo_maquina: 'empilhadeiras',
             unidade: 'FILIAL',
@@ -1693,6 +1694,9 @@
 
                 atualizarSelectSOS();
                 document.getElementById('count-maquinas').innerText = frotaTotal.length;
+
+                // Sincronizar qualquer fila offline pendente com segurança
+                setTimeout(() => { sincronizarFilaOffline(); }, 1000);
             } catch (e) {
                 console.warn("Aviso na sincronização do Supabase:", e);
             }
@@ -2866,6 +2870,36 @@ Fala do operador: "${limpo}"`;
             return limpo;
         }
 
+        // ==================== SERIALIZAÇÃO DE ÁUDIO BLINDADA ====================
+        function blobToDataURL(blob) {
+            return new Promise((resolve) => {
+                if (!blob || !(blob instanceof Blob)) return resolve(null);
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        function dataURLToBlob(dataurl) {
+            if (!dataurl || typeof dataurl !== 'string' || !dataurl.includes(',')) return null;
+            try {
+                const arr = dataurl.split(',');
+                const mimeMatch = arr[0].match(/:(.*?);/);
+                const mime = mimeMatch ? mimeMatch[1] : 'audio/webm';
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], { type: mime });
+            } catch (e) {
+                console.warn("Erro ao converter dataURL para Blob:", e);
+                return null;
+            }
+        }
+
         async function transcreverAudioComGemini(audioBlob, contexto = 'checklist') {
             if (!audioBlob) return null;
             const apiKey = (localStorage.getItem('gemini_api_key') || GEMINI_API_KEY || GEMINI_DEFAULT_KEY || "").trim();
@@ -2875,18 +2909,10 @@ Fala do operador: "${limpo}"`;
             }
 
             try {
-                const base64Data = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        const res = reader.result;
-                        if (!res || typeof res !== 'string') return reject(new Error("Falha na leitura do áudio"));
-                        const partes = res.split(',');
-                        resolve(partes.length > 1 ? partes[1] : partes[0]);
-                    };
-                    reader.onerror = reject;
-                    reader.readAsDataURL(audioBlob);
-                });
-
+                const fullDataUrl = await blobToDataURL(audioBlob);
+                if (!fullDataUrl) return null;
+                const partes = fullDataUrl.split(',');
+                const base64Data = partes.length > 1 ? partes[1] : partes[0];
                 if (!base64Data) return null;
 
                 const promptInstrucao = `Você é um auditor de manutenção mecânica de frotas industriais.
@@ -2898,7 +2924,7 @@ DIRETRIZES OBRIGATÓRIAS:
 2. Transcreva com fidelidade estrita o que o operador relatou no áudio, ajustando apenas concordância básica e pontuação.
 3. Se não houver voz inteligível ou for apenas estática/ruído de motor, responda exatamente: "Áudio sem fala identificável".`;
 
-                const modelos = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash'];
+                const modelos = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-3.5-flash'];
                 let mimeLimpo = (audioBlob.type || 'audio/webm').split(';')[0];
                 if (!mimeLimpo || mimeLimpo === 'application/octet-stream') mimeLimpo = 'audio/webm';
 
@@ -3189,13 +3215,9 @@ DIRETRIZES OBRIGATÓRIAS:
 
                         // Processamento assíncrono em segundo plano
                         (async () => {
-                            // 1. Converter Base64 em background para persistência offline
+                            // 1. Converter Base64 imediatamente para persistência offline sem perdas
                             try {
-                                const reader = new FileReader();
-                                reader.readAsDataURL(audioBlob);
-                                reader.onloadend = () => {
-                                    novaObs.audioBase64 = reader.result;
-                                };
+                                novaObs.audioBase64 = await blobToDataURL(audioBlob);
                             } catch(e){}
 
                             // 2. Refinamento ou transcrição com Gemini
@@ -3339,7 +3361,20 @@ DIRETRIZES OBRIGATÓRIAS:
             }).join('');
         }
 
-        // ==================== ENVIO AO SUPABASE ====================
+        // ==================== ENVIO AO SUPABASE COM IDEMPOTÊNCIA E ÁUDIO BLINDADO ====================
+        function removerItemFilaOffline(clientId) {
+            if (!clientId) return;
+            try {
+                let fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
+                fila = fila.filter(item => 
+                    item.clientId !== clientId &&
+                    item.payload?.respostas_customizadas?._client_id !== clientId
+                );
+                localStorage.setItem('checklists_offline_fila', JSON.stringify(fila));
+                atualizarStatusRede();
+            } catch (_) {}
+        }
+
         async function submitChecklistSupabase() {
             const btnEnviar = document.getElementById('btn-enviar');
             btnEnviar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Salvando no Supabase...</span>';
@@ -3350,7 +3385,12 @@ DIRETRIZES OBRIGATÓRIAS:
             const temProblema = itemsAtuais.some(item => formData[item.id] === 'NÃO CONFORME');
             const textoObsGeral = observacoesList.map(o => o.text).join(' | ');
 
-            const respostasCustomizadas = {};
+            const clientId = formData._client_id || ('chk_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9));
+            formData._client_id = clientId;
+
+            const respostasCustomizadas = {
+                _client_id: clientId
+            };
             itemsAtuais.forEach(it => {
                 if (formData[it.id]) respostasCustomizadas[it.id] = formData[it.id];
             });
@@ -3387,66 +3427,122 @@ DIRETRIZES OBRIGATÓRIAS:
             };
 
             try {
-                if (!db) throw new Error("Supabase não inicializado.");
+                if (!db || !navigator.onLine) throw new Error("Sem conexão de rede disponível.");
 
-                // 1. Inserir Checklist
-                const { data: chkData, error: chkError } = await db
+                // 1. Inserir Checklist (Idempotente: checar se já existe no banco com este _client_id)
+                let chkData = null;
+                const { data: existente } = await db
                     .from('checklists')
-                    .insert([checklistPayload])
-                    .select()
-                    .single();
+                    .select('*, checklist_observacoes(*)')
+                    .contains('respostas_customizadas', { _client_id: clientId })
+                    .maybeSingle();
 
-                if (chkError) throw chkError;
-                const checklistId = chkData.id;
+                if (existente && existente.id) {
+                    chkData = existente;
+                } else {
+                    const { data: novoChk, error: chkError } = await db
+                        .from('checklists')
+                        .insert([checklistPayload])
+                        .select()
+                        .single();
 
-                if (chkData) {
-                    if (!cacheGestor.checklists) cacheGestor.checklists = [];
-                    cacheGestor.checklists.unshift(chkData);
-                    try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 100))); } catch (_) {}
+                    if (chkError) throw chkError;
+                    chkData = novoChk;
                 }
+
+                const checklistId = chkData.id;
 
                 // 2. Atualizar Horímetro e status na máquina
                 if (formData.empilhadeira) {
-                    await db
-                        .from('maquinas')
-                        .update({ 
-                            horimetro_atual: horimetroNum,
-                            operador_atual: formData.operador,
-                            status_operacional: temProblema ? 'alerta' : 'operando',
-                            updated_at: new Date()
-                        })
-                        .or(`codigo.eq.${formData.empilhadeira},nome.eq.${formData.empilhadeira}`);
+                    try {
+                        await db
+                            .from('maquinas')
+                            .update({ 
+                                horimetro_atual: horimetroNum,
+                                operador_atual: formData.operador,
+                                status_operacional: temProblema ? 'alerta' : 'operando',
+                                updated_at: new Date()
+                            })
+                            .or(`codigo.eq.${formData.empilhadeira},nome.eq.${formData.empilhadeira}`);
+                    } catch (_) {}
                 }
 
-                // 3. Upload dos Áudios
+                // 3. Upload dos Áudios com persistência relacional
+                const observacoesSalvas = [];
                 for (let i = 0; i < observacoesList.length; i++) {
                     const obs = observacoesList[i];
                     let audioUrlFinal = "";
 
-                    if (obs.audioBlob) {
-                        const fileName = `chk_${checklistId}_obs_${i + 1}_${Date.now()}.webm`;
-                        const { error: uploadErr } = await db.storage
-                            .from('checklist-audios')
-                            .upload(fileName, obs.audioBlob, { contentType: obs.mimeType || 'audio/webm' });
+                    const blobParaEnvio = obs.audioBlob || (obs.audioBase64 ? dataURLToBlob(obs.audioBase64) : null);
+                    if (blobParaEnvio) {
+                        try {
+                            const fileName = `chk_${checklistId}_obs_${i + 1}_${Date.now()}.webm`;
+                            const { error: uploadErr } = await db.storage
+                                .from('checklist-audios')
+                                .upload(fileName, blobParaEnvio, { contentType: obs.mimeType || 'audio/webm' });
 
-                        if (!uploadErr) {
-                            const { data: pubUrl } = db.storage.from('checklist-audios').getPublicUrl(fileName);
-                            audioUrlFinal = pubUrl.publicUrl;
+                            if (!uploadErr) {
+                                const { data: pubUrl } = db.storage.from('checklist-audios').getPublicUrl(fileName);
+                                audioUrlFinal = pubUrl?.publicUrl || "";
+                            }
+                        } catch (eUp) {
+                            console.warn("Aviso no upload do áudio:", eUp);
                         }
                     }
 
-                    await db
+                    // Checar se já existe a observação para não duplicar
+                    const { data: obsExistente } = await db
                         .from('checklist_observacoes')
-                        .insert([{
+                        .select('*')
+                        .eq('checklist_id', checklistId)
+                        .eq('ordem', i + 1)
+                        .maybeSingle();
+
+                    if (obsExistente) {
+                        observacoesSalvas.push(obsExistente);
+                    } else {
+                        const { data: insObs } = await db
+                            .from('checklist_observacoes')
+                            .insert([{
+                                checklist_id: checklistId,
+                                ordem: i + 1,
+                                texto_original: obs.text,
+                                texto_corrigido_ia: obs.text,
+                                audio_url: audioUrlFinal
+                            }])
+                            .select()
+                            .maybeSingle();
+
+                        observacoesSalvas.push(insObs || {
                             checklist_id: checklistId,
                             ordem: i + 1,
                             texto_original: obs.text,
                             texto_corrigido_ia: obs.text,
                             audio_url: audioUrlFinal
-                        }]);
+                        });
+                    }
                 }
 
-                // Não gera O.S. automaticamente. O gestor tem controle total para abrir O.S. manualmente na aba de Checklists ou no Histórico.
+                // 4. Anexar observações e áudios ao chkData e sincronizar cache local
+                chkData.checklist_observacoes = observacoesSalvas;
+                chkData.audio_url = observacoesSalvas.find(o => o.audio_url)?.audio_url || '';
+
+                if (!cacheGestor.checklists) cacheGestor.checklists = [];
+                // Remover qualquer versão temporária local com o mesmo _client_id
+                cacheGestor.checklists = cacheGestor.checklists.filter(c => 
+                    c.id !== ('local_' + clientId) &&
+                    !(c.respostas_customizadas?._client_id && c.respostas_customizadas._client_id === clientId && c.id !== checklistId)
+                );
+                const idxExistente = cacheGestor.checklists.findIndex(c => c.id === checklistId);
+                if (idxExistente >= 0) {
+                    cacheGestor.checklists[idxExistente] = chkData;
+                } else {
+                    cacheGestor.checklists.unshift(chkData);
+                }
+                try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 100))); } catch (_) {}
+
+                // Remover da fila offline caso estivesse gravado lá
+                removerItemFilaOffline(clientId);
 
                 // Tela de Conclusão com Sucesso & Retorno à tela inicial
                 appOperador.innerHTML = `
@@ -3467,7 +3563,7 @@ DIRETRIZES OBRIGATÓRIAS:
                             </div>
                         </div>
 
-                        <button onclick="reiniciarChecklist()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-slate-900 rounded-2xl py-3.5 px-6 text-base font-bold shadow-lg w-full max-w-xs mx-auto block mb-2">
+                        <button onclick="reiniciarChecklist()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white rounded-2xl py-3.5 px-6 text-base font-bold shadow-lg w-full max-w-xs mx-auto block mb-2 cursor-pointer">
                             <i class="fa-solid fa-rotate-left mr-2"></i> Iniciar Novo Checklist
                         </button>
                         <p class="text-[11px] text-slate-400">Retornando ao início para o próximo checklist...</p>
@@ -3484,16 +3580,53 @@ DIRETRIZES OBRIGATÓRIAS:
                 }, 3500);
 
             } catch (err) {
-                console.error("Erro ao salvar no Supabase:", err);
-                salvarFilaOfflineLocal(checklistPayload, observacoesList);
-                alert("Conexão instável. O checklist foi gravado no celular e será sincronizado quando a conexão retornar!");
-                btnEnviar.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Tentar Novamente</span>';
-                btnEnviar.disabled = false;
+                console.warn("Falha de conexão com o Supabase. Salvando de forma segura no celular:", err);
+                await salvarFilaOfflineLocal(checklistPayload, observacoesList, clientId);
+
+                // Tela de Conclusão Offline com Sucesso (Sem botão de tentar novamente que gera duplicações)
+                appOperador.innerHTML = `
+                    <div class="text-center w-full my-auto p-4">
+                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fa-solid fa-cloud-arrow-up text-4xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-1">Checklist Gravado no Celular!</h2>
+                        <div class="text-xs text-amber-900 mb-4 font-semibold bg-amber-50 p-2.5 rounded-xl border border-amber-200 max-w-xs mx-auto text-left leading-relaxed">
+                            <div class="flex items-center gap-1.5 font-bold mb-1 text-amber-800">
+                                <i class="fa-solid fa-signal text-amber-600"></i> Gravado com segurança offline
+                            </div>
+                            Todas as respostas e gravações de áudio foram guardadas neste aparelho. A sincronização com o sistema acontecerá automaticamente assim que houver sinal de internet, sem criar cópias repetidas.
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xs mx-auto mb-4 text-left">
+                            <div class="text-[10px] text-slate-600 font-bold uppercase mb-1">Resumo Guardado Offline</div>
+                            <div class="text-sm font-bold text-slate-800">${formData.empilhadeira} (${formData.unidade || 'FILIAL'})</div>
+                            <div class="text-xs text-slate-600 mt-0.5">👤 ${formData.operador}</div>
+                            <div class="text-xs text-slate-600 mt-0.5">⏱️ ${horimetroNum} Horas</div>
+                            <div class="mt-2 text-xs font-bold ${temProblema ? 'text-red-600' : 'text-emerald-600'}">
+                                ${temProblema ? 'COM APONTAMENTOS DE MANUTENÇÃO' : '100% CONFORME'}
+                            </div>
+                        </div>
+
+                        <button onclick="reiniciarChecklist()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white rounded-2xl py-3.5 px-6 text-base font-bold shadow-lg w-full max-w-xs mx-auto block mb-2 cursor-pointer">
+                            <i class="fa-solid fa-check mr-2"></i> Concluir e Novo Checklist
+                        </button>
+                        <p class="text-[11px] text-slate-400">Retornando ao início para o próximo checklist...</p>
+                    </div>
+                `;
+                progressBar.style.width = '100%';
+                speakText("Checklist gravado com sucesso no aparelho!");
+
+                setTimeout(() => {
+                    if (currentStepIndex === 99) {
+                        reiniciarChecklist();
+                    }
+                }, 4000);
             }
         }
 
         function reiniciarChecklist() {
             formData = {
+                _client_id: 'chk_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
                 categoria: 'maquinas',
                 tipo_maquina: 'empilhadeiras',
                 unidade: 'FILIAL',
@@ -3510,26 +3643,258 @@ DIRETRIZES OBRIGATÓRIAS:
             goToStep(-5);
         }
 
-        // ==================== OFFLINE FIRST ====================
-        function salvarFilaOfflineLocal(payload, obs) {
-            let fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
-            fila.push({ payload, obs, dataHora: new Date().toISOString() });
-            localStorage.setItem('checklists_offline_fila', JSON.stringify(fila));
+        // ==================== OFFLINE FIRST COM PERSISTÊNCIA DE ÁUDIO & IDEMPOTÊNCIA ====================
+        async function salvarFilaOfflineLocal(payload, obsList, clientId) {
+            const cid = clientId || payload.respostas_customizadas?._client_id || ('chk_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9));
+            payload.respostas_customizadas = payload.respostas_customizadas || {};
+            payload.respostas_customizadas._client_id = cid;
+
+            let fila = [];
+            try {
+                fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
+                if (!Array.isArray(fila)) fila = [];
+            } catch(_) {
+                fila = [];
+            }
+
+            // Converter todos os áudios para base64 para que fiquem preservados no localStorage sem perda
+            const obsSerializadas = await Promise.all((obsList || []).map(async (o) => {
+                let b64 = o.audioBase64 || null;
+                if (!b64 && o.audioBlob) {
+                    try {
+                        b64 = await blobToDataURL(o.audioBlob);
+                    } catch(e) {}
+                }
+                return {
+                    id: o.id,
+                    tipo: o.tipo,
+                    itemId: o.itemId,
+                    itemTitle: o.itemTitle,
+                    text: o.text,
+                    audioBase64: b64,
+                    mimeType: o.mimeType || 'audio/webm',
+                    transcritoIA: !!o.transcritoIA
+                };
+            }));
+
+            const novoItem = {
+                clientId: cid,
+                payload: payload,
+                obs: obsSerializadas,
+                dataHora: new Date().toISOString()
+            };
+
+            // Deduplicar: atualizar se já existe na fila
+            const idxExistente = fila.findIndex(it => 
+                it.clientId === cid || 
+                it.payload?.respostas_customizadas?._client_id === cid
+            );
+
+            if (idxExistente >= 0) {
+                fila[idxExistente] = novoItem;
+            } else {
+                fila.push(novoItem);
+            }
+
+            try {
+                localStorage.setItem('checklists_offline_fila', JSON.stringify(fila));
+            } catch (errQuota) {
+                console.warn("Aviso ao salvar fila offline:", errQuota);
+            }
             atualizarStatusRede();
+
+            // Guardar também no cache em memória e localStorage para ficar visível e ouvível imediatamente no app
+            const chkLocalSimulado = {
+                ...payload,
+                id: 'local_' + cid,
+                created_at: new Date().toISOString(),
+                _offline: true,
+                checklist_observacoes: obsSerializadas.map((o, idx) => ({
+                    checklist_id: 'local_' + cid,
+                    ordem: idx + 1,
+                    texto_original: o.text,
+                    texto_corrigido_ia: o.text,
+                    audio_url: o.audioBase64 || ''
+                })),
+                audio_url: obsSerializadas.find(o => o.audioBase64)?.audioBase64 || ''
+            };
+
+            if (!cacheGestor.checklists) cacheGestor.checklists = [];
+            const idxCache = cacheGestor.checklists.findIndex(c => 
+                c.id === ('local_' + cid) ||
+                (c.respostas_customizadas?._client_id && c.respostas_customizadas._client_id === cid)
+            );
+            if (idxCache >= 0) {
+                cacheGestor.checklists[idxCache] = chkLocalSimulado;
+            } else {
+                cacheGestor.checklists.unshift(chkLocalSimulado);
+            }
+            try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 100))); } catch (_) {}
         }
 
         async function sincronizarFilaOffline() {
-            if (!db) return;
-            let fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
-            if (fila.length === 0) return;
-
-            for (let i = 0; i < fila.length; i++) {
-                try {
-                    const item = fila[i];
-                    await db.from('checklists').insert([item.payload]);
-                } catch(e) {}
+            if (!db || window._isSincronizandoFila || !navigator.onLine) return;
+            let fila = [];
+            try {
+                fila = JSON.parse(localStorage.getItem('checklists_offline_fila') || '[]');
+                if (!Array.isArray(fila) || fila.length === 0) return;
+            } catch (_) {
+                return;
             }
-            localStorage.removeItem('checklists_offline_fila');
+
+            window._isSincronizandoFila = true;
+            try {
+                const novaFila = [];
+
+                for (let i = 0; i < fila.length; i++) {
+                    const item = fila[i];
+                    try {
+                        const clientId = item.clientId || item.payload?.respostas_customizadas?._client_id;
+                        let chkId = null;
+
+                        // 1. Verificar se este checklist já foi inserido anteriormente no Supabase
+                        if (clientId) {
+                            const { data: existente } = await db
+                                .from('checklists')
+                                .select('id')
+                                .contains('respostas_customizadas', { _client_id: clientId })
+                                .maybeSingle();
+
+                            if (existente && existente.id) {
+                                chkId = existente.id;
+                            }
+                        }
+
+                        // 2. Se não foi inserido, inserir no Supabase agora
+                        if (!chkId) {
+                            const { data: novoChk, error: insErr } = await db
+                                .from('checklists')
+                                .insert([item.payload])
+                                .select()
+                                .single();
+
+                            if (insErr) {
+                                console.warn("Falha ao sincronizar checklist offline, retendo na fila:", insErr);
+                                novaFila.push(item);
+                                continue;
+                            }
+                            chkId = novoChk.id;
+                        }
+
+                        // 3. Atualizar máquina se aplicável
+                        if (item.payload?.empilhadeira) {
+                            try {
+                                await db
+                                    .from('maquinas')
+                                    .update({
+                                        horimetro_atual: parseFloat(item.payload.horimetro) || 0,
+                                        operador_atual: item.payload.operador,
+                                        status_operacional: item.payload.tem_problema ? 'alerta' : 'operando',
+                                        updated_at: new Date()
+                                    })
+                                    .or(`codigo.eq.${item.payload.empilhadeira},nome.eq.${item.payload.empilhadeira}`);
+                            } catch (_) {}
+                        }
+
+                        // 4. Upload dos áudios e inserção em checklist_observacoes
+                        const observacoesCriadas = [];
+                        if (Array.isArray(item.obs) && item.obs.length > 0) {
+                            for (let oIdx = 0; oIdx < item.obs.length; oIdx++) {
+                                const obsItem = item.obs[oIdx];
+                                let audioUrlFinal = "";
+
+                                if (obsItem.audioBase64) {
+                                    try {
+                                        const audioBlob = dataURLToBlob(obsItem.audioBase64);
+                                        if (audioBlob) {
+                                            const fileName = `chk_${chkId}_obs_${oIdx + 1}_${Date.now()}.webm`;
+                                            const { error: upErr } = await db.storage
+                                                .from('checklist-audios')
+                                                .upload(fileName, audioBlob, { contentType: obsItem.mimeType || 'audio/webm' });
+
+                                            if (!upErr) {
+                                                const { data: pubData } = db.storage
+                                                    .from('checklist-audios')
+                                                    .getPublicUrl(fileName);
+                                                audioUrlFinal = pubData?.publicUrl || "";
+                                            }
+                                        }
+                                    } catch (eBlob) {
+                                        console.warn("Erro ao enviar áudio offline:", eBlob);
+                                    }
+                                }
+
+                                // Verificar se já existe a observação
+                                const { data: obsExistente } = await db
+                                    .from('checklist_observacoes')
+                                    .select('*')
+                                    .eq('checklist_id', chkId)
+                                    .eq('ordem', oIdx + 1)
+                                    .maybeSingle();
+
+                                if (obsExistente) {
+                                    observacoesCriadas.push(obsExistente);
+                                } else {
+                                    const { data: insObsData } = await db
+                                        .from('checklist_observacoes')
+                                        .insert([{
+                                            checklist_id: chkId,
+                                            ordem: oIdx + 1,
+                                            texto_original: obsItem.text,
+                                            texto_corrigido_ia: obsItem.text,
+                                            audio_url: audioUrlFinal
+                                        }])
+                                        .select()
+                                        .maybeSingle();
+
+                                    observacoesCriadas.push(insObsData || {
+                                        checklist_id: chkId,
+                                        ordem: oIdx + 1,
+                                        texto_original: obsItem.text,
+                                        texto_corrigido_ia: obsItem.text,
+                                        audio_url: audioUrlFinal
+                                    });
+                                }
+                            }
+                        }
+
+                        // 5. Atualizar o cache em memória
+                        if (cacheGestor.checklists) {
+                            const idxLocal = cacheGestor.checklists.findIndex(c => 
+                                c.id === ('local_' + clientId) || 
+                                (c.respostas_customizadas?._client_id && c.respostas_customizadas._client_id === clientId)
+                            );
+                            const itemAtualizado = {
+                                ...item.payload,
+                                id: chkId,
+                                _offline: false,
+                                checklist_observacoes: observacoesCriadas,
+                                audio_url: observacoesCriadas.find(o => o.audio_url)?.audio_url || ''
+                            };
+                            if (idxLocal >= 0) {
+                                cacheGestor.checklists[idxLocal] = itemAtualizado;
+                            } else {
+                                cacheGestor.checklists.unshift(itemAtualizado);
+                            }
+                            try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 100))); } catch (_) {}
+                        }
+
+                    } catch (itemErr) {
+                        console.error("Erro ao processar item da fila offline:", itemErr);
+                        novaFila.push(item);
+                    }
+                }
+
+                if (novaFila.length > 0) {
+                    localStorage.setItem('checklists_offline_fila', JSON.stringify(novaFila));
+                } else {
+                    localStorage.removeItem('checklists_offline_fila');
+                }
+                atualizarStatusRede();
+
+            } finally {
+                window._isSincronizandoFila = false;
+            }
         }
 
         // ==================== PIN DO GESTOR (APENAS TECLADO FÍSICO) ====================
@@ -4662,8 +5027,8 @@ DIRETRIZES OBRIGATÓRIAS:
                                     ${filtrados.length > 0 ? filtrados.map(c => {
                                         const dt = new Date(c.created_at);
                                         const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                                        const audios = c.checklist_observacoes || [];
-                                        const primeiroAudio = audios.find(a => a.audio_url);
+                                        const audios = Array.isArray(c.checklist_observacoes) ? c.checklist_observacoes : [];
+                                        const primeiroAudio = audios.find(a => a.audio_url) || (c.audio_url ? { audio_url: c.audio_url } : null);
                                         const defs = extrairDefeitosChecklist(c);
                                         const isSel = checklistsSelecionados.has(c.id);
 
@@ -5319,37 +5684,36 @@ DIRETRIZES OBRIGATÓRIAS:
             const countPecas = cacheGestor.ordens.filter(o => o.status === 'analise_pecas').length;
             const countManut = cacheGestor.ordens.filter(o => o.status === 'em_manutencao').length;
             const countConcluido = cacheGestor.ordens.filter(o => o.status === 'concluido').length;
-            const countTodas = cacheGestor.ordens.length;
+
+            if (!colunas.some(c => c.id === window.kanbanMobileColuna)) {
+                window.kanbanMobileColuna = 'pendente';
+            }
 
             return `
-                <!-- BARRA DE SUB-COLUNAS KANBAN NO MOBILE (ESTILO SEGMENTED CONTROL) -->
-                <div class="md:hidden bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center gap-1 overflow-x-auto shrink-0 mb-1">
-                    <button type="button" onclick="setKanbanMobileColuna('pendente')" class="flex-1 min-w-[70px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'pendente' ? 'bg-white text-amber-900 border border-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
-                        <span>Pendente</span>
-                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'pendente' ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-700'}">${countPendente}</span>
+                <!-- BARRA DE SUB-COLUNAS KANBAN NO MOBILE (ESTILO SEGMENTED CONTROL 4 COLUNAS IGUAL AO SEMANAL) -->
+                <div class="md:hidden bg-slate-100 p-1 rounded-xl border border-slate-200 grid grid-cols-4 gap-1 w-full shrink-0 mb-1.5 shadow-2xs">
+                    <button type="button" onclick="setKanbanMobileColuna('pendente')" class="py-2 px-1 rounded-lg text-center transition flex flex-col items-center justify-center cursor-pointer ${window.kanbanMobileColuna === 'pendente' ? 'bg-white text-amber-950 border border-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span class="text-[11px] font-bold leading-none">Pendente</span>
+                        <span class="text-[9px] font-mono-num font-extrabold px-1.5 py-0.2 mt-0.5 rounded-full ${window.kanbanMobileColuna === 'pendente' ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-700'}">${countPendente}</span>
                     </button>
-                    <button type="button" onclick="setKanbanMobileColuna('analise_pecas')" class="flex-1 min-w-[65px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'analise_pecas' ? 'bg-white text-orange-900 border border-orange-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
-                        <span>Peças</span>
-                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'analise_pecas' ? 'bg-orange-100 text-orange-900' : 'bg-slate-200 text-slate-700'}">${countPecas}</span>
+                    <button type="button" onclick="setKanbanMobileColuna('analise_pecas')" class="py-2 px-1 rounded-lg text-center transition flex flex-col items-center justify-center cursor-pointer ${window.kanbanMobileColuna === 'analise_pecas' ? 'bg-white text-orange-950 border border-orange-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span class="text-[11px] font-bold leading-none">Peças</span>
+                        <span class="text-[9px] font-mono-num font-extrabold px-1.5 py-0.2 mt-0.5 rounded-full ${window.kanbanMobileColuna === 'analise_pecas' ? 'bg-orange-100 text-orange-900' : 'bg-slate-200 text-slate-700'}">${countPecas}</span>
                     </button>
-                    <button type="button" onclick="setKanbanMobileColuna('em_manutencao')" class="flex-1 min-w-[65px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'em_manutencao' ? 'bg-white text-blue-900 border border-blue-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
-                        <span>Manut.</span>
-                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'em_manutencao' ? 'bg-blue-100 text-blue-900' : 'bg-slate-200 text-slate-700'}">${countManut}</span>
+                    <button type="button" onclick="setKanbanMobileColuna('em_manutencao')" class="py-2 px-1 rounded-lg text-center transition flex flex-col items-center justify-center cursor-pointer ${window.kanbanMobileColuna === 'em_manutencao' ? 'bg-white text-blue-950 border border-blue-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span class="text-[11px] font-bold leading-none">Manut.</span>
+                        <span class="text-[9px] font-mono-num font-extrabold px-1.5 py-0.2 mt-0.5 rounded-full ${window.kanbanMobileColuna === 'em_manutencao' ? 'bg-blue-100 text-blue-900' : 'bg-slate-200 text-slate-700'}">${countManut}</span>
                     </button>
-                    <button type="button" onclick="setKanbanMobileColuna('concluido')" class="flex-1 min-w-[65px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'concluido' ? 'bg-white text-emerald-900 border border-emerald-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
-                        <span>Pronto</span>
-                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'concluido' ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-200 text-slate-700'}">${countConcluido}</span>
-                    </button>
-                    <button type="button" onclick="setKanbanMobileColuna('todas')" class="min-w-[55px] py-1.5 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${window.kanbanMobileColuna === 'todas' ? 'bg-white text-slate-900 border border-slate-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
-                        <span>Todas</span>
-                        <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.2 rounded-full ${window.kanbanMobileColuna === 'todas' ? 'bg-slate-300 text-slate-900' : 'bg-slate-200 text-slate-700'}">${countTodas}</span>
+                    <button type="button" onclick="setKanbanMobileColuna('concluido')" class="py-2 px-1 rounded-lg text-center transition flex flex-col items-center justify-center cursor-pointer ${window.kanbanMobileColuna === 'concluido' ? 'bg-white text-emerald-950 border border-emerald-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+                        <span class="text-[11px] font-bold leading-none">Pronto</span>
+                        <span class="text-[9px] font-mono-num font-extrabold px-1.5 py-0.2 mt-0.5 rounded-full ${window.kanbanMobileColuna === 'concluido' ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-200 text-slate-700'}">${countConcluido}</span>
                     </button>
                 </div>
 
                 <div class="kanban-grid grid md:grid-cols-4 gap-3 items-stretch flex-1 overflow-y-auto">
                     ${colunas.map(col => {
                         const itens = cacheGestor.ordens.filter(o => o.status === col.id).sort((a,b) => Number(b.prioridade === 'urgente') - Number(a.prioridade === 'urgente'));
-                        const isVisivel = (window.kanbanMobileColuna === 'todas' || window.kanbanMobileColuna === col.id);
+                        const isVisivel = (window.kanbanMobileColuna === col.id);
                         return `
                         <div class="bg-white border-t-4 ${col.cor} border-x border-b border-slate-200 rounded-xl p-3 shadow-sm min-h-[380px] md:min-h-[420px] ${isVisivel ? 'flex' : 'hidden md:flex'} flex-col flex-1">
                             <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-200 shrink-0">
@@ -10358,28 +10722,33 @@ DIRETRIZES OBRIGATÓRIAS:
                     else if (ordem.status === 'concluido') { statusClass = 'bg-emerald-100 text-emerald-800'; statusLabel = 'Concluído'; }
 
                     html += `
-                        <div onclick="abrirModalDetalhesOS('${ordem.id}')" class="bg-white border border-slate-200 hover:border-orange-500 rounded-lg p-3 cursor-pointer shadow-sm hover:shadow-md transition">
-                            <div class="flex justify-between items-start gap-2">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(ordem.maquina_nome || 'Equipamento')}</span>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusClass}">${statusLabel}</span>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${ordem.prioridade === 'urgente' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'}">${escaparHTML(ordem.prioridade || 'Média').toUpperCase()}</span>
-                                    </div>
-                                    <p class="text-xs font-semibold text-slate-800 mt-1">${escaparHTML(ordem.titulo || 'Manutenção programada')}</p>
-                                    ${ordem.descricao ? `<p class="text-[11px] text-slate-500 mt-0.5">${escaparHTML(ordem.descricao)}</p>` : ''}
-                                    ${ordem.responsavel_mecanico ? `<p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-user-gear mr-1"></i> Resp: ${escaparHTML(ordem.responsavel_mecanico)}</p>` : ''}
+                        <div onclick="abrirModalDetalhesOS('${ordem.id}')" class="bg-white border border-slate-200 hover:border-orange-500 rounded-xl p-3 sm:p-3.5 cursor-pointer shadow-sm hover:shadow-md transition">
+                            <!-- Topo: Equipamento + Status + Prioridade + Horário/O.S. -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                                <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                    <span class="font-mono-num font-bold text-slate-900 text-sm">${escaparHTML(ordem.maquina_nome || 'Equipamento')}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusClass}">${statusLabel}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded ${ordem.prioridade === 'urgente' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'}">${escaparHTML(ordem.prioridade || 'Média').toUpperCase()}</span>
                                 </div>
                                 <div class="text-right shrink-0">
                                     <span class="text-[10px] font-mono-num text-slate-400">O.S. #${escaparHTML(ordem.numero_os || ordem.id.substring(0,6))}</span>
-                                    ${dtHora ? `<p class="text-[10px] text-slate-400 font-mono">${dtHora}</p>` : ''}
-                                    <div class="flex items-center gap-1.5 mt-2 justify-end">
-                                        <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ordem.id}', '${escaparHTML(ordem.titulo || ordem.maquina_nome)}', '${dataIso}')" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded text-[10px] transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Excluir O.S.">
-                                            <i class="fa-solid fa-trash-can text-[9px]"></i> Excluir
-                                        </button>
-                                        <span class="text-[11px] font-bold text-orange-600 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
-                                    </div>
+                                    ${dtHora ? `<span class="text-[10px] text-slate-500 font-mono font-bold ml-1.5">${dtHora}</span>` : ''}
                                 </div>
+                            </div>
+                            
+                            <!-- Descrição Completa -->
+                            <p class="text-xs font-semibold text-slate-800 mt-2">${escaparHTML(ordem.titulo || 'Manutenção programada')}</p>
+                            ${ordem.descricao ? `<p class="text-xs text-slate-600 mt-1 leading-relaxed break-words">${escaparHTML(ordem.descricao)}</p>` : ''}
+                            ${ordem.responsavel_mecanico ? `<p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1"><i class="fa-solid fa-user-gear text-orange-600 text-[10px]"></i> Resp: <strong class="text-slate-700">${escaparHTML(ordem.responsavel_mecanico)}</strong></p>` : ''}
+
+                            <!-- Rodapé de Ações do Card -->
+                            <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 mt-2.5">
+                                <button type="button" onclick="event.stopPropagation(); confirmarExcluirOS('${ordem.id}', '${escaparHTML(ordem.titulo || ordem.maquina_nome)}', '${dataIso}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer" title="Excluir O.S.">
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i> Excluir
+                                </button>
+                                <button type="button" onclick="abrirModalDetalhesOS('${ordem.id}')" class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <span>Ver detalhes</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -10416,36 +10785,53 @@ DIRETRIZES OBRIGATÓRIAS:
                     const temProblema = chk.tem_problema || defs.length > 0;
 
                     html += `
-                        <div onclick="abrirModalDetalhesChecklist('${chk.id}')" class="bg-white border border-slate-200 hover:border-emerald-500 rounded-lg p-3 cursor-pointer shadow-sm hover:shadow-md transition">
-                            <div class="flex justify-between items-start gap-2">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-mono-num font-bold text-slate-900 text-xs">${escaparHTML(getNomeOuPlacaChecklist(chk))}</span>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${temProblema ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
-                                            ${temProblema ? 'COM DEFEITO' : 'CONFORME'}
-                                        </span>
-                                        <span class="text-[10px] text-slate-500">• Operador: ${escaparHTML(chk.operador || 'Não informado')}</span>
-                                    </div>
-                                    ${defs.length > 0 ? `
-                                        <p class="text-[11px] text-red-700 font-semibold mt-1">
-                                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Defeitos: ${defs.map(d => escaparHTML(d.rotulo || d.chave || String(d))).join(', ')}
-                                        </p>
-                                    ` : `
-                                        <p class="text-[11px] text-emerald-700 font-medium mt-1">
-                                            <i class="fa-solid fa-check mr-1"></i> Todos os itens inspecionados em conformidade.
-                                        </p>
-                                    `}
-                                    ${chk.observacao_texto ? `<p class="text-[10px] text-slate-500 mt-0.5 line-clamp-1 italic">"${escaparHTML(chk.observacao_texto)}"</p>` : ''}
+                        <div onclick="abrirModalDetalhesChecklist('${chk.id}')" class="bg-white border border-slate-200 hover:border-emerald-500 rounded-xl p-3 sm:p-3.5 cursor-pointer shadow-sm hover:shadow-md transition">
+                            <!-- Topo do Card: Equipamento + Status + Horário -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                                <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                    <span class="font-mono-num font-bold text-slate-900 text-sm">${escaparHTML(getNomeOuPlacaChecklist(chk))}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${temProblema ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                                        ${temProblema ? 'COM DEFEITO' : 'CONFORME'}
+                                    </span>
                                 </div>
-                                <div class="text-right shrink-0">
-                                    <span class="text-[10px] font-mono-num text-slate-500 font-bold">${dtHora}</span>
-                                    <div class="flex items-center gap-1.5 mt-2 justify-end">
-                                        <button type="button" onclick="event.stopPropagation(); confirmarExcluirChecklist('${chk.id}', '${escaparHTML(chk.empilhadeira)} - ${escaparHTML(chk.operador)}', '${dataIso}')" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded text-[10px] transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Excluir este checklist">
-                                            <i class="fa-solid fa-trash-can text-[9px]"></i> Excluir
-                                        </button>
-                                        <span class="text-[11px] font-bold text-emerald-600 hover:underline">Ver detalhes <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                <span class="text-[11px] font-mono-num text-slate-500 font-bold shrink-0">${dtHora}</span>
+                            </div>
+
+                            <!-- Operador -->
+                            <div class="text-xs text-slate-600 mt-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-user text-slate-400 text-[11px]"></i>
+                                <span>Operador: <strong class="text-slate-800">${escaparHTML(chk.operador || 'Não informado')}</strong></span>
+                            </div>
+
+                            <!-- Defeitos ou Conformidade em Largura Total -->
+                            <div class="mt-2">
+                                ${defs.length > 0 ? `
+                                    <div class="bg-red-50/80 border border-red-200 rounded-lg p-2 text-xs text-red-700 font-medium break-words leading-relaxed">
+                                        <i class="fa-solid fa-triangle-exclamation text-red-600 mr-1"></i>
+                                        <strong class="font-bold text-red-800">Defeitos:</strong> ${defs.map(d => escaparHTML(d.rotulo || d.chave || String(d))).join(', ')}
                                     </div>
-                                </div>
+                                ` : `
+                                    <div class="text-xs text-emerald-700 font-medium flex items-center gap-1.5">
+                                        <i class="fa-solid fa-check text-emerald-600"></i>
+                                        <span>Todos os itens inspecionados em conformidade.</span>
+                                    </div>
+                                `}
+                            </div>
+
+                            ${chk.observacao_texto ? `
+                                <p class="text-xs text-slate-500 mt-1.5 line-clamp-2 italic break-words pl-1 border-l-2 border-slate-200">
+                                    "${escaparHTML(chk.observacao_texto)}"
+                                </p>
+                            ` : ''}
+
+                            <!-- Rodapé de Ações do Card -->
+                            <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 mt-2.5">
+                                <button type="button" onclick="event.stopPropagation(); confirmarExcluirChecklist('${chk.id}', '${escaparHTML(chk.empilhadeira)} - ${escaparHTML(chk.operador)}', '${dataIso}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer" title="Excluir este checklist">
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i> Excluir
+                                </button>
+                                <button type="button" onclick="abrirModalDetalhesChecklist('${chk.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <span>Ver detalhes</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
                             </div>
                         </div>
                     `;
