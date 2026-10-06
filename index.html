@@ -53,29 +53,29 @@
             box-shadow: inset 0 3px 6px rgba(0,0,0,0.35) !important;
         }
 
-        /* Botões Gigantes da Checklist para Chão de Fábrica */
+        /* Botões Compactos e Otimizados da Checklist para Chão de Fábrica */
         .btn-checklist-ok {
-            min-height: 105px;
+            min-height: 54px;
             background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-            border: 3px solid #34d399;
-            box-shadow: 0 6px 14px -2px rgba(16, 185, 129, 0.45), inset 0 1px 2px rgba(255,255,255,0.3);
+            border: 2px solid #34d399;
+            box-shadow: 0 4px 10px -2px rgba(16, 185, 129, 0.4), inset 0 1px 2px rgba(255,255,255,0.3);
         }
         .btn-checklist-ok:active {
             background: #047857;
-            transform: translateY(4px);
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4) !important;
+            transform: translateY(2px);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.4) !important;
         }
 
         .btn-checklist-nok {
-            min-height: 105px;
+            min-height: 54px;
             background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
-            border: 3px solid #f87171;
-            box-shadow: 0 6px 14px -2px rgba(239, 68, 68, 0.45), inset 0 1px 2px rgba(255,255,255,0.3);
+            border: 2px solid #f87171;
+            box-shadow: 0 4px 10px -2px rgba(239, 68, 68, 0.4), inset 0 1px 2px rgba(255,255,255,0.3);
         }
         .btn-checklist-nok:active {
             background: #b91c1c;
-            transform: translateY(4px);
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4) !important;
+            transform: translateY(2px);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.4) !important;
         }
 
         /* Efeito de gravação ativa */
@@ -864,6 +864,32 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL DE ZOOM / VISUALIZAÇÃO DE FOTO DA PEÇA (CHECKLIST) ==================== -->
+    <div id="modal-zoom-foto-checklist" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] hidden flex flex-col items-center justify-center p-3 sm:p-6" onclick="fecharModalZoomFoto()">
+        <div class="relative max-w-3xl w-full max-h-[92vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <div class="w-full flex items-center justify-between text-white pb-3 px-1">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center text-sm font-bold shadow-xs">
+                        <i class="fa-solid fa-camera"></i>
+                    </span>
+                    <div>
+                        <h4 id="zoom-foto-titulo" class="font-bold text-sm text-white">Foto da Peça / Componente</h4>
+                        <p class="text-[11px] text-slate-300">Referência visual do equipamento inspecionado</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalZoomFoto()" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-base transition cursor-pointer" title="Fechar visualização">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="relative w-full max-h-[78vh] flex items-center justify-center bg-black/60 rounded-2xl overflow-hidden border border-white/20 shadow-2xl p-2">
+                <img id="zoom-foto-img" src="" alt="Peça do Equipamento" class="max-w-full max-h-[74vh] object-contain rounded-xl">
+            </div>
+            <div class="pt-2.5 text-center">
+                <span class="text-xs text-slate-400">Clique fora ou pressione o X para fechar</span>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== MODAL DE SOS / CONSERTO IMEDIATO ==================== -->
     <div id="modal-sos" class="fixed inset-0 bg-black/80  z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border-4 border-red-600 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
@@ -1342,6 +1368,30 @@
             { id: '19', codigo: 'EMP-MC01', nome: 'EMP-MC01', modelo: 'Empilhadeira Macaé 01', unidade: 'MACAE', categoria: 'maquinas', tipo: 'empilhadeira', tipo_controle: 'horas', horimetro_atual: 450, horimetro_ultima_preventiva: 250, intervalo_preventiva_horas: 250, status_operacional: 'operando' }
         ];
 
+        // HELPERS DE NORMALIZAÇÃO DE UNIDADES (FILIAL, MATRIZ, MACAÉ)
+        function normalizarTextoUnidade(u) {
+            if (!u) return '';
+            return String(u).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+        function compararUnidade(u1, u2) {
+            return normalizarTextoUnidade(u1) === normalizarTextoUnidade(u2);
+        }
+
+        // CARREGA CACHE LOCAL DA FROTA SE DISPONÍVEL
+        try {
+            const cachedFrota = localStorage.getItem('jp_frota_cache');
+            if (cachedFrota) {
+                const parsedFrota = JSON.parse(cachedFrota);
+                if (Array.isArray(parsedFrota) && parsedFrota.length > 0) {
+                    parsedFrota.forEach(mf => {
+                        const idx = frotaTotal.findIndex(m => m.codigo === mf.codigo || (mf.id && String(m.id) === String(mf.id)));
+                        if (idx >= 0) frotaTotal[idx] = { ...frotaTotal[idx], ...mf };
+                        else frotaTotal.push(mf);
+                    });
+                }
+            }
+        } catch (_) {}
+
         const OPERADORES_POR_TIPO = {
             empilhadeiras: [
                 'Damião Candido da Silva',
@@ -1580,13 +1630,28 @@
             const codigo = m.codigo || m.empilhadeira || m.nome || '';
             const tipo = m.tipo || m.tipo_maquina || 'empilhadeira';
 
-            // 1. Tenta checklist específico da máquina
+            // Se o objeto já possui checklist_customizado pré-carregado do banco
+            if (Array.isArray(m.checklist_customizado) && m.checklist_customizado.length > 0) {
+                return m.checklist_customizado;
+            }
+
+            // 1. Tenta checklist específico da máquina no cache local
             if (codigo) {
                 try {
                     const raw = localStorage.getItem('checklist_custom_maq_' + codigo);
                     if (raw) {
                         const parsed = JSON.parse(raw);
-                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            // Mescla fotos salvas em maquina_especificacoes se houver
+                            if (Array.isArray(m.maquina_especificacoes)) {
+                                const specsFotos = m.maquina_especificacoes.filter(s => s.categoria === 'componente_foto');
+                                specsFotos.forEach(sf => {
+                                    const p = parsed.find(x => x.id === sf.item_nome || x.title === sf.item_nome);
+                                    if (p && !p.foto_url && sf.especificacao) p.foto_url = sf.especificacao;
+                                });
+                            }
+                            return parsed;
+                        }
                     }
                 } catch(e){}
             }
@@ -1602,23 +1667,78 @@
                 } catch(e){}
             }
 
-            // 3. Fallback de fábrica conforme o tipo
+            // 3. Fallback de fábrica conforme o tipo (com injeção de fotos salvas no banco se existirem)
+            let baseLista = [];
             const tipoLimpo = String(tipo).toLowerCase();
             if (tipoLimpo.includes('doosan') || tipoLimpo.includes('motocana')) {
-                return JSON.parse(JSON.stringify(checklistItemsDoosan));
+                baseLista = JSON.parse(JSON.stringify(checklistItemsDoosan));
+            } else if (tipoLimpo.includes('hyundai')) {
+                baseLista = JSON.parse(JSON.stringify(checklistItemsHyundai));
+            } else {
+                baseLista = JSON.parse(JSON.stringify(checklistItemsEmpilhadeira));
             }
-            if (tipoLimpo.includes('hyundai')) {
-                return JSON.parse(JSON.stringify(checklistItemsHyundai));
+
+            if (Array.isArray(m.maquina_especificacoes)) {
+                const specsFotos = m.maquina_especificacoes.filter(s => s.categoria === 'componente_foto');
+                specsFotos.forEach(sf => {
+                    const item = baseLista.find(x => x.id === sf.item_nome || x.title === sf.item_nome);
+                    if (item && sf.especificacao) item.foto_url = sf.especificacao;
+                });
             }
-            return JSON.parse(JSON.stringify(checklistItemsEmpilhadeira));
+
+            return baseLista;
         }
 
         function salvarPerguntasEquipamento(codigo, perguntas) {
             if (!codigo || !Array.isArray(perguntas)) return;
-            localStorage.setItem('checklist_custom_maq_' + codigo, JSON.stringify(perguntas));
+            try {
+                localStorage.setItem('checklist_custom_maq_' + codigo, JSON.stringify(perguntas));
+            } catch (_) {}
+
             const maq = (typeof cacheGestor !== 'undefined' && cacheGestor.maquinas ? cacheGestor.maquinas.find(m => m.codigo === codigo) : null) ||
                         (typeof frotaTotal !== 'undefined' ? frotaTotal.find(m => m.codigo === codigo) : null);
-            if (maq) maq.checklist_customizado = perguntas;
+            if (maq) {
+                maq.checklist_customizado = perguntas;
+            }
+
+            // Seção no banco de dados para salvar as perguntas e fotos de componentes
+            if (typeof db !== 'undefined' && db && maq) {
+                (async () => {
+                    try {
+                        let idReal = maq.id;
+                        let isUuid = Boolean(idReal && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(idReal)));
+                        if (!isUuid && codigo) {
+                            const { data: dbMaq } = await db.from('maquinas').select('id').eq('codigo', codigo).maybeSingle();
+                            if (dbMaq && dbMaq.id) {
+                                idReal = dbMaq.id;
+                                maq.id = dbMaq.id;
+                                isUuid = true;
+                            }
+                        }
+                        if (isUuid && idReal) {
+                            try {
+                                await db.from('maquinas').update({ checklist_customizado: perguntas }).eq('id', idReal);
+                            } catch (_) {}
+
+                            try {
+                                await db.from('maquina_especificacoes').delete().eq('maquina_id', idReal).eq('categoria', 'componente_foto');
+                                const fotosSpecs = perguntas.filter(p => p.foto_url).map(p => ({
+                                    maquina_id: idReal,
+                                    categoria: 'componente_foto',
+                                    item_nome: p.id || p.title,
+                                    especificacao: p.foto_url,
+                                    codigo_fabricante: p.title || p.icon || 'foto'
+                                }));
+                                if (fotosSpecs.length > 0) {
+                                    await db.from('maquina_especificacoes').insert(fotosSpecs);
+                                }
+                            } catch (_) {}
+                        }
+                    } catch (eDb) {
+                        console.warn("Aviso ao persistir fotos de componentes no Supabase:", eDb);
+                    }
+                })();
+            }
         }
 
         function getChecklistItemsAtuais() {
@@ -1671,13 +1791,17 @@
                 const { data: maquinas } = await db.from('maquinas').select('*');
                 if (maquinas && maquinas.length > 0) {
                     maquinas.forEach(m => {
-                        const idx = frotaTotal.findIndex(item => item.codigo === m.codigo);
+                        const idx = frotaTotal.findIndex(item => item.codigo === m.codigo || (m.id && String(item.id) === String(m.id)));
                         if (idx >= 0) {
                             frotaTotal[idx] = { ...frotaTotal[idx], ...m };
                         } else {
                             frotaTotal.push(m);
                         }
                     });
+                    if (typeof cacheGestor !== 'undefined') {
+                        cacheGestor.maquinas = [...frotaTotal];
+                    }
+                    try { localStorage.setItem('jp_frota_cache', JSON.stringify(frotaTotal)); } catch (_) {}
                 }
 
                 const { data: ops } = await db.from('operadores').select('*').order('nome');
@@ -2019,7 +2143,7 @@
             // PASSO -4: ESCOLHER TIPO DE MÁQUINA
             else if (currentStepIndex === -4) {
                 const tipos = [
-                    { id: 'empilhadeiras', nome: 'Empilhadeiras', desc: 'Frota Matriz & Filial', icon: 'fa-truck-ramp-box' },
+                    { id: 'empilhadeiras', nome: 'Empilhadeiras', desc: 'Matriz, Filial & Macaé', icon: 'fa-truck-ramp-box' },
                     { id: 'doosan', nome: 'DOOSAN', desc: 'Escavadeira de Rodas', icon: 'fa-cubes-stacked' },
                     { id: 'hyundai', nome: 'HYUNDAI', desc: 'Escavadeira de Esteira', icon: 'fa-tractor' },
                     { id: 'motocana', nome: 'MOTOCANA', desc: 'Carregadeira de Cana', icon: 'fa-wheat-awn' }
@@ -2133,7 +2257,7 @@
                         </div>
                     `;
                 } else if (isEmpilhadeira) {
-                    const maquinasDaUnidade = todasFrotas.filter(m => (m.categoria === 'maquinas' || !m.categoria) && (m.tipo === 'empilhadeira' || !m.tipo) && m.unidade === formData.unidade);
+                    const maquinasDaUnidade = todasFrotas.filter(m => (m.status !== 'inativo') && (m.categoria === 'maquinas' || !m.categoria) && (m.tipo === 'empilhadeira' || m.tipo === 'empilhadeiras' || !m.tipo) && compararUnidade(m.unidade, formData.unidade));
 
                     appOperador.innerHTML = `
                         <div class="w-full flex flex-col h-full items-center justify-between">
@@ -2151,14 +2275,14 @@
 
                             <!-- SELETOR DE UNIDADE: FILIAL vs MATRIZ vs MACAÉ -->
                             <div class="w-full grid grid-cols-3 gap-1.5 bg-slate-200 p-1 rounded-xl mb-2 shrink-0">
-                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${formData.unidade === 'FILIAL' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-building text-[10px]"></i> FILIAL (${todasFrotas.filter(m => (m.unidade || 'FILIAL') === 'FILIAL' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
+                                <button onclick="toggleUnidade('FILIAL')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${compararUnidade(formData.unidade, 'FILIAL') ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-building text-[10px]"></i> FILIAL (${todasFrotas.filter(m => (m.status !== 'inativo') && (compararUnidade(m.unidade, 'FILIAL') || !m.unidade) && (m.tipo === 'empilhadeira' || m.tipo === 'empilhadeiras' || !m.tipo)).length})
                                 </button>
-                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${formData.unidade === 'MATRIZ' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-industry text-[10px]"></i> MATRIZ (${todasFrotas.filter(m => m.unidade === 'MATRIZ' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
+                                <button onclick="toggleUnidade('MATRIZ')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${compararUnidade(formData.unidade, 'MATRIZ') ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-industry text-[10px]"></i> MATRIZ (${todasFrotas.filter(m => (m.status !== 'inativo') && compararUnidade(m.unidade, 'MATRIZ') && (m.tipo === 'empilhadeira' || m.tipo === 'empilhadeiras' || !m.tipo)).length})
                                 </button>
-                                <button onclick="toggleUnidade('MACAE')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${formData.unidade === 'MACAE' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
-                                    <i class="fa-solid fa-location-dot text-[10px]"></i> MACAÉ (${todasFrotas.filter(m => m.unidade === 'MACAE' && (m.tipo === 'empilhadeira' || !m.tipo)).length})
+                                <button onclick="toggleUnidade('MACAE')" class="py-2.5 rounded-lg font-bold text-xs uppercase transition-all flex items-center justify-center gap-1 ${compararUnidade(formData.unidade, 'MACAE') ? 'bg-orange-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}">
+                                    <i class="fa-solid fa-location-dot text-[10px]"></i> MACAÉ (${todasFrotas.filter(m => (m.status !== 'inativo') && compararUnidade(m.unidade, 'MACAE') && (m.tipo === 'empilhadeira' || m.tipo === 'empilhadeiras' || !m.tipo)).length})
                                 </button>
                             </div>
 
@@ -2433,7 +2557,7 @@
                                 </button>
                             </div>
                             
-                            <div class="text-center my-1.5 shrink-0">
+                            <div class="text-center my-1.5 shrink-0 w-full">
                                 ${item.secao ? `
                                     <div class="mb-1">
                                         <span class="text-[11px] font-bold uppercase tracking-wider text-orange-700 bg-orange-100/90 border border-orange-200 px-3 py-0.5 rounded-full inline-block shadow-sm">
@@ -2441,49 +2565,65 @@
                                         </span>
                                     </div>
                                 ` : ''}
-                                <div class="w-16 h-16 rounded-2xl bg-slate-200/80 text-slate-700 flex items-center justify-center mx-auto mb-1.5 shadow-inner">
-                                    <i class="fa-solid ${item.icon} text-3xl"></i>
-                                </div>
+                                ${item.foto_url ? `
+                                    <div class="w-full max-w-sm mx-auto mb-2.5 rounded-2xl overflow-hidden border-2 border-orange-500 shadow-md bg-slate-950 relative group cursor-pointer" onclick="abrirModalZoomFoto('${escaparHTML(item.foto_url)}', '${escaparHTML(item.title)}')">
+                                        <img src="${escaparHTML(item.foto_url)}" alt="${escaparHTML(item.title)}" class="w-full h-44 sm:h-52 object-cover group-hover:scale-105 transition-transform duration-300">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent flex items-end justify-between p-2.5 pointer-events-none">
+                                            <span class="text-[10px] sm:text-[11px] font-bold text-white bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded-md flex items-center gap-1 border border-white/20">
+                                                <i class="fa-solid fa-camera text-orange-400"></i> ${escaparHTML(item.title)}
+                                            </span>
+                                            <span class="text-[10px] sm:text-[11px] font-bold text-white bg-orange-600 px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
+                                                <i class="fa-solid fa-magnifying-glass-plus"></i> Toque para Ampliar
+                                            </span>
+                                        </div>
+                                        ${item.icon ? `
+                                            <div class="absolute top-2 left-2 w-7 h-7 rounded-lg bg-black/60 backdrop-blur-xs text-white flex items-center justify-center text-xs border border-white/20 pointer-events-none">
+                                                <i class="fa-solid ${item.icon}"></i>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                ` : `
+                                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-slate-100 to-slate-200/90 border border-slate-300 text-slate-700 flex flex-col items-center justify-center mx-auto mb-2 shadow-inner">
+                                        <i class="fa-solid ${item.icon || 'fa-clipboard-check'} text-3xl sm:text-4xl text-slate-700"></i>
+                                    </div>
+                                `}
                                 <h2 class="text-xl font-bold text-slate-900 leading-snug px-2">${item.title}</h2>
                                 <p class="text-xs text-slate-600 font-medium mt-0.5 px-3">${item.question}</p>
                             </div>
 
-                            <!-- ALERTA DE DEFEITO REINCIDENTE NA PERGUNTA -->
+                            <!-- ALERTA DE DEFEITO REINCIDENTE NA PERGUNTA (COMPACTO E DIRETO) -->
                             ${reincItem && reincItem.total > 0 ? `
-                                <div class="w-full bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl p-3 mb-2.5 flex items-start gap-2.5 shadow-xs text-left animate-pulse">
-                                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0 text-base">
-                                        <i class="fa-solid fa-triangle-exclamation"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="text-[11px] font-black text-amber-900 uppercase tracking-wide">Defeito Anterior Não Corrigido</span>
-                                            <span class="px-2 py-0.2 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 font-mono-num">${reincItem.total}x apontado</span>
+                                <div class="w-full bg-amber-50 border border-amber-300 rounded-xl px-3 py-1.5 mb-2 flex items-center justify-between gap-2 shadow-2xs text-left">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-6 h-6 rounded-lg bg-amber-200/80 text-amber-900 flex items-center justify-center text-xs shrink-0 font-bold">
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-[10px] font-bold text-amber-950 uppercase tracking-wide">Defeito Anterior Pendente</span>
+                                                <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-200 text-amber-950 font-mono-num">${reincItem.total}x</span>
+                                            </div>
+                                            <p class="text-[10px] text-amber-900/90 truncate">Último em ${reincItem.dataUltima} • Se persistir, marque PROBLEMA</p>
                                         </div>
-                                        <p class="text-[11px] text-amber-900/90 font-medium mt-0.5 leading-snug">
-                                            Este item já foi reprovado <strong>${reincItem.total} vez(es)</strong> nos checklists anteriores de <strong>${formData.empilhadeira}</strong> (último em ${reincItem.dataUltima}${reincItem.operadorUltimo ? ` por ${reincItem.operadorUltimo}` : ''}).
-                                        </p>
-                                        <p class="text-[10px] text-amber-950 font-bold mt-1">
-                                            👉 Se a anomalia persistir, marque <strong>PROBLEMA</strong> para registrar a reincidência.
-                                        </p>
                                     </div>
                                 </div>
                             ` : ''}
                             
-                            <!-- BOTÕES DE SELEÇÃO: TUDO CERTO / PROBLEMA -->
-                            <div class="w-full flex flex-col gap-2.5 shrink-0 mb-3">
-                                <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.01]' : ''} text-slate-900 rounded-2xl p-3.5 text-lg font-bold flex items-center justify-center gap-4 transition-all">
-                                    <i class="fa-solid fa-circle-check text-3xl"></i>
-                                    <div class="text-left">
-                                        <span class="block text-xl tracking-wide">TUDO CERTO</span>
-                                        <span class="text-[11px] font-bold text-emerald-100 uppercase">Em Conformidade (OK)</span>
+                            <!-- BOTÕES DE SELEÇÃO: TUDO CERTO / PROBLEMA (COMPACTOS) -->
+                            <div class="w-full flex flex-col gap-2 shrink-0 mb-2.5">
+                                <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.01]' : ''} text-white rounded-xl py-2 px-3 sm:py-2.5 sm:px-4 font-bold flex items-center justify-center gap-3 transition-all shadow-sm">
+                                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                                    <div class="text-left leading-tight">
+                                        <span class="block text-base tracking-wide font-extrabold">TUDO CERTO</span>
+                                        <span class="text-[10px] font-semibold opacity-90 uppercase">Em Conformidade (OK)</span>
                                     </div>
                                 </button>
 
-                                <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial ${nokSelected ? 'ring-4 ring-red-400 scale-[1.01]' : ''} text-slate-900 rounded-2xl p-3.5 text-lg font-bold flex items-center justify-center gap-4 transition-all">
-                                    <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
-                                    <div class="text-left">
-                                        <span class="block text-xl tracking-wide">PROBLEMA</span>
-                                        <span class="text-[11px] font-bold text-red-100 uppercase">Com Defeito / Avaria</span>
+                                <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial ${nokSelected ? 'ring-4 ring-red-400 scale-[1.01]' : ''} text-white rounded-xl py-2 px-3 sm:py-2.5 sm:px-4 font-bold flex items-center justify-center gap-3 transition-all shadow-sm">
+                                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                                    <div class="text-left leading-tight">
+                                        <span class="block text-base tracking-wide font-extrabold">PROBLEMA</span>
+                                        <span class="text-[10px] font-semibold opacity-90 uppercase">Com Defeito / Avaria</span>
                                     </div>
                                 </button>
                             </div>
@@ -4470,9 +4610,9 @@ DIRETRIZES OBRIGATÓRIAS:
             const taxaConformidade = checklistsFiltrados.length > 0 ? Math.round(((checklistsFiltrados.length - totalComProblema) / checklistsFiltrados.length) * 100) : 100;
 
             // Subgrupos APENAS dentro dos elegíveis (obedecendo Categoria e Unidade)
-            const maquinasFilial = maquinasElegiveis.filter(m => (m.unidade || 'FILIAL') === 'FILIAL');
-            const maquinasMatriz = maquinasElegiveis.filter(m => m.unidade === 'MATRIZ');
-            const maquinasMacae = maquinasElegiveis.filter(m => m.unidade === 'MACAE');
+            const maquinasFilial = maquinasElegiveis.filter(m => compararUnidade(m.unidade, 'FILIAL'));
+            const maquinasMatriz = maquinasElegiveis.filter(m => compararUnidade(m.unidade, 'MATRIZ'));
+            const maquinasMacae = maquinasElegiveis.filter(m => compararUnidade(m.unidade, 'MACAE'));
 
             const totalSelecionadas = filtroIndicadores.maquinasSelecionadas === null ? maquinasElegiveis.length : maquinasFiltradas.length;
             const textoStatusSel = filtroIndicadores.maquinasSelecionadas === null
@@ -4738,9 +4878,10 @@ DIRETRIZES OBRIGATÓRIAS:
         }
 
         function getMaquinasElegiveisIndicadores() {
-            return cacheGestor.maquinas.filter(m => {
+            const fonte = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+            return fonte.filter(m => {
                 if (filtroIndicadores.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroIndicadores.categoria) return false;
-                if (filtroIndicadores.unidade !== 'todas' && m.unidade !== filtroIndicadores.unidade) return false;
+                if (filtroIndicadores.unidade !== 'todas' && !compararUnidade(m.unidade, filtroIndicadores.unidade)) return false;
                 return true;
             });
         }
@@ -4800,7 +4941,7 @@ DIRETRIZES OBRIGATÓRIAS:
 
         function selecionarMaquinasUnidade(unidade, selecionar) {
             const elegiveis = getMaquinasElegiveisIndicadores();
-            const codigosUnidade = elegiveis.filter(m => m.unidade === unidade).map(m => m.codigo);
+            const codigosUnidade = elegiveis.filter(m => compararUnidade(m.unidade, unidade)).map(m => m.codigo);
 
             let listaAtual = filtroIndicadores.maquinasSelecionadas === null 
                 ? elegiveis.map(m => m.codigo) 
@@ -4949,17 +5090,17 @@ DIRETRIZES OBRIGATÓRIAS:
                             <select onchange="filtroChecklist.equipamento = this.value; renderizarAbaAtualGestor();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none max-w-[180px]">
                                 <option value="todos" ${filtroChecklist.equipamento === 'todos' ? 'selected' : ''}>Todos Equipamentos</option>
                                 <optgroup label="FILIAL">
-                                    ${frotaTotal.filter(m => (m.unidade || 'FILIAL') === 'FILIAL').map(m => `
+                                    ${frotaTotal.filter(m => compararUnidade(m.unidade, 'FILIAL')).map(m => `
                                         <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
                                     `).join('')}
                                 </optgroup>
                                 <optgroup label="MATRIZ">
-                                    ${frotaTotal.filter(m => m.unidade === 'MATRIZ').map(m => `
+                                    ${frotaTotal.filter(m => compararUnidade(m.unidade, 'MATRIZ')).map(m => `
                                         <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
                                     `).join('')}
                                 </optgroup>
                                 <optgroup label="MACAÉ">
-                                    ${frotaTotal.filter(m => m.unidade === 'MACAE').map(m => `
+                                    ${frotaTotal.filter(m => compararUnidade(m.unidade, 'MACAE')).map(m => `
                                         <option value="${m.codigo}" ${filtroChecklist.equipamento === m.codigo ? 'selected' : ''}>${m.codigo}</option>
                                     `).join('')}
                                 </optgroup>
@@ -5039,7 +5180,7 @@ DIRETRIZES OBRIGATÓRIAS:
                                             </td>
                                             <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
                                             <td>
-                                                <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-800/50' : c.unidade === 'MACAE' ? 'bg-cyan-50 text-cyan-800 border border-cyan-700/50' : 'bg-orange-50 text-orange-700 border border-orange-800/50'}">
+                                                <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${compararUnidade(c.unidade, 'MATRIZ') ? 'bg-amber-50 text-amber-700 border border-amber-800/50' : compararUnidade(c.unidade, 'MACAE') ? 'bg-cyan-50 text-cyan-800 border border-cyan-700/50' : 'bg-orange-50 text-orange-700 border border-orange-800/50'}">
                                                     ${c.unidade || 'FILIAL'}
                                                 </span>
                                             </td>
@@ -5229,7 +5370,7 @@ DIRETRIZES OBRIGATÓRIAS:
                             <div class="flex items-center justify-between gap-1">
                                 <div class="flex items-center gap-1.5">
                                     <span class="font-mono-num font-bold text-xs text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">${escaparHTML(equipNome)}</span>
-                                    <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-300' : c.unidade === 'MACAE' ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
+                                    <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${compararUnidade(c.unidade, 'MATRIZ') ? 'bg-amber-50 text-amber-700 border border-amber-300' : compararUnidade(c.unidade, 'MACAE') ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
                                         ${c.unidade || 'FILIAL'}
                                     </span>
                                 </div>
@@ -5290,7 +5431,7 @@ DIRETRIZES OBRIGATÓRIAS:
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
                                         <td>
-                                            <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${c.unidade === 'MATRIZ' ? 'bg-amber-50 text-amber-700 border border-amber-300' : c.unidade === 'MACAE' ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
+                                            <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${compararUnidade(c.unidade, 'MATRIZ') ? 'bg-amber-50 text-amber-700 border border-amber-300' : compararUnidade(c.unidade, 'MACAE') ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
                                                 ${c.unidade || 'FILIAL'}
                                             </span>
                                         </td>
@@ -6381,9 +6522,10 @@ DIRETRIZES OBRIGATÓRIAS:
 
         // ==================== ABA 4: FROTAS & PERFIL DETALHADO DO EQUIPAMENTO ====================
         function renderAbaMaquinas(container) {
-            let lista = cacheGestor.maquinas.filter(m => {
+            const fonteFrota = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+            let lista = fonteFrota.filter(m => {
                 if (filtroFrota.categoria !== 'todas' && (m.categoria || 'maquinas') !== filtroFrota.categoria) return false;
-                if (filtroFrota.unidade !== 'todas' && m.unidade !== filtroFrota.unidade) return false;
+                if (filtroFrota.unidade !== 'todas' && !compararUnidade(m.unidade, filtroFrota.unidade)) return false;
                 if (filtroFrota.tipo && filtroFrota.tipo !== 'todos') {
                     const t = filtroFrota.tipo.toLowerCase();
                     const maqTipo = (m.tipo || '').toLowerCase();
@@ -8283,9 +8425,9 @@ DIRETRIZES OBRIGATÓRIAS:
                                 <div>
                                     <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Unidade</label>
                                     <select id="dados-unidade" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-bold">
-                                        <option value="FILIAL" ${(m.unidade || 'FILIAL') === 'FILIAL' ? 'selected' : ''}>FILIAL</option>
-                                        <option value="MATRIZ" ${m.unidade === 'MATRIZ' ? 'selected' : ''}>MATRIZ</option>
-                                        <option value="MACAE" ${m.unidade === 'MACAE' ? 'selected' : ''}>MACAÉ</option>
+                                        <option value="FILIAL" ${compararUnidade(m.unidade, 'FILIAL') ? 'selected' : ''}>FILIAL</option>
+                                        <option value="MATRIZ" ${compararUnidade(m.unidade, 'MATRIZ') ? 'selected' : ''}>MATRIZ</option>
+                                        <option value="MACAE" ${compararUnidade(m.unidade, 'MACAE') ? 'selected' : ''}>MACAÉ</option>
                                     </select>
                                 </div>
                             </div>
@@ -8334,6 +8476,8 @@ DIRETRIZES OBRIGATÓRIAS:
 
         // ==================== EDITOR E PERSONALIZAÇÃO DE CHECKLIST POR EQUIPAMENTO ====================
         let iconeCustomSelecionadoAtual = 'fa-clipboard-check';
+        let modoVisualPerguntaAtual = 'icone'; // 'icone' ou 'foto'
+        let fotoPerguntaTempFile = null;
 
         function renderSubAbaChecklist(m) {
             const container = document.getElementById('modal-perfil-conteudo');
@@ -8445,12 +8589,76 @@ DIRETRIZES OBRIGATÓRIAS:
                             <textarea id="edit-pergunta-texto" rows="2" placeholder="Ex: O reservatório está no nível correto e sem vazamentos visíveis?" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500"></textarea>
                         </div>
 
-                        <!-- Seletor Visual de Ícone -->
-                        <div>
-                            <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Selecione o Ícone Representativo</label>
-                            <input type="hidden" id="edit-pergunta-icone" value="fa-clipboard-check">
-                            <div id="grid-icones-picker" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200">
-                                <!-- Ícones gerados dinamicamente com ICONES_CHECKLIST_PRESET -->
+                        <!-- Seletor Visual: FOTO REAL DO COMPONENTE (FOCO PRINCIPAL) + ÍCONE FALLBACK -->
+                        <div class="bg-slate-50 p-3.5 sm:p-4 rounded-xl border border-slate-200 space-y-3.5">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </span>
+                                    <label class="block text-xs uppercase font-extrabold text-slate-800">
+                                        Foto do Componente / Peça (Ilustração Principal do Item) *
+                                    </label>
+                                </div>
+                                <p class="text-[11px] text-slate-500 font-medium mt-1">
+                                    Adicione a foto real da peça da máquina (ex: vareta de óleo, radiador, mangote, pneu, cilindro). A foto ficará em destaque na checklist do operador com opção de zoom em tela cheia.
+                                </p>
+                            </div>
+
+                            <input type="hidden" id="edit-pergunta-foto-url" value="">
+                            <input type="file" id="edit-pergunta-foto-file" accept="image/*" class="hidden" onchange="aoSelecionarFotoPerguntaCustom(event)">
+
+                            <div class="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                                <!-- Miniatura / Preview da Peça -->
+                                <div id="preview-foto-pergunta-wrap" class="w-32 h-32 rounded-xl overflow-hidden bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center relative shrink-0 group">
+                                    <div id="placeholder-foto-pergunta" class="flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+                                        <i class="fa-solid fa-camera text-3xl mb-1 text-slate-400"></i>
+                                        <span class="text-[9px] font-bold uppercase leading-tight text-slate-600">Sem Foto</span>
+                                        <span class="text-[8px] text-slate-400 mt-0.5">Toque para adicionar</span>
+                                    </div>
+                                    <img id="img-preview-foto-pergunta" src="" alt="Foto da Peça" class="w-full h-full object-cover hidden cursor-pointer" onclick="abrirModalZoomFoto(this.src, 'Pré-visualização do Componente')" title="Clique para ampliar a foto em tamanho cheio">
+                                    <button type="button" id="btn-remover-foto-pergunta" onclick="removerFotoPerguntaCustom()" class="hidden absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition cursor-pointer" title="Remover Foto">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Ações de Envio e Link -->
+                                <div class="flex-1 w-full space-y-2">
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" onclick="document.getElementById('edit-pergunta-foto-file').click()" class="btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition cursor-pointer">
+                                            <i class="fa-solid fa-camera text-sm"></i> Tirar Foto ou Escolher Arquivo
+                                        </button>
+                                        <button type="button" id="btn-limpar-foto-pergunta" onclick="removerFotoPerguntaCustom()" class="btn-industrial bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-200 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition cursor-pointer hidden">
+                                            <i class="fa-solid fa-trash-can"></i> Remover Foto
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] text-slate-500 font-semibold mb-0.5">Ou cole o link direto da imagem:</label>
+                                        <input type="url" id="edit-pergunta-foto-url-input" oninput="aoDigitarUrlFotoPergunta(this.value)" placeholder="https://exemplo.com/foto-componente.webp" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-orange-500 font-medium">
+                                    </div>
+
+                                    <p id="status-upload-foto-pergunta" class="text-[10px] text-slate-500 italic">
+                                        <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Formato WebP otimizado: as fotos são comprimidas automaticamente para carregar instantaneamente.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- PAINEL DE ÍCONE ALTERNATIVO (FALLBACK CASO NÃO HAJA FOTO) -->
+                            <div class="pt-3 border-t border-slate-200 space-y-1.5">
+                                <div class="flex items-center justify-between text-[11px] text-slate-600 flex-wrap gap-1">
+                                    <span class="font-bold text-slate-700 flex items-center gap-1">
+                                        <i class="fa-solid fa-icons text-slate-500"></i> Ícone Gráfico Alternativo (Exibido se não houver foto):
+                                    </span>
+                                    <span id="icone-selecionado-badge" class="font-bold text-orange-800 bg-orange-100/80 px-2 py-0.5 rounded-md border border-orange-200 flex items-center gap-1.5 text-[10px]">
+                                        <i class="fa-solid fa-clipboard-check text-orange-600" id="icone-selecionado-preview"></i>
+                                        <span id="icone-selecionado-nome">fa-clipboard-check</span>
+                                    </span>
+                                </div>
+                                <input type="hidden" id="edit-pergunta-icone" value="fa-clipboard-check">
+                                <div id="grid-icones-picker" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-white rounded-xl border border-slate-200 shadow-2xs">
+                                    <!-- Ícones gerados dinamicamente com ICONES_CHECKLIST_PRESET -->
+                                </div>
                             </div>
                         </div>
 
@@ -8480,12 +8688,29 @@ DIRETRIZES OBRIGATÓRIAS:
                                                 ${idx + 1}
                                             </span>
                                         </div>
-                                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm shrink-0 border border-slate-200">
-                                            <i class="fa-solid ${p.icon || 'fa-check'}"></i>
-                                        </div>
+                                        ${p.foto_url ? `
+                                            <div class="w-11 h-11 rounded-lg overflow-hidden border-2 border-orange-400 shadow-xs relative shrink-0 cursor-pointer group" onclick="abrirModalZoomFoto('${escaparHTML(p.foto_url)}', '${escaparHTML(p.title || p.rotulo || '')}')" title="Clique para ver a foto da peça em tamanho grande">
+                                                <img src="${escaparHTML(p.foto_url)}" alt="${escaparHTML(p.title || '')}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                                                <span class="absolute bottom-0 right-0 bg-orange-600 text-white text-[7px] px-1 py-0.2 rounded-tl font-bold"><i class="fa-solid fa-camera"></i></span>
+                                            </div>
+                                        ` : `
+                                            <div onclick="abrirEdicaoPergunta(${idx})" class="w-11 h-11 rounded-lg bg-slate-100 hover:bg-orange-50 text-slate-700 hover:text-orange-600 flex flex-col items-center justify-center text-sm shrink-0 border border-slate-200 hover:border-orange-300 transition cursor-pointer" title="Sem foto da peça. Clique para adicionar foto">
+                                                <i class="fa-solid ${p.icon || 'fa-check'} text-base"></i>
+                                                <span class="text-[8px] font-bold text-slate-400 mt-0.5"><i class="fa-solid fa-plus"></i> Foto</span>
+                                            </div>
+                                        `}
                                         <div class="min-w-0 flex-1">
                                             <div class="flex items-center gap-2 flex-wrap">
                                                 <h5 class="text-xs font-bold text-slate-900">${escaparHTML(p.title || p.rotulo || '')}</h5>
+                                                ${p.foto_url ? `
+                                                    <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                                                        <i class="fa-solid fa-camera text-[8px]"></i> Com Foto da Peça
+                                                    </span>
+                                                ` : `
+                                                    <button type="button" onclick="abrirEdicaoPergunta(${idx})" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-300 flex items-center gap-1 transition cursor-pointer" title="Adicionar foto ilustrativa desta peça">
+                                                        <i class="fa-solid fa-camera text-[8px]"></i> + Adicionar Foto da Peça
+                                                    </button>
+                                                `}
                                                 ${p.secao ? `<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">${escaparHTML(p.secao)}</span>` : ''}
                                             </div>
                                             <p class="text-[11px] text-slate-600 mt-0.5 line-clamp-2">"${escaparHTML(p.question || p.pergunta || '')}"</p>
@@ -8595,12 +8820,20 @@ DIRETRIZES OBRIGATÓRIAS:
                 const isSelected = item.icon === iconeCustomSelecionadoAtual;
                 return `
                     <button type="button" onclick="selecionarIconeCustom('${item.icon}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs transition cursor-pointer ${
-                        isSelected ? 'bg-orange-600 text-white shadow-xs font-bold ring-2 ring-orange-400' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                        isSelected ? 'bg-orange-600 text-white shadow-xs font-bold ring-2 ring-orange-400 scale-105' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
                     }" title="${item.label}">
                         <i class="fa-solid ${item.icon}"></i>
                     </button>
                 `;
             }).join('');
+
+            const iconePreview = document.getElementById('icone-selecionado-preview');
+            const iconeNome = document.getElementById('icone-selecionado-nome');
+            if (iconePreview) iconePreview.className = 'fa-solid ' + iconeCustomSelecionadoAtual;
+            if (iconeNome) {
+                const presetObj = ICONES_CHECKLIST_PRESET.find(x => x.icon === iconeCustomSelecionadoAtual);
+                iconeNome.innerText = presetObj ? presetObj.label : iconeCustomSelecionadoAtual;
+            }
         }
 
         function selecionarIconeCustom(iconClass) {
@@ -8608,6 +8841,154 @@ DIRETRIZES OBRIGATÓRIAS:
             const inputIcone = document.getElementById('edit-pergunta-icone');
             if (inputIcone) inputIcone.value = iconClass;
             renderPickerIcones(iconClass);
+        }
+
+        function alternarModoVisualPergunta(modo) {
+            modoVisualPerguntaAtual = modo;
+            const tabIcone = document.getElementById('tab-visual-icone');
+            const tabFoto = document.getElementById('tab-visual-foto');
+            const painelIcone = document.getElementById('painel-visual-icone');
+            const painelFoto = document.getElementById('painel-visual-foto');
+
+            if (modo === 'foto') {
+                if (tabFoto) {
+                    tabFoto.className = "px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 bg-white text-orange-700 shadow-xs cursor-pointer font-bold";
+                }
+                if (tabIcone) {
+                    tabIcone.className = "px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer font-medium";
+                }
+                if (painelIcone) painelIcone.classList.add('hidden');
+                if (painelFoto) painelFoto.classList.remove('hidden');
+            } else {
+                if (tabIcone) {
+                    tabIcone.className = "px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 bg-white text-orange-700 shadow-xs cursor-pointer font-bold";
+                }
+                if (tabFoto) {
+                    tabFoto.className = "px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer font-medium";
+                }
+                if (painelIcone) painelIcone.classList.remove('hidden');
+                if (painelFoto) painelFoto.classList.add('hidden');
+            }
+        }
+
+        async function aoSelecionarFotoPerguntaCustom(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            fotoPerguntaTempFile = file;
+            const statusEl = document.getElementById('status-upload-foto-pergunta');
+            if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-orange-600 mr-1"></i> Comprimindo foto da peça em formato WebP...';
+
+            try {
+                let dataUrl = "";
+                try {
+                    dataUrl = await comprimirImagemParaWebPDataUrl(file, 800, 0.82);
+                } catch (eWebp) {
+                    try {
+                        const blob = await comprimirImagemParaUpload(file, 800, 0.82);
+                        dataUrl = await blobToDataURL(blob);
+                    } catch (eBlob) {
+                        dataUrl = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = ev => resolve(ev.target.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                }
+
+                const inputHidden = document.getElementById('edit-pergunta-foto-url');
+                const inputUrl = document.getElementById('edit-pergunta-foto-url-input');
+                const imgPrev = document.getElementById('img-preview-foto-pergunta');
+                const placeholder = document.getElementById('placeholder-foto-pergunta');
+                const btnRemover = document.getElementById('btn-remover-foto-pergunta');
+                const btnLimpar = document.getElementById('btn-limpar-foto-pergunta');
+
+                if (inputHidden) inputHidden.value = dataUrl;
+                if (inputUrl) inputUrl.value = '';
+                if (imgPrev) {
+                    imgPrev.src = dataUrl;
+                    imgPrev.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (btnRemover) btnRemover.classList.remove('hidden');
+                if (btnLimpar) btnLimpar.classList.remove('hidden');
+                if (statusEl) statusEl.innerHTML = '✅ <span class="text-emerald-700 font-bold">Foto da peça comprimida em WebP e pronta para salvar!</span>';
+            } catch (err) {
+                console.error("Erro ao carregar foto da peça:", err);
+                if (statusEl) statusEl.innerHTML = '❌ <span class="text-red-600 font-bold">Erro ao processar imagem. Tente novamente.</span>';
+            }
+        }
+
+        function aoDigitarUrlFotoPergunta(url) {
+            const inputHidden = document.getElementById('edit-pergunta-foto-url');
+            const imgPrev = document.getElementById('img-preview-foto-pergunta');
+            const placeholder = document.getElementById('placeholder-foto-pergunta');
+            const btnRemover = document.getElementById('btn-remover-foto-pergunta');
+            const btnLimpar = document.getElementById('btn-limpar-foto-pergunta');
+            const statusEl = document.getElementById('status-upload-foto-pergunta');
+
+            const limpo = (url || '').trim();
+            if (inputHidden) inputHidden.value = limpo;
+
+            if (limpo) {
+                if (imgPrev) {
+                    imgPrev.src = limpo;
+                    imgPrev.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (btnRemover) btnRemover.classList.remove('hidden');
+                if (btnLimpar) btnLimpar.classList.remove('hidden');
+                if (statusEl) statusEl.innerHTML = '🔗 <span class="text-slate-700 font-medium">Link da imagem aplicado.</span>';
+            } else {
+                if (imgPrev) {
+                    imgPrev.src = '';
+                    imgPrev.classList.add('hidden');
+                }
+                if (placeholder) placeholder.classList.remove('hidden');
+                if (btnRemover) btnRemover.classList.add('hidden');
+                if (btnLimpar) btnLimpar.classList.add('hidden');
+                if (statusEl) statusEl.innerText = 'Nenhuma foto selecionada.';
+            }
+        }
+
+        function removerFotoPerguntaCustom() {
+            fotoPerguntaTempFile = null;
+            const inputHidden = document.getElementById('edit-pergunta-foto-url');
+            const inputUrl = document.getElementById('edit-pergunta-foto-url-input');
+            const inputFile = document.getElementById('edit-pergunta-foto-file');
+            const imgPrev = document.getElementById('img-preview-foto-pergunta');
+            const placeholder = document.getElementById('placeholder-foto-pergunta');
+            const btnRemover = document.getElementById('btn-remover-foto-pergunta');
+            const btnLimpar = document.getElementById('btn-limpar-foto-pergunta');
+            const statusEl = document.getElementById('status-upload-foto-pergunta');
+
+            if (inputHidden) inputHidden.value = '';
+            if (inputUrl) inputUrl.value = '';
+            if (inputFile) inputFile.value = '';
+            if (imgPrev) {
+                imgPrev.src = '';
+                imgPrev.classList.add('hidden');
+            }
+            if (placeholder) placeholder.classList.remove('hidden');
+            if (btnRemover) btnRemover.classList.add('hidden');
+            if (btnLimpar) btnLimpar.classList.add('hidden');
+            if (statusEl) statusEl.innerText = 'Foto removida. O item exibirá o ícone gráfico padrão.';
+        }
+
+        function abrirModalZoomFoto(url, titulo = 'Foto da Peça / Componente') {
+            if (!url) return;
+            const modal = document.getElementById('modal-zoom-foto-checklist');
+            const img = document.getElementById('zoom-foto-img');
+            const txtTitulo = document.getElementById('zoom-foto-titulo');
+            if (img) img.src = url;
+            if (txtTitulo) txtTitulo.innerText = titulo || 'Foto da Peça / Componente';
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function fecharModalZoomFoto() {
+            const modal = document.getElementById('modal-zoom-foto-checklist');
+            if (modal) modal.classList.add('hidden');
         }
 
         function abrirEdicaoPergunta(idx = null) {
@@ -8622,7 +9003,18 @@ DIRETRIZES OBRIGATÓRIAS:
             const inputSecao = document.getElementById('edit-pergunta-secao');
             const inputTexto = document.getElementById('edit-pergunta-texto');
             const inputIcone = document.getElementById('edit-pergunta-icone');
+            const inputFotoUrl = document.getElementById('edit-pergunta-foto-url');
+            const inputFotoUrlInput = document.getElementById('edit-pergunta-foto-url-input');
+            const imgPrev = document.getElementById('img-preview-foto-pergunta');
+            const placeholder = document.getElementById('placeholder-foto-pergunta');
+            const btnRemover = document.getElementById('btn-remover-foto-pergunta');
+            const btnLimpar = document.getElementById('btn-limpar-foto-pergunta');
+            const statusEl = document.getElementById('status-upload-foto-pergunta');
             const tituloTopo = document.getElementById('form-pergunta-titulo-topo');
+
+            fotoPerguntaTempFile = null;
+            const inputFile = document.getElementById('edit-pergunta-foto-file');
+            if (inputFile) inputFile.value = '';
 
             const perguntas = getPerguntasEquipamento(m);
 
@@ -8635,9 +9027,24 @@ DIRETRIZES OBRIGATÓRIAS:
                 inputTexto.value = p.question || p.pergunta || '';
                 inputIcone.value = p.icon || 'fa-clipboard-check';
                 if (tituloTopo) {
-                    tituloTopo.innerHTML = `<i class="fa-solid fa-pen text-orange-600"></i> Editar Pergunta #${idx + 1}: ${escaparHTML(p.title)}`;
+                    tituloTopo.innerHTML = `<i class="fa-solid fa-pen text-orange-600"></i> Editar Pergunta #${idx + 1}: ${escaparHTML(p.title || p.rotulo || '')}`;
                 }
                 selecionarIconeCustom(p.icon || 'fa-clipboard-check');
+
+                if (p.foto_url) {
+                    if (inputFotoUrl) inputFotoUrl.value = p.foto_url;
+                    if (inputFotoUrlInput) inputFotoUrlInput.value = p.foto_url.startsWith('data:') ? '' : p.foto_url;
+                    if (imgPrev) {
+                        imgPrev.src = p.foto_url;
+                        imgPrev.classList.remove('hidden');
+                    }
+                    if (placeholder) placeholder.classList.add('hidden');
+                    if (btnRemover) btnRemover.classList.remove('hidden');
+                    if (btnLimpar) btnLimpar.classList.remove('hidden');
+                    if (statusEl) statusEl.innerHTML = '✅ <span class="text-emerald-700 font-bold">Foto da peça já vinculada a esta pergunta.</span>';
+                } else {
+                    removerFotoPerguntaCustom();
+                }
             } else {
                 inputIdx.value = -1;
                 inputId.value = 'custom_' + Date.now();
@@ -8649,6 +9056,7 @@ DIRETRIZES OBRIGATÓRIAS:
                     tituloTopo.innerHTML = `<i class="fa-solid fa-plus text-orange-600"></i> Nova Pergunta de Checklist`;
                 }
                 selecionarIconeCustom('fa-clipboard-check');
+                removerFotoPerguntaCustom();
             }
 
             form.classList.remove('hidden');
@@ -8659,6 +9067,7 @@ DIRETRIZES OBRIGATÓRIAS:
         function fecharFormularioPerguntaCustom() {
             const form = document.getElementById('form-edicao-pergunta-chk');
             if (form) form.classList.add('hidden');
+            fotoPerguntaTempFile = null;
         }
 
         function salvarNovaOuEditadaPerguntaCustom() {
@@ -8671,12 +9080,15 @@ DIRETRIZES OBRIGATÓRIAS:
             const inputSecao = document.getElementById('edit-pergunta-secao');
             const inputTexto = document.getElementById('edit-pergunta-texto');
             const inputIcone = document.getElementById('edit-pergunta-icone');
+            const inputFotoUrl = document.getElementById('edit-pergunta-foto-url');
 
             const idx = parseInt(inputIdx?.value || '-1', 10);
             const titulo = inputTitulo ? inputTitulo.value.trim() : '';
             const secao = inputSecao ? inputSecao.value.trim() : 'Geral';
             const texto = inputTexto ? inputTexto.value.trim() : '';
             const icone = inputIcone ? inputIcone.value.trim() : 'fa-clipboard-check';
+            const rawFotoUrl = (inputFotoUrl ? inputFotoUrl.value.trim() : '');
+            const finalFotoUrl = rawFotoUrl || null;
             const itemId = (inputId && inputId.value) ? inputId.value : ('custom_' + Date.now());
 
             if (!titulo) {
@@ -8698,7 +9110,8 @@ DIRETRIZES OBRIGATÓRIAS:
                 question: texto,
                 pergunta: texto,
                 secao: secao,
-                icon: icone
+                icon: icone,
+                foto_url: finalFotoUrl
             };
 
             if (idx >= 0 && idx < perguntas.length) {
@@ -8708,6 +9121,44 @@ DIRETRIZES OBRIGATÓRIAS:
             }
 
             salvarPerguntasEquipamento(m.codigo, perguntas);
+
+            // Se o usuário selecionou um arquivo local e há conexão com Supabase Storage, envia em formato WebP
+            if (fotoPerguntaTempFile && typeof db !== 'undefined' && db && navigator.onLine) {
+                (async () => {
+                    try {
+                        const blobComprimido = await comprimirImagemParaUpload(fotoPerguntaTempFile, 800, 0.82);
+                        const nomeArquivo = `peca_${m.codigo}_${itemId}_${Date.now()}.webp`;
+                        let bucketNome = 'fotos-equipamentos';
+                        let upRes = await db.storage
+                            .from(bucketNome)
+                            .upload(nomeArquivo, blobComprimido, {
+                                contentType: 'image/webp',
+                                upsert: true
+                            });
+
+                        if (upRes && upRes.error) {
+                            bucketNome = 'checklist-audios';
+                            upRes = await db.storage
+                                .from(bucketNome)
+                                .upload(nomeArquivo, blobComprimido, {
+                                    contentType: 'image/webp',
+                                    upsert: true
+                                });
+                        }
+
+                        if (upRes && !upRes.error) {
+                            const { data: pubData } = db.storage.from(bucketNome).getPublicUrl(nomeArquivo);
+                            if (pubData && pubData.publicUrl) {
+                                itemObj.foto_url = pubData.publicUrl;
+                                salvarPerguntasEquipamento(m.codigo, perguntas);
+                            }
+                        }
+                    } catch (eUp) {
+                        console.warn("Aviso upload nuvem foto peça (mantido offline/base64):", eUp);
+                    }
+                })();
+            }
+
             fecharFormularioPerguntaCustom();
             renderSubAbaChecklist(m);
         }
@@ -9094,7 +9545,12 @@ DIRETRIZES OBRIGATÓRIAS:
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                    let dataUrl = "";
+                    try {
+                        dataUrl = canvas.toDataURL('image/webp', 0.82);
+                    } catch (_) {
+                        dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                    }
 
                     const preview = document.getElementById('preview-foto-equipamento');
                     const placeholder = document.getElementById('preview-foto-placeholder');
@@ -9121,10 +9577,10 @@ DIRETRIZES OBRIGATÓRIAS:
                             if (db && codAtual) {
                                 try {
                                     const cleanCode = codAtual.replace(/[^a-zA-Z0-9_-]/g, '_');
-                                    const fileName = `${cleanCode}_${Date.now()}.jpg`;
+                                    const fileName = `${cleanCode}_${Date.now()}.webp`;
                                     const { error: upErr } = await db.storage
                                         .from('fotos-equipamentos')
-                                        .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+                                        .upload(fileName, blob, { contentType: 'image/webp', upsert: true });
 
                                     if (!upErr) {
                                         const { data: pubData } = db.storage.from('fotos-equipamentos').getPublicUrl(fileName);
@@ -9730,7 +10186,8 @@ DIRETRIZES OBRIGATÓRIAS:
             if (container) renderAbaConfiguracoes(container);
         }
 
-        async function comprimirImagemParaUpload(file, maxDim = 600, quality = 0.85) {
+        // COMPRESSOR UNIVERSAL WEBP PARA TODAS AS FOTOS DO SISTEMA
+        async function comprimirImagemParaUpload(file, maxDim = 800, quality = 0.82) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -9754,10 +10211,57 @@ DIRETRIZES OBRIGATÓRIAS:
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
+
+                        // Prioriza formato WebP nativo para máxima compressão e nitidez
                         canvas.toBlob(blob => {
-                            if (blob) resolve(blob);
-                            else reject(new Error('Falha ao comprimir imagem.'));
-                        }, 'image/jpeg', quality);
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                canvas.toBlob(fallbackBlob => {
+                                    if (fallbackBlob) resolve(fallbackBlob);
+                                    else reject(new Error('Falha ao comprimir imagem em WebP.'));
+                                }, 'image/jpeg', quality);
+                            }
+                        }, 'image/webp', quality);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function comprimirImagemParaWebPDataUrl(file, maxDim = 800, quality = 0.82) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxDim) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            }
+                        } else {
+                            if (height > maxDim) {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        try {
+                            const dataUrl = canvas.toDataURL('image/webp', quality);
+                            resolve(dataUrl);
+                        } catch (_) {
+                            resolve(canvas.toDataURL('image/jpeg', quality));
+                        }
                     };
                     img.onerror = reject;
                     img.src = e.target.result;
@@ -9769,8 +10273,9 @@ DIRETRIZES OBRIGATÓRIAS:
 
         function renderAbaConfiguracoes(container) {
             const totalOps = (listaOperadores || []).length;
-            const maquinasLista = frotaTotal.filter(m => (m.categoria || 'maquinas') !== 'veiculos' && !m.placa);
-            const veiculosLista = frotaTotal.filter(m => (m.categoria || '') === 'veiculos' || m.placa);
+            const frotaAtual = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0 ? cacheGestor.maquinas : frotaTotal);
+            const maquinasLista = frotaAtual.filter(m => (m.categoria || 'maquinas') !== 'veiculos' && !m.placa);
+            const veiculosLista = frotaAtual.filter(m => (m.categoria || '') === 'veiculos' || m.placa);
 
             container.innerHTML = `
                 <div class="space-y-4">
@@ -9932,7 +10437,8 @@ DIRETRIZES OBRIGATÓRIAS:
                     </div>
                 `;
             } else if (subAbaConfiguracoes === 'veiculos') {
-                let veics = frotaTotal.filter(m => (m.categoria || '') === 'veiculos' || m.placa);
+                const fonteGeral = (frotaTotal && frotaTotal.length > 0) ? frotaTotal : (cacheGestor.maquinas || []);
+                let veics = fonteGeral.filter(m => (m.categoria || '') === 'veiculos' || m.placa);
                 if (q) {
                     veics = veics.filter(m => 
                         (m.codigo || '').toLowerCase().includes(q) ||
@@ -10000,9 +10506,14 @@ DIRETRIZES OBRIGATÓRIAS:
                                     </div>
 
                                     <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-                                        <button type="button" onclick="abrirModalFormEquipamento('veiculos', '${v.id || v.codigo}')" class="text-slate-600 hover:text-orange-600 font-semibold flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-slate-50 transition">
-                                            <i class="fa-solid fa-pen-to-square"></i> Editar
-                                        </button>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="abrirPerfilEquipamento('${v.codigo}')" class="text-orange-700 hover:text-orange-800 font-bold flex items-center gap-1 py-1 px-2 rounded-lg bg-orange-50 hover:bg-orange-100 transition" title="Abrir Perfil e Checklist deste Veículo">
+                                                <i class="fa-solid fa-clipboard-check text-orange-600"></i> Perfil & Checklist
+                                            </button>
+                                            <button type="button" onclick="abrirModalFormEquipamento('veiculos', '${v.id || v.codigo}')" class="text-slate-600 hover:text-orange-600 font-semibold flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-slate-50 transition" title="Editar dados cadastrais">
+                                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                                            </button>
+                                        </div>
                                         <button type="button" onclick="excluirEquipamento('${v.id || ''}', '${escaparHTML(v.codigo)}')" class="text-slate-400 hover:text-red-600 font-semibold p-1.5 rounded-lg hover:bg-red-50 transition" title="Excluir Veículo">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>
@@ -10013,7 +10524,8 @@ DIRETRIZES OBRIGATÓRIAS:
                     </div>
                 `;
             } else if (subAbaConfiguracoes === 'maquinas') {
-                let maqs = frotaTotal.filter(m => (m.categoria || 'maquinas') !== 'veiculos' && !m.placa);
+                const fonteGeral = (frotaTotal && frotaTotal.length > 0) ? frotaTotal : (cacheGestor.maquinas || []);
+                let maqs = fonteGeral.filter(m => (m.categoria || 'maquinas') !== 'veiculos' && !m.placa);
                 if (q) {
                     maqs = maqs.filter(m => 
                         (m.codigo || '').toLowerCase().includes(q) ||
@@ -10081,9 +10593,14 @@ DIRETRIZES OBRIGATÓRIAS:
                                     </div>
 
                                     <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-                                        <button type="button" onclick="abrirModalFormEquipamento('maquinas', '${m.id || m.codigo}')" class="text-slate-600 hover:text-orange-600 font-semibold flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-slate-50 transition">
-                                            <i class="fa-solid fa-pen-to-square"></i> Editar
-                                        </button>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="abrirPerfilEquipamento('${m.codigo}')" class="text-orange-700 hover:text-orange-800 font-bold flex items-center gap-1 py-1 px-2 rounded-lg bg-orange-50 hover:bg-orange-100 transition" title="Abrir Perfil e Checklist desta Máquina">
+                                                <i class="fa-solid fa-clipboard-check text-orange-600"></i> Perfil & Checklist
+                                            </button>
+                                            <button type="button" onclick="abrirModalFormEquipamento('maquinas', '${m.id || m.codigo}')" class="text-slate-600 hover:text-orange-600 font-semibold flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-slate-50 transition" title="Editar dados cadastrais">
+                                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                                            </button>
+                                        </div>
                                         <button type="button" onclick="excluirEquipamento('${m.id || ''}', '${escaparHTML(m.codigo)}')" class="text-slate-400 hover:text-red-600 font-semibold p-1.5 rounded-lg hover:bg-red-50 transition" title="Excluir Máquina">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>
@@ -10416,7 +10933,8 @@ DIRETRIZES OBRIGATÓRIAS:
             aoAlternarCategoriaEquipForm(categoria);
 
             if (id) {
-                const equip = frotaTotal.find(m => String(m.id) === String(id) || m.codigo === id);
+                const equip = (frotaTotal.find(m => String(m.id) === String(id) || m.codigo === id)) ||
+                              (typeof cacheGestor !== 'undefined' && cacheGestor.maquinas ? cacheGestor.maquinas.find(m => String(m.id) === String(id) || m.codigo === id) : null);
                 if (equip) {
                     const isVeic = (equip.categoria === 'veiculos' || !!equip.placa);
                     selectCat.value = isVeic ? 'veiculos' : 'maquinas';
@@ -10428,7 +10946,7 @@ DIRETRIZES OBRIGATÓRIAS:
 
                     inputId.value = equip.id || '';
                     inputFotoUrl.value = equip.foto_url || '';
-                    selectUnidade.value = equip.unidade || 'MATRIZ';
+                    selectUnidade.value = compararUnidade(equip.unidade, 'MACAE') ? 'MACAE' : (equip.unidade || 'MATRIZ');
                     inputCodigo.value = equip.codigo || '';
                     inputModelo.value = equip.modelo || equip.nome || '';
                     inputMarca.value = equip.marca || '';
@@ -10549,14 +11067,14 @@ DIRETRIZES OBRIGATÓRIAS:
 
             try {
                 if (fotoEquipamentoArquivoTemp && db) {
-                    if (statusUpload) statusUpload.innerText = 'Comprimindo e enviando foto...';
-                    const blobComprimido = await comprimirImagemParaUpload(fotoEquipamentoArquivoTemp, 700, 0.85);
-                    const nomeArquivo = `equip_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+                    if (statusUpload) statusUpload.innerText = 'Comprimindo foto em WebP e enviando...';
+                    const blobComprimido = await comprimirImagemParaUpload(fotoEquipamentoArquivoTemp, 700, 0.82);
+                    const nomeArquivo = `equip_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
 
                     const { error: errUpload } = await db.storage
                         .from('fotos-equipamentos')
                         .upload(nomeArquivo, blobComprimido, {
-                            contentType: 'image/jpeg',
+                            contentType: 'image/webp',
                             upsert: true
                         });
 
@@ -10584,26 +11102,52 @@ DIRETRIZES OBRIGATÓRIAS:
                 };
 
                 let savedEquip = null;
+                const isUuid = Boolean(id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id)));
 
-                if (id) {
-                    if (db) {
+                if (db) {
+                    if (isUuid) {
                         const { data, error } = await db.from('maquinas').update(payload).eq('id', id).select();
                         if (error) throw error;
                         savedEquip = data && data[0];
+                    } else {
+                        // O ID não é UUID (ex: '19', '1' de mocks iniciais ou vazio).
+                        // Verifica se já existe equipamento com esse código no Supabase
+                        const { data: existente } = await db.from('maquinas').select('id').eq('codigo', codigo).maybeSingle();
+                        if (existente && existente.id) {
+                            const { data, error } = await db.from('maquinas').update(payload).eq('id', existente.id).select();
+                            if (error) throw error;
+                            savedEquip = data && data[0];
+                        } else {
+                            const { data, error } = await db.from('maquinas').insert([payload]).select();
+                            if (error) throw error;
+                            savedEquip = data && data[0];
+                        }
                     }
-                    const idx = frotaTotal.findIndex(m => String(m.id) === String(id) || m.codigo === codigo);
-                    if (idx >= 0) {
-                        frotaTotal[idx] = { ...frotaTotal[idx], ...payload, id };
-                    }
-                } else {
-                    if (db) {
-                        const { data, error } = await db.from('maquinas').insert([payload]).select();
-                        if (error) throw error;
-                        savedEquip = data && data[0];
-                    }
-                    const novoId = (savedEquip && savedEquip.id) ? savedEquip.id : ('local_' + Date.now());
-                    frotaTotal.push({ id: novoId, ...payload });
                 }
+
+                const resolvedId = (savedEquip && savedEquip.id) ? savedEquip.id : (isUuid ? id : ('maq_' + Date.now()));
+                const itemAtualizado = { ...payload, id: resolvedId };
+
+                // Atualiza em frotaTotal
+                const idx = frotaTotal.findIndex(m => (id && String(m.id) === String(id)) || m.codigo === codigo);
+                if (idx >= 0) {
+                    frotaTotal[idx] = { ...frotaTotal[idx], ...itemAtualizado };
+                } else {
+                    frotaTotal.push(itemAtualizado);
+                }
+
+                // Atualiza em cacheGestor.maquinas
+                if (typeof cacheGestor !== 'undefined') {
+                    if (!cacheGestor.maquinas) cacheGestor.maquinas = [];
+                    const idxCache = cacheGestor.maquinas.findIndex(m => (id && String(m.id) === String(id)) || m.codigo === codigo);
+                    if (idxCache >= 0) {
+                        cacheGestor.maquinas[idxCache] = { ...cacheGestor.maquinas[idxCache], ...itemAtualizado };
+                    } else {
+                        cacheGestor.maquinas.push(itemAtualizado);
+                    }
+                }
+
+                try { localStorage.setItem('jp_frota_cache', JSON.stringify(frotaTotal)); } catch (_) {}
 
                 // Se operador foi vinculado ao equipamento, atualiza o operador_padrao do operador também
                 if (operadorAtual) {
@@ -10637,21 +11181,29 @@ DIRETRIZES OBRIGATÓRIAS:
             if (!confirm(`Deseja realmente excluir o equipamento "${codigo}" da frota?`)) return;
 
             try {
-                if (db && id && !id.startsWith('local_')) {
-                    const { error } = await db.from('maquinas').delete().eq('id', id);
-                    if (error) throw error;
-                } else if (db && codigo) {
-                    const { error } = await db.from('maquinas').delete().eq('codigo', codigo);
-                    if (error) throw error;
+                const isUuid = Boolean(id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id)));
+                if (db) {
+                    if (isUuid) {
+                        const { error } = await db.from('maquinas').delete().eq('id', id);
+                        if (error) throw error;
+                    } else if (codigo) {
+                        const { error } = await db.from('maquinas').delete().eq('codigo', codigo);
+                        if (error) throw error;
+                    }
                 }
 
-                frotaTotal = frotaTotal.filter(m => String(m.id) !== String(id) && m.codigo !== codigo);
+                frotaTotal = frotaTotal.filter(m => (id ? String(m.id) !== String(id) : true) && m.codigo !== codigo);
+                if (typeof cacheGestor !== 'undefined' && cacheGestor.maquinas) {
+                    cacheGestor.maquinas = cacheGestor.maquinas.filter(m => (id ? String(m.id) !== String(id) : true) && m.codigo !== codigo);
+                }
+                try { localStorage.setItem('jp_frota_cache', JSON.stringify(frotaTotal)); } catch (_) {}
+
                 atualizarSelectSOS();
                 const elCountMaq = document.getElementById('count-maquinas');
                 if (elCountMaq) elCountMaq.innerText = frotaTotal.length;
 
                 renderConteudoSubAbaConfig();
-                alert(`Equipamento "${codigo}" removido com sucesso.`);
+                alert(`Equipamento "${codigo}" removido da frota com sucesso.`);
             } catch (err) {
                 console.error("Erro ao excluir equipamento:", err);
                 alert("Erro ao excluir equipamento: " + (err.message || err));
