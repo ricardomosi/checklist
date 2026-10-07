@@ -6884,85 +6884,90 @@ DIRETRIZES OBRIGATÓRIAS:
         let equipamentoSelecionado = null;
         let subAbaPerfilAtual = 'preventivas';
 
+        async function obterIdRealMaquina(maq) {
+            if (!maq) return null;
+            const isUuid = (val) => Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(val)));
+            if (isUuid(maq.id)) return maq.id;
+
+            // 1. Procura no cacheGestor.maquinas
+            if (typeof cacheGestor !== 'undefined' && Array.isArray(cacheGestor.maquinas)) {
+                const found = cacheGestor.maquinas.find(m => m.codigo === maq.codigo && isUuid(m.id));
+                if (found) {
+                    maq.id = found.id;
+                    return found.id;
+                }
+            }
+
+            // 2. Procura em frotaTotal
+            if (typeof frotaTotal !== 'undefined' && Array.isArray(frotaTotal)) {
+                const foundFrota = frotaTotal.find(m => m.codigo === maq.codigo && isUuid(m.id));
+                if (foundFrota) {
+                    maq.id = foundFrota.id;
+                    return foundFrota.id;
+                }
+            }
+
+            // 3. Consulta direta ao Supabase
+            if (db && maq.codigo) {
+                try {
+                    const { data } = await db.from('maquinas').select('id').eq('codigo', maq.codigo).maybeSingle();
+                    if (data && isUuid(data.id)) {
+                        maq.id = data.id;
+                        const mC = (typeof cacheGestor !== 'undefined' && cacheGestor.maquinas) ? cacheGestor.maquinas.find(m => m.codigo === maq.codigo) : null;
+                        if (mC) mC.id = data.id;
+                        const mF = (typeof frotaTotal !== 'undefined' && frotaTotal) ? frotaTotal.find(m => m.codigo === maq.codigo) : null;
+                        if (mF) mF.id = data.id;
+                        return data.id;
+                    }
+                } catch (e) {
+                    console.warn("Aviso ao resolver UUID da máquina:", e);
+                }
+            }
+
+            return maq.id || null;
+        }
+
         function getInsumosEquipamento(codigo) {
             let insumos = { oleo: { motor: '15W40 Mineral CI-4', litros: '8.5 L', hidraulico: 'ISO 68' }, filtros: [] };
+
+            // 1. Tenta carregar do localStorage inicial
             try {
                 const raw = localStorage.getItem('insumos_equip_' + codigo);
-                if (raw) insumos = JSON.parse(raw);
-            } catch (e) {}
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object') {
+                        if (parsed.oleo) insumos.oleo = { ...insumos.oleo, ...parsed.oleo };
+                        if (Array.isArray(parsed.filtros)) insumos.filtros = parsed.filtros;
+                    }
+                }
+            } catch (_) {}
 
-            const maq = (cacheGestor.maquinas || []).find(m => m.codigo === codigo) || (frotaTotal || []).find(m => m.codigo === codigo);
-            if (maq && maq.maquina_especificacoes && maq.maquina_especificacoes.length > 0) {
+            // 2. Busca o objeto da máquina no cache
+            const maq = (typeof cacheGestor !== 'undefined' && Array.isArray(cacheGestor.maquinas) ? cacheGestor.maquinas.find(m => m.codigo === codigo) : null)
+                     || (typeof frotaTotal !== 'undefined' && Array.isArray(frotaTotal) ? frotaTotal.find(m => m.codigo === codigo) : null);
+
+            // 3. Se a máquina possui especificações do Supabase, o banco é autoridade máxima
+            if (maq && Array.isArray(maq.maquina_especificacoes)) {
+                const specsFiltros = maq.maquina_especificacoes.filter(esp => esp.categoria === 'filtro');
+
+                // Mapeia filtros reais do banco
+                insumos.filtros = specsFiltros.map(esp => ({
+                    id: esp.id,
+                    codigo: esp.codigo_fabricante || '',
+                    nome: esp.item_nome || '',
+                    categoria: esp.especificacao || 'Filtro',
+                    quantidade: esp.quantidade_por_troca || 1
+                }));
+
+                // Óleo vindo do banco
                 maq.maquina_especificacoes.forEach(esp => {
                     if (esp.categoria === 'oleo') {
                         if (esp.item_nome === 'oleo_motor') insumos.oleo.motor = esp.especificacao || insumos.oleo.motor;
                         if (esp.item_nome === 'oleo_hidraulico') insumos.oleo.hidraulico = esp.especificacao || insumos.oleo.hidraulico;
                         if (esp.quantidade_por_troca) insumos.oleo.litros = esp.quantidade_por_troca + (esp.unidade ? ' ' + esp.unidade : '');
-                    } else if (esp.categoria === 'filtro') {
-                        if (!insumos.filtros.some(f => f.codigo === esp.codigo_fabricante)) {
-                            insumos.filtros.push({
-                                id: esp.id,
-                                codigo: esp.codigo_fabricante || '',
-                                nome: esp.item_nome || '',
-                                categoria: esp.especificacao || 'Filtro',
-                                quantidade: esp.quantidade_por_troca || 1
-                            });
-                        }
                     }
                 });
-            }
 
-            // Sugestões inteligentes padrão se for a primeira vez
-            if (!insumos.filtros || insumos.filtros.length === 0) {
-                if (codigo.includes('FD70') || codigo.includes('FD72') || codigo.includes('7T')) {
-                    insumos.filtros = [
-                        { id: 'f1', codigo: 'LF16015', nome: 'Filtro de Óleo Lubrificante', categoria: 'Óleo' },
-                        { id: 'f2', codigo: 'FS19732', nome: 'Filtro de Combustível / Separador', categoria: 'Combustível' },
-                        { id: 'f3', codigo: 'P550388', nome: 'Filtro de Ar Primário', categoria: 'Ar' },
-                        { id: 'f4', codigo: 'HF6510', nome: 'Filtro de Retorno Hidráulico', categoria: 'Hidráulico' }
-                    ];
-                    insumos.oleo.motor = '15W40 Mineral CI-4';
-                    insumos.oleo.litros = '14.0 L';
-                    insumos.oleo.hidraulico = 'ISO 68';
-                } else if (codigo.includes('FD35') || codigo.includes('FD36') || codigo.includes('0402')) {
-                    insumos.filtros = [
-                        { id: 'f1', codigo: 'W950/26', nome: 'Filtro de Óleo Lubrificante', categoria: 'Óleo' },
-                        { id: 'f2', codigo: 'WK842/2', nome: 'Filtro de Combustível', categoria: 'Combustível' },
-                        { id: 'f3', codigo: 'C15300', nome: 'Filtro de Ar do Motor', categoria: 'Ar' },
-                        { id: 'f4', codigo: 'HD719', nome: 'Filtro Hidráulico', categoria: 'Hidráulico' }
-                    ];
-                    insumos.oleo.motor = '15W40 Mineral CI-4';
-                    insumos.oleo.litros = '8.5 L';
-                    insumos.oleo.hidraulico = 'ISO 68';
-                } else if (codigo.includes('Doosan') || codigo.includes('Hyundai') || codigo.includes('Motocana')) {
-                    insumos.filtros = [
-                        { id: 'f1', codigo: '65.05510-5020', nome: 'Filtro de Óleo Motor Diesel', categoria: 'Óleo' },
-                        { id: 'f2', codigo: '400504-00075', nome: 'Filtro de Combustível Principal', categoria: 'Combustível' },
-                        { id: 'f3', codigo: '400504-00218', nome: 'Filtro Separador de Água Racor', categoria: 'Combustível' },
-                        { id: 'f4', codigo: '474-00040', nome: 'Filtro de Ar Primário', categoria: 'Ar' },
-                        { id: 'f5', codigo: '2474-9051', nome: 'Filtro Hidráulico de Sucção', categoria: 'Hidráulico' }
-                    ];
-                    insumos.oleo.motor = '15W40 Mineral Diesel';
-                    insumos.oleo.litros = '19.5 L';
-                    insumos.oleo.hidraulico = 'ISO 68 / 46';
-                } else if (codigo.includes('CLA') || codigo.includes('JHC') || codigo.includes('EL20') || codigo.includes('EL21')) {
-                    insumos.filtros = [
-                        { id: 'f1', codigo: 'CLK-2784', nome: 'Filtro Hidráulico de Sucção', categoria: 'Hidráulico' },
-                        { id: 'f2', codigo: 'CLK-9011', nome: 'Filtro Respirador do Tanque', categoria: 'Hidráulico' }
-                    ];
-                    insumos.oleo.motor = 'Elétrica (Não utiliza óleo motor)';
-                    insumos.oleo.litros = '0 L';
-                    insumos.oleo.hidraulico = 'ISO 46 / 68';
-                } else {
-                    insumos.filtros = [
-                        { id: 'f1', codigo: 'PH5566', nome: 'Filtro de Óleo do Motor', categoria: 'Óleo' },
-                        { id: 'f2', codigo: 'G5540', nome: 'Filtro de Combustível', categoria: 'Combustível' },
-                        { id: 'f3', codigo: 'CA5354', nome: 'Filtro de Ar', categoria: 'Ar' }
-                    ];
-                    insumos.oleo.motor = '15W40 Mineral';
-                    insumos.oleo.litros = '5.0 L';
-                    insumos.oleo.hidraulico = 'ISO 68';
-                }
                 salvarInsumosEquipamentoLocal(codigo, insumos);
             }
 
@@ -8399,7 +8404,14 @@ DIRETRIZES OBRIGATÓRIAS:
 
                             <!-- Lista de Filtros Cadastrados -->
                             <div class="space-y-2 pt-1">
-                                <span class="text-[11px] font-bold text-slate-600 uppercase">Filtros Cadastrados (${insumos.filtros.length})</span>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[11px] font-bold text-slate-600 uppercase">Filtros Cadastrados (${insumos.filtros.length})</span>
+                                    ${insumos.filtros.length > 0 ? `
+                                        <button type="button" onclick="limparTodosFiltrosPerfil()" class="text-[11px] text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 font-semibold transition" title="Apagar todos os filtros desta máquina">
+                                            <i class="fa-regular fa-trash-can text-xs"></i> Limpar Todos os Filtros
+                                        </button>
+                                    ` : ''}
+                                </div>
                                 ${insumos.filtros.length === 0 ? `
                                     <div class="p-4 bg-white rounded-xl border border-dashed border-slate-300 text-center text-slate-500 text-xs">
                                         <i class="fa-solid fa-filter text-slate-300 text-2xl mb-1 block"></i>
@@ -8424,7 +8436,7 @@ DIRETRIZES OBRIGATÓRIAS:
                                                         Cód: ${escaparHTML(f.codigo)}
                                                     </p>
                                                 </div>
-                                                <button onclick="excluirFiltroPerfil('${f.id}', '${escaparHTML(f.codigo)}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition shrink-0" title="Excluir este filtro">
+                                                <button type="button" onclick="excluirFiltroPerfil('${f.id || ''}', '${escaparHTML(f.codigo)}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition shrink-0" title="Excluir este filtro">
                                                     <i class="fa-regular fa-trash-can text-xs"></i>
                                                 </button>
                                             </div>
@@ -9563,32 +9575,66 @@ DIRETRIZES OBRIGATÓRIAS:
                 return;
             }
 
-            const insumos = getInsumosEquipamento(m.codigo);
-            const novoFiltro = {
-                id: 'f_' + Date.now(),
-                codigo: codigo,
-                nome: nome,
-                categoria: cat,
-                quantidade: 1
-            };
+            const maquinaId = await obterIdRealMaquina(m);
+            let novoId = 'f_' + Date.now();
 
-            insumos.filtros.push(novoFiltro);
-            salvarInsumosEquipamentoLocal(m.codigo, insumos);
-
-            if (db && m.id && String(m.id).length > 10) {
+            if (db && maquinaId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maquinaId))) {
                 try {
-                    await db.from('maquina_especificacoes').insert([{
-                        maquina_id: m.id,
+                    const { data, error } = await db.from('maquina_especificacoes').insert([{
+                        maquina_id: maquinaId,
                         categoria: 'filtro',
                         item_nome: nome,
                         codigo_fabricante: codigo,
                         especificacao: cat,
                         quantidade_por_troca: 1
-                    }]);
+                    }]).select();
+
+                    if (error) {
+                        console.error("Erro ao inserir filtro no Supabase:", error);
+                        alert("Atenção: Houve um erro ao gravar no banco: " + (error.message || error));
+                    } else if (data && data[0] && data[0].id) {
+                        novoId = data[0].id;
+                    }
                 } catch (e) {
                     console.warn("Aviso ao salvar filtro no Supabase:", e);
                 }
             }
+
+            const novaSpec = {
+                id: novoId,
+                maquina_id: maquinaId,
+                categoria: 'filtro',
+                item_nome: nome,
+                codigo_fabricante: codigo,
+                especificacao: cat,
+                quantidade_por_troca: 1
+            };
+
+            // Atualiza em m.maquina_especificacoes
+            if (!Array.isArray(m.maquina_especificacoes)) m.maquina_especificacoes = [];
+            m.maquina_especificacoes = m.maquina_especificacoes.filter(s => !(s.categoria === 'filtro' && s.codigo_fabricante === codigo));
+            m.maquina_especificacoes.push(novaSpec);
+
+            // Sincroniza em cacheGestor e frotaTotal
+            const atualizarNaLista = (lista) => {
+                if (!Array.isArray(lista)) return;
+                const item = lista.find(maq => maq.codigo === m.codigo || (maquinaId && maq.id === maquinaId));
+                if (item) {
+                    if (!Array.isArray(item.maquina_especificacoes)) item.maquina_especificacoes = [];
+                    item.maquina_especificacoes = item.maquina_especificacoes.filter(s => !(s.categoria === 'filtro' && s.codigo_fabricante === codigo));
+                    item.maquina_especificacoes.push(novaSpec);
+                }
+            };
+            atualizarNaLista(cacheGestor.maquinas);
+            atualizarNaLista(frotaTotal);
+
+            // Atualiza localStorage
+            const insumos = getInsumosEquipamento(m.codigo);
+            salvarInsumosEquipamentoLocal(m.codigo, insumos);
+
+            // Limpa campos do formulário
+            if (inputCodigo) inputCodigo.value = '';
+            if (inputNome) inputNome.value = '';
 
             alert(`Filtro "${nome}" [${codigo}] cadastrado com sucesso no perfil!`);
             renderSubAbaPerfil();
@@ -9599,19 +9645,98 @@ DIRETRIZES OBRIGATÓRIAS:
             if (!m) return;
             if (!confirm(`Deseja realmente remover o filtro código "${codigoFiltro}" do perfil desta máquina?`)) return;
 
-            const insumos = getInsumosEquipamento(m.codigo);
-            insumos.filtros = insumos.filtros.filter(f => f.id !== filtroId && f.codigo !== codigoFiltro);
-            salvarInsumosEquipamentoLocal(m.codigo, insumos);
+            const maquinaId = await obterIdRealMaquina(m);
 
-            if (db && m.id && String(m.id).length > 10) {
+            if (db && maquinaId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maquinaId))) {
                 try {
-                    await db.from('maquina_especificacoes').delete()
-                        .eq('maquina_id', m.id)
-                        .eq('codigo_fabricante', codigoFiltro);
+                    let query = db.from('maquina_especificacoes').delete().eq('maquina_id', maquinaId);
+                    if (filtroId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(filtroId))) {
+                        query = query.eq('id', filtroId);
+                    } else if (codigoFiltro) {
+                        query = query.eq('codigo_fabricante', codigoFiltro).eq('categoria', 'filtro');
+                    }
+                    const { error } = await query;
+                    if (error) console.warn("Aviso ao excluir filtro do Supabase:", error);
                 } catch (e) {
                     console.warn("Aviso ao excluir filtro do Supabase:", e);
                 }
             }
+
+            // Remove em m.maquina_especificacoes
+            if (Array.isArray(m.maquina_especificacoes)) {
+                m.maquina_especificacoes = m.maquina_especificacoes.filter(s => 
+                    String(s.id) !== String(filtroId) && 
+                    !(s.categoria === 'filtro' && s.codigo_fabricante === codigoFiltro)
+                );
+            }
+
+            // Remove em cacheGestor e frotaTotal
+            const removerNaLista = (lista) => {
+                if (!Array.isArray(lista)) return;
+                const item = lista.find(maq => maq.codigo === m.codigo || (maquinaId && maq.id === maquinaId));
+                if (item && Array.isArray(item.maquina_especificacoes)) {
+                    item.maquina_especificacoes = item.maquina_especificacoes.filter(s => 
+                        String(s.id) !== String(filtroId) && 
+                        !(s.categoria === 'filtro' && s.codigo_fabricante === codigoFiltro)
+                    );
+                }
+            };
+            removerNaLista(cacheGestor.maquinas);
+            removerNaLista(frotaTotal);
+
+            // Atualiza localStorage
+            let insumos = { oleo: { motor: '15W40 Mineral CI-4', litros: '8.5 L', hidraulico: 'ISO 68' }, filtros: [] };
+            try {
+                const raw = localStorage.getItem('insumos_equip_' + m.codigo);
+                if (raw) insumos = JSON.parse(raw);
+            } catch (_) {}
+            insumos.filtros = (insumos.filtros || []).filter(f => 
+                String(f.id) !== String(filtroId) && String(f.codigo) !== String(codigoFiltro)
+            );
+            salvarInsumosEquipamentoLocal(m.codigo, insumos);
+
+            renderSubAbaPerfil();
+        }
+
+        async function limparTodosFiltrosPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            if (!confirm(`Deseja realmente apagar TODOS os filtros cadastrados para o equipamento "${m.codigo}"?`)) return;
+
+            const maquinaId = await obterIdRealMaquina(m);
+
+            if (db && maquinaId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maquinaId))) {
+                try {
+                    const { error } = await db.from('maquina_especificacoes').delete()
+                        .eq('maquina_id', maquinaId)
+                        .eq('categoria', 'filtro');
+                    if (error) console.warn("Aviso ao limpar filtros do Supabase:", error);
+                } catch (e) {
+                    console.warn("Aviso ao limpar filtros do Supabase:", e);
+                }
+            }
+
+            if (Array.isArray(m.maquina_especificacoes)) {
+                m.maquina_especificacoes = m.maquina_especificacoes.filter(s => s.categoria !== 'filtro');
+            }
+
+            const limparNaLista = (lista) => {
+                if (!Array.isArray(lista)) return;
+                const item = lista.find(maq => maq.codigo === m.codigo || (maquinaId && maq.id === maquinaId));
+                if (item && Array.isArray(item.maquina_especificacoes)) {
+                    item.maquina_especificacoes = item.maquina_especificacoes.filter(s => s.categoria !== 'filtro');
+                }
+            };
+            limparNaLista(cacheGestor.maquinas);
+            limparNaLista(frotaTotal);
+
+            let insumos = { oleo: { motor: '15W40 Mineral CI-4', litros: '8.5 L', hidraulico: 'ISO 68' }, filtros: [] };
+            try {
+                const raw = localStorage.getItem('insumos_equip_' + m.codigo);
+                if (raw) insumos = JSON.parse(raw);
+            } catch (_) {}
+            insumos.filtros = [];
+            salvarInsumosEquipamentoLocal(m.codigo, insumos);
 
             renderSubAbaPerfil();
         }
@@ -9633,16 +9758,29 @@ DIRETRIZES OBRIGATÓRIAS:
 
             salvarInsumosEquipamentoLocal(m.codigo, insumos);
 
-            if (db && m.id && String(m.id).length > 10) {
+            const maquinaId = await obterIdRealMaquina(m);
+
+            if (db && maquinaId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maquinaId))) {
                 try {
-                    await db.from('maquina_especificacoes').upsert([
-                        { maquina_id: m.id, categoria: 'oleo', item_nome: 'oleo_motor', especificacao: insumos.oleo.motor, quantidade_por_troca: parseFloat(insumos.oleo.litros) || 1 },
-                        { maquina_id: m.id, categoria: 'oleo', item_nome: 'oleo_hidraulico', especificacao: insumos.oleo.hidraulico, quantidade_por_troca: 1 }
+                    await db.from('maquina_especificacoes').delete()
+                        .eq('maquina_id', maquinaId)
+                        .eq('categoria', 'oleo');
+
+                    await db.from('maquina_especificacoes').insert([
+                        { maquina_id: maquinaId, categoria: 'oleo', item_nome: 'oleo_motor', especificacao: insumos.oleo.motor, quantidade_por_troca: parseFloat(insumos.oleo.litros) || 1, unidade: 'L' },
+                        { maquina_id: maquinaId, categoria: 'oleo', item_nome: 'oleo_hidraulico', especificacao: insumos.oleo.hidraulico, quantidade_por_troca: 1, unidade: 'L' }
                     ]);
                 } catch (e) {
                     console.warn("Aviso ao salvar óleo no Supabase:", e);
                 }
             }
+
+            if (!Array.isArray(m.maquina_especificacoes)) m.maquina_especificacoes = [];
+            m.maquina_especificacoes = m.maquina_especificacoes.filter(s => s.categoria !== 'oleo');
+            m.maquina_especificacoes.push(
+                { maquina_id: maquinaId, categoria: 'oleo', item_nome: 'oleo_motor', especificacao: insumos.oleo.motor, quantidade_por_troca: parseFloat(insumos.oleo.litros) || 1, unidade: 'L' },
+                { maquina_id: maquinaId, categoria: 'oleo', item_nome: 'oleo_hidraulico', especificacao: insumos.oleo.hidraulico, quantidade_por_troca: 1, unidade: 'L' }
+            );
 
             alert("Especificações de lubrificantes salvas com sucesso!");
             renderSubAbaPerfil();
