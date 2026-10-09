@@ -130,37 +130,59 @@
             margin: 8mm 10mm 10mm 10mm;
         }
         @media print {
+            /* 1. Ocultar todos os elementos diretos do body que NÃO sejam a área de impressão de relatórios */
+            body.imprimindo-relatorio > *:not(#area-impressao-requisicao),
+            body:has(#area-impressao-requisicao:not(:empty)) > *:not(#area-impressao-requisicao) {
+                display: none !important;
+            }
+
+            /* 2. Reset rigoroso de dimensões para eliminar páginas em branco fantasmas */
             html, body {
                 height: auto !important;
-                min-height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
                 overflow: visible !important;
                 background: #ffffff !important;
+                color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
             }
-            body * {
-                visibility: hidden !important;
-            }
-            #area-impressao-requisicao, #area-impressao-requisicao * {
-                visibility: visible !important;
-            }
+
+            /* 3. Apenas a área de impressão de relatórios fica ativa em fluxo natural (sem position: absolute) */
             #area-impressao-requisicao {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
+                display: block !important;
+                visibility: visible !important;
+                position: static !important;
                 width: 100% !important;
-                margin: 0 !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
                 padding: 0 !important;
                 background: #ffffff !important;
                 color: #000000 !important;
-                display: block !important;
                 overflow: visible !important;
-                z-index: 999999 !important;
+                box-shadow: none !important;
+                border: none !important;
+                float: none !important;
             }
+
+            #area-impressao-requisicao * {
+                visibility: visible !important;
+            }
+
+            /* 4. Evitar quebras de página inadequadas dentro de blocos técnicos e cartões */
             .print-card-block {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
             }
+
+            /* 5. Linhas de tabelas não quebram ao meio */
+            tr, td, th {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
             .no-print {
                 display: none !important;
             }
@@ -5857,7 +5879,11 @@ DIRETRIZES OBRIGATÓRIAS:
                 </div>
             `;
 
+            document.body.classList.add('imprimindo-relatorio');
             window.print();
+            setTimeout(() => {
+                document.body.classList.remove('imprimindo-relatorio');
+            }, 2500);
         }
 
         // ==================== ABA 3: KANBAN, SEMANAL E CALENDÁRIO MENSAL ====================
@@ -8196,7 +8222,11 @@ DIRETRIZES OBRIGATÓRIAS:
                 </div>
             `;
 
+            document.body.classList.add('imprimindo-relatorio');
             window.print();
+            setTimeout(() => {
+                document.body.classList.remove('imprimindo-relatorio');
+            }, 2500);
         }
 
         function abrirPerfilEquipamento(codigo) {
@@ -10161,15 +10191,14 @@ DIRETRIZES OBRIGATÓRIAS:
                             Parecer técnico do mecânico (anomalias detectadas, folgas, reparos recomendados):
                         </div>
                         <div style="width: 100%; box-sizing: border-box;">
-                            <div style="border-bottom: 1px dashed #777; height: 22px; width: 100%;"></div>
-                            <div style="border-bottom: 1px dashed #777; height: 22px; width: 100%;"></div>
-                            <div style="border-bottom: 1px dashed #777; height: 22px; width: 100%;"></div>
-                            <div style="border-bottom: 1px dashed #777; height: 22px; width: 100%;"></div>
+                            <div style="border-bottom: 1px dashed #777; height: 18px; width: 100%;"></div>
+                            <div style="border-bottom: 1px dashed #777; height: 18px; width: 100%;"></div>
+                            <div style="border-bottom: 1px dashed #777; height: 18px; width: 100%;"></div>
                         </div>
                     </div>
 
                     <!-- Bloco 6: Assinaturas de Liberação e Responsabilidade Técnica -->
-                    <div class="print-card-block" style="display: flex; justify-content: space-between; margin-top: 20px; padding: 0 24px; font-size: 11px; text-align: center; page-break-inside: avoid !important; break-inside: avoid !important;">
+                    <div class="print-card-block" style="display: flex; justify-content: space-between; margin-top: 14px; padding: 0 24px; font-size: 11px; text-align: center; page-break-inside: avoid !important; break-inside: avoid !important;">
                         <div style="width: 42%;">
                             <div style="border-top: 1px solid #000; padding-top: 4px;">
                                 <strong>${escaparHTML(mecanico)}</strong><br>
@@ -10188,8 +10217,20 @@ DIRETRIZES OBRIGATÓRIAS:
                 </div>
             `;
 
+            document.body.classList.add('imprimindo-relatorio');
             window.print();
+            setTimeout(() => {
+                document.body.classList.remove('imprimindo-relatorio');
+            }, 2500);
         }
+
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('imprimindo-relatorio');
+            const area = document.getElementById('area-impressao-requisicao');
+            if (area) {
+                area.innerHTML = '';
+            }
+        });
 
         async function salvarConfigPreventiva() {
             const m = equipamentoSelecionado;
