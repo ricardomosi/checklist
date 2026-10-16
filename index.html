@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="bg-slate-100 max-w-[100vw] overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Checklist 5S & Gestão Industrial de Frotas | JPatrício</title>
     <!-- Favicon & PWA App Setup -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -35,12 +35,21 @@
         * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .font-mono-num { font-family: 'JetBrains Mono', monospace; }
         
+        html {
+            background-color: #f1f5f9;
+            min-height: 100dvh;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
         body { 
             touch-action: manipulation; 
             -webkit-user-select: text;
             user-select: text;
-            background-color: #f4f6f8;
+            background-color: #f1f5f9;
             color: #0f172a; 
+            max-width: 100vw;
+            overflow-x: hidden;
         }
         
         /* Botões Tácteis Industriais com relevo físico */
@@ -188,48 +197,48 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="gestao.css?v=20260913">
+    <link rel="stylesheet" href="gestao.css?v=20261016b">
 </head>
-<body class="h-[100dvh] flex flex-col overflow-hidden bg-slate-50 text-slate-900">
+<body class="min-h-[100dvh] h-[100dvh] flex flex-col overflow-hidden bg-slate-100 text-slate-900 max-w-[100vw] w-full">
 
     <!-- CABEÇALHO INDUSTRIAL DE OPERAÇÕES -->
-    <header class="app-header bg-white border-b border-slate-200 text-slate-900 px-3.5 py-2.5 flex justify-between items-center z-20 shrink-0">
-        <div class="flex items-center gap-2.5">
-            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="JPatrício" class="brand-logo h-6 sm:h-7 object-contain">
-            <div class="flex items-center gap-1.5">
-                <span class="brand-title">Gestão de frotas <span>Checklist 5S</span></span>
-                <span id="badge-modo" class="text-[11px] uppercase tracking-wider font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-300">Operador</span>
+    <header class="app-header bg-white border-b border-slate-200 text-slate-900 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 flex justify-between items-center z-20 shrink-0 max-w-[100vw] w-full">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <img src="https://res.cloudinary.com/dyw2bm0p4/image/upload/v1761740142/jp-branco-300x181_wheyp9.png" alt="JPatrício" class="brand-logo h-6 sm:h-7 object-contain shrink-0">
+            <div class="flex items-center gap-1.5 min-w-0">
+                <span class="brand-title truncate">Gestão de frotas <span>Checklist 5S</span></span>
+                <span id="badge-modo" class="hidden sm:inline-block text-[11px] uppercase tracking-wider font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-300">Operador</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
             <button type="button" class="text-size-control" onclick="alternarTamanhoTexto()" id="ajuste-texto" aria-label="Ampliar tamanho do texto" aria-pressed="false">A+</button>
             <!-- Ponto de status de rede -->
-            <div id="status-rede" class="flex items-center gap-1.5 bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-full text-xs font-semibold">
-                <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span id="status-text" class="text-slate-600 text-[11px]">Online</span>
+            <div id="status-rede" class="flex items-center gap-1.5 bg-slate-100 border border-slate-300 px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold" title="Status de Rede">
+                <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+                <span id="status-text" class="hidden sm:inline text-slate-600 text-[11px]">Online</span>
             </div>
 
             <!-- Botão Consultar Checklists Feitas -->
-            <button id="btn-consultar-checklists-operador" type="button" onclick="abrirModalConsultaChecklistsOperador()" class="bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer" title="Consultar Checklists Realizadas e Relatórios">
+            <button id="btn-consultar-checklists-operador" type="button" onclick="abrirModalConsultaChecklistsOperador()" class="bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer" title="Consultar Checklists Realizadas e Relatórios">
                 <i class="fa-solid fa-clipboard-check text-teal-600"></i>
                 <span class="hidden md:inline">Checklists Feitas</span>
             </button>
 
             <!-- Botão Baixar / Instalar App (PWA) -->
-            <button id="btn-instalar-app" type="button" onclick="acionarInstalacaoPWA()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 hover:text-amber-800 border border-amber-500/30 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95" title="Baixar / Instalar Aplicativo de Checklist">
+            <button id="btn-instalar-app" type="button" onclick="acionarInstalacaoPWA()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 hover:text-amber-800 border border-amber-500/30 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95" title="Baixar / Instalar Aplicativo de Checklist">
                 <i class="fa-solid fa-cloud-arrow-down text-orange-600"></i>
                 <span class="hidden md:inline">Baixar App</span>
             </button>
 
             <!-- Botão de SOS Conserto Imediato -->
-            <button id="btn-sos-header" onclick="abrirModalSOS()" class="pulse-sos bg-red-600 hover:bg-red-700 text-slate-900 font-bold text-xs uppercase px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 border border-red-500 active:scale-95 transition-all">
-                <i class="fa-solid fa-triangle-exclamation text-amber-700 text-xs"></i>
+            <button id="btn-sos-header" onclick="abrirModalSOS()" class="pulse-sos bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase px-2.5 sm:px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 border border-red-500 active:scale-95 transition-all">
+                <i class="fa-solid fa-triangle-exclamation text-amber-300 text-xs"></i>
                 <span class="tracking-wide">SOS</span>
             </button>
 
             <!-- Acesso do Gestor (PIN 1234) -->
-            <button aria-label="Acessar gestão" onclick="abrirModalPinGestor()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-300 transition flex items-center gap-1.5">
+            <button aria-label="Acessar gestão" onclick="abrirModalPinGestor()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-300 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-sliders text-orange-700"></i>
                 <span class="hidden sm:inline">Gestão</span>
             </button>
@@ -242,7 +251,7 @@
     </div>
 
     <!-- ==================== CONTAINER PRINCIPAL: MODO OPERADOR ==================== -->
-    <main id="app-operador" class="flex-1 flex flex-col items-center justify-between p-3.5 sm:p-4 overflow-y-auto w-full max-w-md mx-auto relative pb-4 text-slate-900 bg-slate-100 rounded-t-2xl sm:my-2 sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-200">
+    <main id="app-operador" class="flex-1 flex flex-col items-center justify-between p-3 sm:p-4 overflow-y-auto w-full max-w-full sm:max-w-md sm:mx-auto relative pb-4 text-slate-900 bg-slate-100 sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-200">
         <!-- Renderizado dinamicamente pelo JavaScript -->
     </main>
 
@@ -602,8 +611,8 @@
     </div>
 
     <!-- ==================== MODAL DE CONSULTA PÚBLICA DE CHECKLISTS (ACESSO OPERADOR & RELATÓRIOS) ==================== -->
-    <div id="modal-consulta-checklists-operador" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+    <div id="modal-consulta-checklists-operador" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-2 sm:p-3 md:p-4" onclick="fecharModalConsultaChecklistsOperador()">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-[98vw] 2xl:max-w-[1720px] max-h-[95vh] h-[92vh] sm:h-[94vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
             <!-- Cabeçalho -->
             <div class="p-3.5 sm:p-4 px-4 sm:px-6 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
                 <div class="flex items-center gap-3">
@@ -633,7 +642,7 @@
                         </select>
 
                         <!-- Filtro Equipamento -->
-                        <select id="op-chk-filtro-equipamento" onchange="filtroChecklistOperador.equipamento = this.value; renderListaChecklistsOperador();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none max-w-[170px] cursor-pointer">
+                        <select id="op-chk-filtro-equipamento" onchange="filtroChecklistOperador.equipamento = this.value; renderListaChecklistsOperador();" class="bg-slate-50 border border-slate-300 text-xs text-slate-900 rounded-lg p-1.5 focus:outline-none max-w-[220px] cursor-pointer">
                             <option value="todos">Todos Equipamentos</option>
                         </select>
 
@@ -673,8 +682,8 @@
     </div>
 
     <!-- ==================== MODAL DE DETALHES COMPLETOS DO CHECKLIST ==================== -->
-    <div id="modal-detalhes-checklist" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
+    <div id="modal-detalhes-checklist" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4" onclick="fecharModalDetalhesChecklist()">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-3xl lg:max-w-4xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
             <!-- Cabeçalho -->
             <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50">
                 <div class="flex items-center gap-3">
@@ -734,92 +743,6 @@
                 </button>
                 <button onclick="confirmarOperadorOutro()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-slate-900 py-3 rounded-xl font-bold shadow-md active:scale-95">
                     Confirmar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== MODAL DE INSTALAÇÃO DO APLICATIVO (PWA) ==================== -->
-    <div id="modal-instalar-app" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-lg shadow-2xl text-slate-900 overflow-hidden flex flex-col">
-            <!-- Topo do Modal -->
-            <div class="p-5 bg-gradient-to-r from-orange-600 to-amber-600 text-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl shadow-inner shrink-0">
-                        <img src="favicon.svg" alt="Ícone Checklist 5S" class="w-8 h-8 drop-shadow-md">
-                    </div>
-                    <div>
-                        <h3 class="text-base sm:text-lg font-bold">Instalar Checklist 5S</h3>
-                        <p class="text-xs text-orange-100">Aplicativo nativo para computador, tablet e celular</p>
-                    </div>
-                </div>
-                <button onclick="fecharModalInstalarApp()" class="w-8 h-8 rounded-lg bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <!-- Conteúdo -->
-            <div class="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs">
-                <div class="p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3">
-                    <i class="fa-solid fa-bolt text-orange-600 text-lg mt-0.5"></i>
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-sm">Vantagens da Instalação</h4>
-                        <p class="text-slate-600 text-xs mt-0.5 leading-relaxed">
-                            Acesso em 1 clique direto da área de trabalho ou barra de tarefas, funcionamento mais rápido, tela inteira sem barras de navegação e operação contínua mesmo com oscilações de sinal.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Botão de Ação Automática -->
-                <div id="pwa-acao-automatica" class="text-center space-y-2">
-                    <button type="button" id="btn-pwa-executar-instalacao" onclick="executarPromptInstalacao()" class="w-full btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition-all transform active:scale-95">
-                        <i class="fa-solid fa-cloud-arrow-down text-base"></i>
-                        <span>Instalar Aplicativo Agora</span>
-                    </button>
-                    <p id="pwa-status-msg" class="text-[11px] text-slate-500 font-medium">Toque no botão acima para confirmar a instalação imediata pelo navegador.</p>
-                </div>
-
-                <!-- Instruções por Plataforma -->
-                <div class="border-t border-slate-200 pt-4 space-y-3">
-                    <h5 class="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-info text-slate-400"></i> Como instalar manualmente:
-                    </h5>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-                            <span class="font-bold text-slate-900 flex items-center gap-1.5">
-                                <i class="fa-brands fa-chrome text-orange-600"></i> No Chrome / Edge (PC)
-                            </span>
-                            <p class="text-[11px] text-slate-600 leading-normal">
-                                Clique no ícone de instalação <i class="fa-solid fa-desktop text-slate-400"></i> na barra de endereço (lado direito da URL) e selecione <strong>Instalar</strong>.
-                            </p>
-                        </div>
-
-                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-                            <span class="font-bold text-slate-900 flex items-center gap-1.5">
-                                <i class="fa-brands fa-android text-emerald-600"></i> No Celular (Android)
-                            </span>
-                            <p class="text-[11px] text-slate-600 leading-normal">
-                                Toque no menu <strong>⋮</strong> do Chrome e selecione <strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong>.
-                            </p>
-                        </div>
-
-                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 sm:col-span-2">
-                            <span class="font-bold text-slate-900 flex items-center gap-1.5">
-                                <i class="fa-brands fa-apple text-slate-800"></i> No iPhone / iPad (Safari)
-                            </span>
-                            <p class="text-[11px] text-slate-600 leading-normal">
-                                Toque no botão de <strong>Compartilhar</strong> (quadrado com seta para cima) e selecione <strong>"Adicionar à Tela de Início"</strong>.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rodapé -->
-            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-end shrink-0">
-                <button type="button" onclick="fecharModalInstalarApp()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs transition">
-                    Fechar
                 </button>
             </div>
         </div>
@@ -5550,19 +5473,19 @@ DIRETRIZES OBRIGATÓRIAS:
 
                 <!-- VISÃO DESKTOP / TABLET: TABELA DENSIDADE ALTA -->
                 <div class="hidden sm:block bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-                    <div class="overflow-x-auto max-h-[64vh]">
+                    <div class="overflow-x-auto max-h-[68vh] xl:max-h-[72vh]">
                         <table class="w-full text-left data-table-compact">
-                            <thead class="sticky top-0 z-10 bg-slate-100">
+                            <thead class="sticky top-0 z-10 bg-slate-100 shadow-xs">
                                 <tr>
-                                    <th class="w-28">Data / Hora</th>
-                                    <th class="w-20">Unidade</th>
-                                    <th class="w-28">Equipamento</th>
-                                    <th class="w-36">Operador</th>
+                                    <th class="w-28 whitespace-nowrap">Data / Hora</th>
+                                    <th class="w-20 text-center">Unidade</th>
+                                    <th class="w-28 whitespace-nowrap">Equipamento</th>
+                                    <th class="w-36 lg:w-44">Operador</th>
                                     <th class="w-20 text-right">Horímetro</th>
-                                    <th class="w-28 text-center">Status 5S</th>
-                                    <th class="w-44">Defeito Identificado</th>
+                                    <th class="w-28 lg:w-32 text-center">Status 5S</th>
+                                    <th class="w-52 lg:w-72 xl:w-80">Defeito Identificado</th>
                                     <th>Observações</th>
-                                    <th class="w-36 text-center">Ações</th>
+                                    <th class="w-32 lg:w-36 text-center whitespace-nowrap">Ações</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 text-slate-700">
@@ -5577,35 +5500,35 @@ DIRETRIZES OBRIGATÓRIAS:
                                     return `
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="font-mono-num text-[11px] text-slate-600 whitespace-nowrap">${dataFmt}</td>
-                                        <td>
+                                        <td class="text-center">
                                             <span class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded ${compararUnidade(c.unidade, 'MATRIZ') ? 'bg-amber-50 text-amber-700 border border-amber-300' : compararUnidade(c.unidade, 'MACAE') ? 'bg-cyan-50 text-cyan-800 border border-cyan-300' : 'bg-orange-50 text-orange-700 border border-orange-300'}">
                                                 ${c.unidade || 'FILIAL'}
                                             </span>
                                         </td>
                                         <td class="font-mono-num font-bold text-slate-900 whitespace-nowrap">${escaparHTML(equipNome)}</td>
-                                        <td class="truncate max-w-[130px]" title="${escaparHTML(c.operador)}">${escaparHTML(c.operador)}</td>
+                                        <td class="truncate max-w-[140px] xl:max-w-[200px]" title="${escaparHTML(c.operador)}">${escaparHTML(c.operador)}</td>
                                         <td class="text-right font-mono-num font-bold text-slate-600">${c.horimetro || '—'} h</td>
-                                        <td class="text-center">
-                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block ${temProblema ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300'}">
+                                        <td class="text-center whitespace-nowrap">
+                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border inline-block whitespace-nowrap ${temProblema ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300'}">
                                                 ${temProblema ? (reincs.length > 0 ? `COM DEFEITO (${reincs.length}x ⚠️)` : 'COM DEFEITO') : 'CONFORME'}
                                             </span>
                                         </td>
                                         <td class="text-xs text-slate-700">
                                             ${defs.length > 0 ? `
-                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200 inline-block max-w-[180px] truncate" title="${defs.map(d => d.rotulo || d.chave).join(', ')}">
+                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200 inline-block max-w-[220px] lg:max-w-[320px] xl:max-w-[420px] truncate" title="${defs.map(d => d.rotulo || d.chave).join(', ')}">
                                                     ${defs.map(d => d.rotulo || d.chave).join(', ')}
                                                 </span>
                                             ` : '<span class="text-[10px] font-medium text-emerald-700">— Nenhum (OK)</span>'}
                                         </td>
-                                        <td class="text-xs text-slate-600 max-w-xs truncate" title="${escaparHTML(c.observacao_texto || c.resumo_ia || '-')}">
+                                        <td class="text-xs text-slate-600 max-w-sm lg:max-w-md xl:max-w-xl truncate" title="${escaparHTML(c.observacao_texto || c.resumo_ia || '-')}">
                                             ${escaparHTML(c.observacao_texto || c.resumo_ia || '-')}
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center whitespace-nowrap">
                                             <div class="flex items-center justify-center gap-1.5">
-                                                <button type="button" onclick="abrirModalDetalhesChecklist('${c.id}', true)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg border border-slate-300 transition cursor-pointer" title="Ver detalhes completos desta checklist">
+                                                <button type="button" onclick="abrirModalDetalhesChecklist('${c.id}', true)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg border border-slate-300 transition cursor-pointer" title="Ver detalhes completos desta checklist">
                                                     <i class="fa-solid fa-eye text-slate-600"></i>
                                                 </button>
-                                                <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition shadow-2xs flex items-center gap-1 cursor-pointer" title="Baixar relatório individual com histórico da máquina em PDF">
+                                                <button type="button" onclick="imprimirRelatorioChecklistComHistorico('${c.id}')" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition shadow-2xs flex items-center gap-1 cursor-pointer" title="Baixar relatório individual com histórico da máquina em PDF">
                                                     <i class="fa-solid fa-file-pdf"></i> PDF
                                                 </button>
                                             </div>

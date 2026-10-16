@@ -124,7 +124,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .btn-checklist-nok { background: #b91c1c; border: 2px solid #991b1b; box-shadow: 0 4px 6px #24334420; color: white; }
 .btn-checklist-ok *, .btn-checklist-nok * { color: inherit; }
 .pulse-sos { animation: none; }
-#app-operador { background: white; border: 1px solid var(--line); box-shadow: none; margin-top: 16px; margin-bottom: 16px; }
+#app-operador { background: #f1f5f9; border: 1px solid var(--line); box-shadow: none; margin-top: 16px; margin-bottom: 16px; }
 .fixed.inset-0 { background-color: #24334480; }
 .fixed.inset-0 > div { max-height: calc(100dvh - 32px); overflow-y: auto; }
 .fixed.inset-0 > div.overflow-hidden { overflow-y: hidden; }
@@ -140,6 +140,96 @@ button:disabled { cursor: not-allowed; opacity: .5; }
     .manager-workspace { overflow-x: hidden; }
 }
 @media (max-width: 640px) {
+    /* Cabeçalho Industrial no Mobile - 1 Linha Perfeita, Zero Colisão, Zero Overflow */
+    .app-header {
+        padding: 6px 10px !important;
+        gap: 6px !important;
+        flex-wrap: nowrap !important;
+        min-height: 52px !important;
+        height: 52px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    .brand-logo {
+        width: 36px !important;
+        height: 28px !important;
+        padding: 2px !important;
+        flex-shrink: 0 !important;
+    }
+    .brand-title {
+        font-size: .75rem !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
+    }
+    .brand-title > span {
+        font-size: .625rem !important;
+        line-height: 1 !important;
+    }
+    #badge-modo {
+        display: none !important;
+    }
+    .text-size-control {
+        padding: 4px 7px !important;
+        font-size: .75rem !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        border-radius: 6px !important;
+        flex-shrink: 0 !important;
+    }
+    #status-rede {
+        display: flex !important;
+        padding: 4px 7px !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        border-radius: 9999px !important;
+        gap: 0 !important;
+        flex-shrink: 0 !important;
+    }
+    #status-text {
+        display: none !important;
+    }
+    #btn-consultar-checklists-operador,
+    #btn-instalar-app,
+    button[aria-label="Acessar gestão"] {
+        padding: 5px 8px !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        border-radius: 7px !important;
+        font-size: 0.75rem !important;
+        flex-shrink: 0 !important;
+    }
+    #btn-sos-header {
+        padding: 4px 8px !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        font-size: .75rem !important;
+        border-radius: 7px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Container Modo Operador - Ajustado para Chão de Fábrica no Celular */
+    #app-operador {
+        background-color: #f1f5f9 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 10px 12px 24px 12px !important;
+        overflow-x: hidden !important;
+    }
+    /* Cartões industriais sobre tela slate-100 para alto contraste e nitidez */
+    #app-operador .btn-industrial {
+        background-color: #ffffff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    }
+    #app-operador .btn-industrial:active {
+        transform: scale(0.98) !important;
+    }
+
     /* Cabeçalho da Aba de Gestão no Mobile (apenas ícones para caber tudo na tela) */
     .manager-sidebar {
         width: 100% !important;
@@ -163,9 +253,9 @@ button:disabled { cursor: not-allowed; opacity: .5; }
     .manager-nav button {
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        height: 42px !important;
-        min-height: 42px !important;
-        padding: 6px 2px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 4px 2px !important;
         justify-content: center !important;
         align-items: center !important;
         position: relative !important;
@@ -177,7 +267,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         display: none !important;
     }
     .manager-nav button i {
-        font-size: 1.15rem !important;
+        font-size: 1rem !important;
         margin: 0 !important;
         width: auto !important;
     }
@@ -190,18 +280,18 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         font-size: 8px !important;
         line-height: 1 !important;
         font-weight: 800 !important;
-        padding: 1.5px 3.5px !important;
+        padding: 1px 3px !important;
         border-radius: 9999px !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
         border: 1px solid #ffffff !important;
     }
     .manager-nav button:last-child {
-        flex: 0 0 38px !important;
+        flex: 0 0 34px !important;
         margin: 0 !important;
         border: 0 !important;
     }
 
-    /* Anti-overflow para telas móveis */
+    /* Anti-overflow e rolagem suave para telas móveis */
     #app-gestor, .manager-workspace, #gestor-conteudo {
         overflow-x: hidden !important;
         max-width: 100vw !important;
@@ -211,7 +301,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         width: 100% !important;
     }
     .calendar-scroll {
-        overflow-x: hidden !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
     .calendar-days-grid {
         gap: 2px !important;
@@ -221,7 +312,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         min-height: 44px !important;
     }
     .weekly-scroll {
-        overflow-x: hidden !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .kanban-grid { 
@@ -231,25 +323,19 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         gap: 8px !important;
     }
     .calendar-hint { display: none !important; }
-    .filter-toolbar { display: flex; flex-direction: column; align-items: stretch; }
-    .filter-toolbar > div:first-child { width: 100%; }
-    .filter-toolbar .relative { flex-basis: 100%; min-width: 0; }
-    .filter-toolbar [data-contagem] { align-self: flex-start; }
-    .filter-toolbar .filter-reset { align-self: flex-start; }
-    .app-header { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
-    .brand-title { font-size: .8125rem; }
-    .brand-logo { width: 45px; height: 34px; }
-    #badge-modo { display: none; }
-    #status-rede { display: flex; padding: 4px 6px; }
-    .manager-heading { padding: 16px 14px 12px; align-items: flex-start; }
-    .manager-heading h2 { font-size: 1.25rem; }
-    .manager-heading p { max-width: 28ch; }
-    .refresh-button { font-size: .75rem; padding: 8px; }
-    #gestor-conteudo { padding: 4px 8px 20px; }
-    #gestor-conteudo input, #gestor-conteudo select { font-size: 1rem; max-width: 100%; }
-    #gestor-conteudo .filter-label { flex: 1 1 140px; }
-    #app-operador { margin: 0; border: 0; border-radius: 0; }
-    #gestor-conteudo .min-h-\[420px\] { min-height: 130px; }
+    .filter-toolbar { display: flex !important; flex-direction: column !important; align-items: stretch !important; }
+    .filter-toolbar > div:first-child { width: 100% !important; }
+    .filter-toolbar .relative { flex-basis: 100% !important; min-width: 0 !important; }
+    .filter-toolbar [data-contagem] { align-self: flex-start !important; }
+    .filter-toolbar .filter-reset { align-self: flex-start !important; }
+    .manager-heading { padding: 16px 14px 12px !important; align-items: flex-start !important; }
+    .manager-heading h2 { font-size: 1.25rem !important; }
+    .manager-heading p { max-width: 28ch !important; }
+    .refresh-button { font-size: .75rem !important; padding: 8px !important; }
+    #gestor-conteudo { padding: 4px 8px 20px !important; }
+    #gestor-conteudo input, #gestor-conteudo select { font-size: 1rem !important; max-width: 100% !important; }
+    #gestor-conteudo .filter-label { flex: 1 1 140px !important; }
+    #gestor-conteudo .min-h-\[420px\] { min-height: 130px !important; }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
