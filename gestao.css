@@ -119,10 +119,26 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 :is(button,div,span)[class~="bg-red-600"], :is(button,div,span)[class~="bg-red-700"],
 :is(button,div,span)[class~="bg-blue-600"] { color: white; }
 .bg-orange-600, .bg-orange-500 { background-color: #a84613 !important; }
-.bg-orange-600:hover, .bg-orange-500:hover { background-color: #87370d !important; }
-.btn-checklist-ok { background: #047857; border: 2px solid #065f46; box-shadow: 0 4px 6px #24334420; color: white; }
-.btn-checklist-nok { background: #b91c1c; border: 2px solid #991b1b; box-shadow: 0 4px 6px #24334420; color: white; }
-.btn-checklist-ok *, .btn-checklist-nok * { color: inherit; }
+.btn-checklist-ok,
+#app-operador .btn-checklist-ok { 
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important; 
+    border: 2px solid #047857 !important; 
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important; 
+    color: #ffffff !important; 
+}
+.btn-checklist-nok,
+#app-operador .btn-checklist-nok { 
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important; 
+    border: 2px solid #b91c1c !important; 
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important; 
+    color: #ffffff !important; 
+}
+.btn-checklist-ok *, 
+.btn-checklist-nok *,
+#app-operador .btn-checklist-ok *,
+#app-operador .btn-checklist-nok * { 
+    color: #ffffff !important; 
+}
 .pulse-sos { animation: none; }
 #app-operador { background: #f1f5f9; border: 1px solid var(--line); box-shadow: none; margin-top: 16px; margin-bottom: 16px; }
 .fixed.inset-0 { background-color: #24334480; }
@@ -221,8 +237,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         padding: 10px 12px 24px 12px !important;
         overflow-x: hidden !important;
     }
-    /* Cartões industriais sobre tela slate-100 para alto contraste e nitidez */
-    #app-operador .btn-industrial {
+    /* Sombras e relevos dos cartões de seleção sem sobrescrever botões coloridos */
+    #app-operador .btn-industrial.bg-white {
         background-color: #ffffff !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
     }

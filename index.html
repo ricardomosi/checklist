@@ -197,7 +197,7 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="gestao.css?v=20261016b">
+    <link rel="stylesheet" href="gestao.css?v=20261016c">
 </head>
 <body class="min-h-[100dvh] h-[100dvh] flex flex-col overflow-hidden bg-slate-100 text-slate-900 max-w-[100vw] w-full">
 
@@ -2030,16 +2030,18 @@
             if (currentStepIndex === -3 && (formData.horimetro !== '')) canAdvance = true;
             if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length && formData[itemsAtuais[currentStepIndex].id]) canAdvance = true;
 
-            let nextDisabled = !canAdvance ? 'opacity-40 cursor-not-allowed' : '';
+            let nextStyle = canAdvance 
+                ? 'bg-orange-600 hover:bg-orange-700 text-white font-bold shadow-md active:scale-95' 
+                : 'bg-slate-200 text-slate-400 opacity-60 cursor-not-allowed shadow-none font-bold';
             let nextAction = canAdvance ? 'onclick="goNext()"' : '';
 
             return `
                 <div class="w-full flex justify-between gap-3 mt-3 shrink-0 border-t border-slate-200 pt-3">
-                    <button ${backAction} class="flex-1 btn-industrial bg-slate-200 hover:bg-slate-300 text-slate-800 py-3.5 rounded-xl font-semibold shadow-sm flex items-center justify-center gap-2 ${backDisabled}">
+                    <button ${backAction} class="flex-1 btn-industrial bg-slate-200 hover:bg-slate-300 text-slate-800 py-3.5 rounded-xl font-bold shadow-sm flex items-center justify-center gap-2 ${backDisabled}">
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </button>
-                    <button ${nextAction} class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-slate-900 py-3.5 rounded-xl font-bold shadow-md flex items-center justify-center gap-2 ${nextDisabled}">
-                        Avançar <i class="fa-solid fa-arrow-right"></i>
+                    <button ${nextAction} class="flex-1 btn-industrial ${nextStyle} py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all">
+                        <span>Avançar</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             `;
@@ -2679,21 +2681,21 @@
                                 </div>
                             ` : ''}
                             
-                            <!-- BOTÕES DE SELEÇÃO: TUDO CERTO / PROBLEMA (COMPACTOS) -->
+                            <!-- BOTÕES DE SELEÇÃO: TUDO CERTO / PROBLEMA (COMPACTOS E COM CORES VIBRANTES) -->
                             <div class="w-full flex flex-col gap-2 shrink-0 mb-2.5">
-                                <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.01]' : ''} text-white rounded-xl py-2 px-3 sm:py-2.5 sm:px-4 font-bold flex items-center justify-center gap-3 transition-all shadow-sm">
-                                    <i class="fa-solid fa-circle-check text-2xl"></i>
-                                    <div class="text-left leading-tight">
-                                        <span class="block text-base tracking-wide font-extrabold">TUDO CERTO</span>
-                                        <span class="text-[10px] font-semibold opacity-90 uppercase">Em Conformidade (OK)</span>
+                                <button onclick="selectQuestion('${item.id}', 'CONFORME')" class="btn-checklist-ok btn-industrial bg-emerald-600 hover:bg-emerald-700 ${okSelected ? 'ring-4 ring-emerald-400 scale-[1.01]' : ''} text-white rounded-xl py-3 px-3 sm:py-3.5 sm:px-4 font-bold flex items-center justify-center gap-3 transition-all shadow-md">
+                                    <i class="fa-solid fa-circle-check text-2xl text-white"></i>
+                                    <div class="text-left leading-tight text-white">
+                                        <span class="block text-base tracking-wide font-extrabold text-white">TUDO CERTO</span>
+                                        <span class="text-[10px] font-semibold opacity-95 uppercase text-white">Em Conformidade (OK)</span>
                                     </div>
                                 </button>
 
-                                <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial ${nokSelected ? 'ring-4 ring-red-400 scale-[1.01]' : ''} text-white rounded-xl py-2 px-3 sm:py-2.5 sm:px-4 font-bold flex items-center justify-center gap-3 transition-all shadow-sm">
-                                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                                    <div class="text-left leading-tight">
-                                        <span class="block text-base tracking-wide font-extrabold">PROBLEMA</span>
-                                        <span class="text-[10px] font-semibold opacity-90 uppercase">Com Defeito / Avaria</span>
+                                <button onclick="selectQuestion('${item.id}', 'NÃO CONFORME')" class="btn-checklist-nok btn-industrial bg-red-600 hover:bg-red-700 ${nokSelected ? 'ring-4 ring-red-400 scale-[1.01]' : ''} text-white rounded-xl py-3 px-3 sm:py-3.5 sm:px-4 font-bold flex items-center justify-center gap-3 transition-all shadow-md">
+                                    <i class="fa-solid fa-triangle-exclamation text-2xl text-white"></i>
+                                    <div class="text-left leading-tight text-white">
+                                        <span class="block text-base tracking-wide font-extrabold text-white">PROBLEMA</span>
+                                        <span class="text-[10px] font-semibold opacity-95 uppercase text-white">Com Defeito / Avaria</span>
                                     </div>
                                 </button>
                             </div>
