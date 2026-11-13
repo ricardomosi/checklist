@@ -1796,6 +1796,8 @@
             empilhadeira: '',
             maquina_id: null,
             ultimo_horimetro: 0,
+            ultimo_horimetro_data: null,
+            horimetro_erro: null,
             operador: '',
             horimetro: '', // Sempre começa zerado / limpo para digitação
             observacao_texto: ''
@@ -1870,10 +1872,10 @@
                     try { localStorage.setItem('jp_operadores_cache', JSON.stringify(ops)); } catch (_) {}
                 }
 
-                const { data: chks } = await db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(100);
+                const { data: chks } = await db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(500);
                 if (chks && chks.length > 0) {
                     cacheGestor.checklists = chks;
-                    try { localStorage.setItem('jp_checklists_cache', JSON.stringify(chks)); } catch (_) {}
+                    try { localStorage.setItem('jp_checklists_cache', JSON.stringify(chks.slice(0, 150))); } catch (_) {}
                 }
 
                 atualizarSelectSOS();
@@ -1997,7 +1999,17 @@
             else if (currentStepIndex === -1 && formData.empilhadeira) goToStep(-2);
             else if (currentStepIndex === -2 && formData.operador) goToStep(-3);
             else if (currentStepIndex === -3) {
-                if (!formData.horimetro) formData.horimetro = '0';
+                const validacao = validarHorimetroDigitado(true);
+                if (!validacao.valido) {
+                    formData.horimetro_erro = validacao;
+                    renderCurrentStep();
+                    const msgFala = validacao.motivo === 'alto'
+                        ? 'Digite novamente, pois o valor não bate com o registro do último horímetro. Talvez seja o último algarismo que não precisa digitar.'
+                        : 'Digite novamente. O valor informado não bate com o registro do último horímetro.';
+                    speakText(msgFala);
+                    return;
+                }
+                formData.horimetro_erro = null;
                 goToStep(0);
             }
             else if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length - 1) {
@@ -2030,8 +2042,11 @@
             if (currentStepIndex === -3 && (formData.horimetro !== '')) canAdvance = true;
             if (currentStepIndex >= 0 && currentStepIndex < itemsAtuais.length && formData[itemsAtuais[currentStepIndex].id]) canAdvance = true;
 
-            let nextStyle = canAdvance 
-                ? 'bg-orange-600 hover:bg-orange-700 text-white font-bold shadow-md active:scale-95' 
+            const bloqueadoPorErroHorimetro = currentStepIndex === -3 && !!(formData.horimetro_erro && formData.horimetro_erro.bloqueia);
+            let nextStyle = canAdvance
+                ? (bloqueadoPorErroHorimetro
+                    ? 'bg-red-100 text-red-900 border-2 border-red-300 font-bold shadow-none'
+                    : 'bg-orange-600 hover:bg-orange-700 text-white font-bold shadow-md active:scale-95')
                 : 'bg-slate-200 text-slate-400 opacity-60 cursor-not-allowed shadow-none font-bold';
             let nextAction = canAdvance ? 'onclick="goNext()"' : '';
 
@@ -2055,6 +2070,8 @@
             formData.operador = '';
             formData.horimetro = '';
             formData.ultimo_horimetro = 0;
+            formData.ultimo_horimetro_data = null;
+            formData.horimetro_erro = null;
             if (cat === 'veiculos') {
                 formData.tipo_maquina = 'veiculo';
                 goToStep(-1);
@@ -2071,6 +2088,8 @@
             formData.operador = '';
             formData.horimetro = '';
             formData.ultimo_horimetro = 0;
+            formData.ultimo_horimetro_data = null;
+            formData.horimetro_erro = null;
             renderCurrentStep();
         }
 
@@ -2081,18 +2100,226 @@
             renderCurrentStep();
         }
 
+        function obterListaFrotaAtivaHorimetro() {
+            return (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+        }
+
+        function obterUltimoRegistroHorimetro(maqCodigo, maqId, fallbackValor, fallbackData) {
+            const lista = obterListaFrotaAtivaHorimetro();
+            const codNorm = String(maqCodigo || '').trim().toLowerCase();
+            const encontrada = lista.find(m =>
+                (maqId && String(m.id) === String(maqId)) ||
+                (codNorm && String(m.codigo || '').trim().toLowerCase() === codNorm) ||
+                (codNorm && String(m.nome || '').trim().toLowerCase() === codNorm)
+            );
+            const isVeiculo = encontrada
+                ? (encontrada.tipo_controle === 'km' || encontrada.categoria === 'veiculos' || encontrada.tipo === 'veiculo')
+                : (formData.categoria === 'veiculos' || formData.tipo_maquina === 'veiculo');
+
+            let maqVal = parseFloat(fallbackValor);
+            if (isNaN(maqVal) || maqVal <= 0) {
+                maqVal = encontrada ? (parseFloat(isVeiculo ? (encontrada.km_atual || encontrada.km) : (encontrada.horimetro_atual || encontrada.horimetro)) || 0) : 0;
+            }
+            const maqDataIso = fallbackData || encontrada?.updated_at || null;
+
+            const chks = (cacheGestor.checklists || []).filter(c => {
+                const cCod = String(c.empilhadeira || '').trim().toLowerCase();
+                const matchId = maqId && c.maquina_id && String(c.maquina_id) === String(maqId);
+                const matchCod = codNorm && cCod === codNorm;
+                const val = parseFloat(c.horimetro ?? c.respostas_customizadas?._horimetro_registrado);
+                return (matchId || matchCod) && !isNaN(val) && val > 0;
+            }).sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+
+            const ultimoChk = chks[0] || null;
+            const chkVal = ultimoChk ? (parseFloat(ultimoChk.horimetro ?? ultimoChk.respostas_customizadas?._horimetro_registrado) || 0) : 0;
+            const chkDataIso = ultimoChk?.created_at || null;
+
+            if (chkVal > 0 && maqVal > 0) {
+                const chkTime = chkDataIso ? new Date(chkDataIso).getTime() : 0;
+                const maqTime = maqDataIso ? new Date(maqDataIso).getTime() : 0;
+                if (maqTime - chkTime > 5000 && maqVal !== chkVal) {
+                    return { valor: maqVal, data: maqDataIso, origem: 'maquina' };
+                }
+                return { valor: chkVal, data: chkDataIso || maqDataIso, origem: 'checklist' };
+            }
+            if (chkVal > 0) return { valor: chkVal, data: chkDataIso, origem: 'checklist' };
+            return { valor: maqVal, data: maqDataIso, origem: 'maquina' };
+        }
+
+        function formatarTempoDecorridoHorimetro(dataIso) {
+            if (!dataIso) return 'sem data registrada';
+            const dt = new Date(dataIso);
+            if (isNaN(dt.getTime())) return 'sem data registrada';
+            const diffMs = Math.max(0, Date.now() - dt.getTime());
+            const diffHoras = Math.floor(diffMs / 3600000);
+            const diffDias = Math.floor(diffHoras / 24);
+            const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            if (diffHoras < 1) return `há menos de 1h (${dataFmt})`;
+            if (diffHoras < 24) return `há ${diffHoras}h (${dataFmt})`;
+            if (diffDias === 1) return `há 1 dia (${dataFmt})`;
+            return `há ${diffDias} dias (${dataFmt})`;
+        }
+
+        function validarHorimetroDigitado(aoAvancar = false) {
+            const raw = String(formData.horimetro ?? '').trim();
+            const isVeiculo = formData.categoria === 'veiculos' || formData.tipo_maquina === 'veiculo';
+            const unidadeMetrica = isVeiculo ? 'km' : 'h';
+            const nomeMetrica = isVeiculo ? 'odômetro (KM)' : 'horímetro';
+
+            if (!raw) {
+                if (aoAvancar) {
+                    return {
+                        valido: false,
+                        bloqueia: true,
+                        motivo: 'vazio',
+                        titulo: `Informe o ${isVeiculo ? 'KM' : 'Horímetro'} atual`,
+                        mensagem: `Digite os números do ${nomeMetrica} que estão no painel antes de avançar.`,
+                        sugestaoSemUltimo: null
+                    };
+                }
+                return { valido: true, bloqueia: false };
+            }
+
+            const valor = parseFloat(raw);
+            if (isNaN(valor) || valor <= 0) {
+                return {
+                    valido: false,
+                    bloqueia: true,
+                    motivo: 'zero',
+                    titulo: 'Valor inválido',
+                    mensagem: 'Digite novamente um número maior que zero conforme aparece no painel.',
+                    sugestaoSemUltimo: null
+                };
+            }
+
+            const refValor = parseFloat(formData.ultimo_horimetro) || 0;
+            if (refValor <= 0) return { valido: true, bloqueia: false };
+
+            const refTime = formData.ultimo_horimetro_data ? new Date(formData.ultimo_horimetro_data).getTime() : NaN;
+            const horasPassadas = (!isNaN(refTime) && refTime > 0) ? Math.max(0, (Date.now() - refTime) / 3600000) : 24;
+            const maxDeltaPermitido = isVeiculo
+                ? Math.max(1200, Math.ceil(Math.max(24, horasPassadas) / 24) * 1200)
+                : (horasPassadas < 12 ? 16 : Math.max(24, Math.ceil(horasPassadas) + 4));
+
+            if (valor < refValor) {
+                const digitsRef = String(Math.floor(refValor)).length;
+                if (!aoAvancar && raw.length < digitsRef) {
+                    return { valido: true, bloqueia: false };
+                }
+                const tempoTxt = formatarTempoDecorridoHorimetro(formData.ultimo_horimetro_data);
+                return {
+                    valido: false,
+                    bloqueia: true,
+                    motivo: 'menor',
+                    titulo: 'Digite novamente — Valor abaixo do último registro',
+                    mensagem: `Digite novamente! O valor (${valor} ${unidadeMetrica}) não bate com o registro do último ${nomeMetrica} (${refValor} ${unidadeMetrica}, ${tempoTxt}). Confira os números no painel para ver se não faltou digitar algum algarismo.`,
+                    sugestaoSemUltimo: null
+                };
+            }
+
+            const delta = valor - refValor;
+            if (delta > maxDeltaPermitido) {
+                const semUltimo = Math.floor(valor / 10);
+                const sugestaoSemUltimo = (semUltimo >= refValor && (semUltimo - refValor) <= maxDeltaPermitido) ? semUltimo : null;
+                const diasTxt = horasPassadas < 24
+                    ? `${Math.max(1, Math.round(horasPassadas))} hora(s)`
+                    : `${Math.max(1, Math.round(horasPassadas / 24))} dia(s)`;
+                const tempoTxt = formatarTempoDecorridoHorimetro(formData.ultimo_horimetro_data);
+                const dicaBase = isVeiculo
+                    ? 'Confira o painel do odômetro para verificar se não digitou um dígito extra de décimo/metro no final.'
+                    : 'Talvez seja o último algarismo do painel (casa decimal / décimo de hora) que não precisa digitar.';
+                const dicaSugestao = sugestaoSemUltimo !== null
+                    ? ` Sem o último dígito ficaria ${sugestaoSemUltimo} ${unidadeMetrica}.`
+                    : '';
+
+                return {
+                    valido: false,
+                    bloqueia: true,
+                    motivo: 'alto',
+                    titulo: 'Digite novamente — Valor não bate com o último horímetro',
+                    mensagem: `Digite novamente, pois o valor (${valor} ${unidadeMetrica}) não bate com o registro do último ${nomeMetrica} (${refValor} ${unidadeMetrica}, ${tempoTxt}). Passou apenas ${diasTxt} desde o último registro (aumento de +${Math.round(delta)} ${unidadeMetrica}). ${dicaBase}${dicaSugestao}`,
+                    sugestaoSemUltimo
+                };
+            }
+
+            return { valido: true, bloqueia: false };
+        }
+
+        function limparHorimetroParaRedigitar() {
+            formData.horimetro = '';
+            formData.horimetro_erro = null;
+            renderCurrentStep();
+        }
+
+        function atualizarHorimetroLocalMaquina(codigoOuNome, novoValor, isVeiculo, timestampIso) {
+            const norm = String(codigoOuNome || '').trim().toLowerCase();
+            if (!norm) return;
+            const ts = timestampIso || new Date().toISOString();
+            const aplicar = (lista) => {
+                if (!Array.isArray(lista)) return;
+                lista.forEach(m => {
+                    const c = String(m.codigo || '').trim().toLowerCase();
+                    const n = String(m.nome || '').trim().toLowerCase();
+                    if (c === norm || n === norm) {
+                        if (isVeiculo || m.tipo_controle === 'km') m.km_atual = novoValor;
+                        else m.horimetro_atual = novoValor;
+                        m.updated_at = ts;
+                    }
+                });
+            };
+            aplicar(frotaTotal);
+            aplicar(cacheGestor.maquinas);
+            try {
+                if (Array.isArray(cacheGestor.maquinas) && cacheGestor.maquinas.length > 0) {
+                    localStorage.setItem('jp_frota_cache', JSON.stringify(cacheGestor.maquinas));
+                }
+            } catch (_) {}
+        }
+
         function selectEmpilhadeira(maqNome, maqId, horimetroAtual) {
             formData.empilhadeira = maqNome;
             formData.maquina_id = maqId;
-            const lista = (cacheGestor.maquinas && cacheGestor.maquinas.length > 0) ? cacheGestor.maquinas : (frotaTotal || []);
+            const lista = obterListaFrotaAtivaHorimetro();
             const encontrada = lista.find(m => String(m.id) === String(maqId) || m.codigo === maqNome || m.nome === maqNome);
             if (encontrada && encontrada.unidade) {
                 formData.unidade = encontrada.unidade;
             }
-            // Horímetro começa zerado para digitação, guardando a última leitura registrada
-            formData.ultimo_horimetro = horimetroAtual || 0;
+            const infoLocal = obterUltimoRegistroHorimetro(maqNome, maqId, horimetroAtual, encontrada?.updated_at || null);
+            // Horímetro começa zerado para digitação, guardando a última leitura registrada e sua data
+            formData.ultimo_horimetro = infoLocal.valor || horimetroAtual || 0;
+            formData.ultimo_horimetro_data = infoLocal.data || null;
             formData.horimetro = '';
+            formData.horimetro_erro = null;
             renderCurrentStep();
+
+            // Consulta assíncrona ao último checklist positivo no banco para garantir precisão em tempo real
+            if (db && navigator.onLine && maqNome) {
+                db.from('checklists')
+                    .select('horimetro, created_at')
+                    .eq('empilhadeira', maqNome)
+                    .gt('horimetro', 0)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        if (!data || formData.empilhadeira !== maqNome) return;
+                        const dbVal = parseFloat(data.horimetro) || 0;
+                        const dbTime = data.created_at ? new Date(data.created_at).getTime() : 0;
+                        const curTime = formData.ultimo_horimetro_data ? new Date(formData.ultimo_horimetro_data).getTime() : 0;
+                        if (dbVal > 0 && (dbTime >= curTime || !formData.ultimo_horimetro)) {
+                            formData.ultimo_horimetro = dbVal;
+                            formData.ultimo_horimetro_data = data.created_at;
+                            if (currentStepIndex === -3 && formData.horimetro) {
+                                const check = validarHorimetroDigitado(false);
+                                formData.horimetro_erro = check.bloqueia ? check : null;
+                            }
+                            if (currentStepIndex === -1 || currentStepIndex === -3) {
+                                renderCurrentStep();
+                            }
+                        }
+                    })
+                    .catch(() => {});
+            }
         }
 
         function selectOperador(op) {
@@ -2280,7 +2507,8 @@
                             <div class="flex flex-col gap-2.5 w-full flex-1 overflow-y-auto pr-0.5 py-1">
                                 ${veiculos.map(v => {
                                     const sel = formData.empilhadeira === v.codigo || formData.empilhadeira === v.nome;
-                                    const kmVal = v.km_atual || v.km || 0;
+                                    const infoUltimo = obterUltimoRegistroHorimetro(v.codigo, v.id, v.km_atual || v.km || 0, v.updated_at);
+                                    const kmVal = infoUltimo.valor || 0;
                                     const fotoHtml = v.foto_url ? `
                                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 ${sel ? 'border-orange-600 ring-2 ring-orange-300' : 'border-slate-200'} bg-slate-100 shadow-sm relative flex items-center justify-center">
                                             <img src="${escaparHTML(v.foto_url)}" alt="${escaparHTML(v.codigo)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-orange-50 text-orange-700\\'><i class=\\'fa-solid fa-truck text-2xl\\'></i></div>';">
@@ -2302,9 +2530,10 @@
                                                     <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono-num font-bold uppercase">${escaparHTML(v.unidade || 'MATRIZ')}</span>
                                                 </div>
                                                 <span class="text-xs sm:text-sm text-slate-600 font-semibold block truncate">${escaparHTML(v.modelo || v.nome || 'Veículo Operacional')}</span>
-                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num">
+                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num flex-wrap">
                                                     <i class="fa-solid fa-road text-slate-400"></i>
                                                     <span>Último: <strong class="text-slate-800 font-bold">${kmVal} km</strong></span>
+                                                    ${infoUltimo.data ? `<span class="text-[10px] text-slate-400">(${formatarTempoDecorridoHorimetro(infoUltimo.data)})</span>` : ''}
                                                 </div>
                                             </div>
                                         </div>
@@ -2358,7 +2587,8 @@
                                 ` : ''}
                                 ${maquinasDaUnidade.map(maq => {
                                     const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
-                                    const horimetroVal = maq.horimetro_atual || maq.horimetro || 0;
+                                    const infoUltimo = obterUltimoRegistroHorimetro(maq.codigo, maq.id, maq.horimetro_atual || maq.horimetro || 0, maq.updated_at);
+                                    const horimetroVal = infoUltimo.valor || 0;
                                     const fotoHtml = maq.foto_url ? `
                                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 ${sel ? 'border-orange-600 ring-2 ring-orange-300' : 'border-slate-200'} bg-slate-100 shadow-sm relative flex items-center justify-center">
                                             <img src="${escaparHTML(maq.foto_url)}" alt="${escaparHTML(maq.codigo)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-orange-50 text-orange-700\\'><i class=\\'fa-solid fa-truck-ramp-box text-2xl\\'></i></div>';">
@@ -2380,9 +2610,10 @@
                                                     <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono-num font-bold uppercase">${formData.unidade}</span>
                                                 </div>
                                                 <span class="text-xs sm:text-sm text-slate-600 font-semibold block truncate">${escaparHTML(maq.modelo || maq.nome || 'Empilhadeira')}</span>
-                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num">
+                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num flex-wrap">
                                                     <i class="fa-solid fa-gauge text-slate-400"></i>
                                                     <span>Último: <strong class="text-slate-800 font-bold">${horimetroVal} h</strong></span>
+                                                    ${infoUltimo.data ? `<span class="text-[10px] text-slate-400">(${formatarTempoDecorridoHorimetro(infoUltimo.data)})</span>` : ''}
                                                 </div>
                                             </div>
                                         </div>
@@ -2424,7 +2655,8 @@
                             <div class="flex flex-col gap-3 w-full flex-1 justify-center py-2 max-w-sm overflow-y-auto">
                                 ${maquinasDoTipo.map(maq => {
                                     const sel = formData.empilhadeira === maq.codigo || formData.empilhadeira === maq.nome;
-                                    const horimetroVal = maq.horimetro_atual || maq.horimetro || 0;
+                                    const infoUltimo = obterUltimoRegistroHorimetro(maq.codigo, maq.id, maq.horimetro_atual || maq.horimetro || 0, maq.updated_at);
+                                    const horimetroVal = infoUltimo.valor || 0;
                                     const fotoHtml = maq.foto_url ? `
                                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 ${sel ? 'border-orange-600 ring-2 ring-orange-300' : 'border-slate-200'} bg-slate-100 shadow-sm relative flex items-center justify-center">
                                             <img src="${escaparHTML(maq.foto_url)}" alt="${escaparHTML(maq.codigo)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-orange-50 text-orange-700\\'><i class=\\'fa-solid ${tipoConfig.icone} text-2xl\\'></i></div>';">
@@ -2446,9 +2678,10 @@
                                                     <span class="text-[10px] bg-orange-100 text-orange-800 border border-orange-200 px-2 py-0.5 rounded font-mono-num font-bold uppercase">${escaparHTML(maq.unidade || 'MATRIZ')}</span>
                                                 </div>
                                                 <span class="text-xs sm:text-sm text-slate-600 font-semibold block truncate">${escaparHTML(maq.modelo || maq.nome || tipoConfig.titulo)}</span>
-                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num">
+                                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-mono-num flex-wrap">
                                                     <i class="fa-solid fa-gauge text-slate-400"></i>
                                                     <span>Último: <strong class="text-slate-800 font-bold">${horimetroVal} h</strong></span>
+                                                    ${infoUltimo.data ? `<span class="text-[10px] text-slate-400">(${formatarTempoDecorridoHorimetro(infoUltimo.data)})</span>` : ''}
                                                 </div>
                                             </div>
                                         </div>
@@ -2557,38 +2790,61 @@
                             </button>
                         </div>
                         
-                        <div class="text-center my-1 shrink-0">
-                            <h2 class="text-2xl font-bold text-slate-900">${tituloMetrica}</h2>
-                            <p class="text-xs text-slate-600">${subtituloMetrica}</p>
-                            
-                            <!-- BADGE DE ÚLTIMA LEITURA HISTÓRICA -->
-                            <div class="mt-2 inline-flex items-center gap-2 bg-slate-200/80 border border-slate-300 px-3 py-1 rounded-full text-xs text-slate-700 font-bold">
-                                <i class="fa-solid ${iconeMetrica} text-orange-600"></i>
-                                <span>Último registrado:</span>
-                                <span class="font-mono-num text-orange-700 font-bold">${formData.ultimo_horimetro || 0} ${unidadeMetrica}</span>
+                        <div class="w-full flex-1 overflow-y-auto px-1 flex flex-col items-center justify-between gap-2">
+                            <div class="text-center mt-1 shrink-0 w-full max-w-[340px]">
+                                <h2 class="text-2xl font-bold text-slate-900">${tituloMetrica}</h2>
+                                <p class="text-xs text-slate-600">${subtituloMetrica}</p>
+                                
+                                <!-- BADGE DE ÚLTIMA LEITURA HISTÓRICA -->
+                                <div class="mt-2 inline-flex flex-wrap items-center justify-center gap-1.5 bg-slate-200/80 border border-slate-300 px-3 py-1 rounded-full text-xs text-slate-700 font-bold max-w-full">
+                                    <i class="fa-solid ${iconeMetrica} text-orange-600"></i>
+                                    <span>Último registrado:</span>
+                                    <span class="font-mono-num text-orange-700 font-bold">${formData.ultimo_horimetro || 0} ${unidadeMetrica}</span>
+                                    ${formData.ultimo_horimetro_data ? `<span class="text-[10px] font-medium text-slate-500">(${formatarTempoDecorridoHorimetro(formData.ultimo_horimetro_data)})</span>` : ''}
+                                </div>
+                                ${!isVeiculo ? `
+                                    <p class="mt-1.5 text-[11px] text-slate-600 font-medium leading-tight">
+                                        Digite só os números inteiros — <strong>não precisa digitar o último algarismo colorido</strong> (décimo de hora).
+                                    </p>
+                                ` : ''}
                             </div>
-                        </div>
-                        
-                        <!-- Mostrador do Horímetro / KM Atual Digitado (Começa zerado) -->
-                        <div class="flex-1 w-full flex flex-col items-center justify-center max-w-[300px]">
-                            <div class="w-full bg-white border-2 border-orange-500 h-14 rounded-2xl flex items-center justify-center text-3xl font-mono-num font-bold text-orange-700 tracking-widest mb-3 shadow-inner">
-                                ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-600 ml-2">${unidadeMetrica}</span>
-                            </div>
                             
-                            <div class="grid grid-cols-3 gap-2 w-full">
-                                <button onclick="typeNum(1)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">1</button>
-                                <button onclick="typeNum(2)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">2</button>
-                                <button onclick="typeNum(3)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">3</button>
-                                <button onclick="typeNum(4)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">4</button>
-                                <button onclick="typeNum(5)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">5</button>
-                                <button onclick="typeNum(6)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">6</button>
-                                <button onclick="typeNum(7)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">7</button>
-                                <button onclick="typeNum(8)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">8</button>
-                                <button onclick="typeNum(9)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">9</button>
-                                <button onclick="clearNum()" class="btn-industrial bg-red-100 text-red-600 border border-red-300 rounded-xl py-3 text-xl font-bold shadow-sm active:bg-red-200">
-                                    <i class="fa-solid fa-delete-left"></i>
-                                </button>
-                                <button onclick="typeNum(0)" class="col-span-2 btn-industrial bg-white border border-slate-300 rounded-xl py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">0</button>
+                            <!-- Mostrador do Horímetro / KM Atual Digitado (Começa zerado) -->
+                            <div class="w-full flex flex-col items-center justify-center max-w-[320px] shrink-0">
+                                <div id="horimetro-visor-valor" class="w-full border-2 ${formData.horimetro_erro ? 'border-red-500 bg-red-50/40 text-red-700' : 'border-orange-500 bg-white text-orange-700'} h-14 rounded-2xl flex items-center justify-center text-3xl font-mono-num font-bold tracking-widest mb-2 shadow-inner transition-colors">
+                                    ${formData.horimetro || '0'} <span class="text-xs font-bold text-slate-600 ml-2">${unidadeMetrica}</span>
+                                </div>
+
+                                ${formData.horimetro_erro ? `
+                                    <div id="horimetro-alerta-erro" role="alert" aria-live="assertive" class="w-full mb-2.5 bg-red-50 border-2 border-red-400 rounded-2xl p-3 text-left shadow-sm">
+                                        <div class="flex items-start gap-2">
+                                            <i class="fa-solid fa-triangle-exclamation text-red-600 text-base mt-0.5 shrink-0"></i>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-xs font-extrabold text-red-900 uppercase tracking-wide">${escaparHTML(formData.horimetro_erro.titulo || 'Valor não confere')}</div>
+                                                <p class="text-xs text-red-800 font-medium leading-snug mt-1">${escaparHTML(formData.horimetro_erro.mensagem || '')}</p>
+                                                <button type="button" onclick="limparHorimetroParaRedigitar()" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold transition shadow-xs cursor-pointer">
+                                                    <i class="fa-solid fa-rotate-left"></i> Limpar e digitar novamente
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="grid grid-cols-3 gap-2 w-full">
+                                    <button type="button" onclick="typeNum(1)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">1</button>
+                                    <button type="button" onclick="typeNum(2)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">2</button>
+                                    <button type="button" onclick="typeNum(3)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">3</button>
+                                    <button type="button" onclick="typeNum(4)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">4</button>
+                                    <button type="button" onclick="typeNum(5)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">5</button>
+                                    <button type="button" onclick="typeNum(6)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">6</button>
+                                    <button type="button" onclick="typeNum(7)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">7</button>
+                                    <button type="button" onclick="typeNum(8)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">8</button>
+                                    <button type="button" onclick="typeNum(9)" class="btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">9</button>
+                                    <button type="button" onclick="clearNum()" aria-label="Apagar último dígito" class="btn-industrial bg-red-100 text-red-600 border border-red-300 rounded-xl py-2.5 sm:py-3 text-xl font-bold shadow-sm active:bg-red-200">
+                                        <i class="fa-solid fa-delete-left"></i>
+                                    </button>
+                                    <button type="button" onclick="typeNum(0)" class="col-span-2 btn-industrial bg-white border border-slate-300 rounded-xl py-2.5 sm:py-3 text-2xl font-mono-num font-bold shadow-sm active:bg-slate-100">0</button>
+                                </div>
                             </div>
                         </div>
                         
@@ -2821,12 +3077,40 @@
 
         function typeNum(num) {
             if (formData.horimetro === '0') formData.horimetro = '';
+            if (String(formData.horimetro || '').length >= 8) return;
             formData.horimetro += num.toString();
+            const validacao = validarHorimetroDigitado(false);
+            formData.horimetro_erro = validacao.bloqueia ? validacao : null;
             renderCurrentStep();
         }
         function clearNum() {
-            formData.horimetro = formData.horimetro.slice(0, -1);
+            formData.horimetro = String(formData.horimetro || '').slice(0, -1);
+            const validacao = validarHorimetroDigitado(false);
+            formData.horimetro_erro = validacao.bloqueia ? validacao : null;
             renderCurrentStep();
+        }
+
+        if (!window._horimetroKeyListenerAdded) {
+            window._horimetroKeyListenerAdded = true;
+            document.addEventListener('keydown', function(e) {
+                if (typeof currentStepIndex === 'undefined' || currentStepIndex !== -3) return;
+                const tag = (document.activeElement?.tagName || '').toLowerCase();
+                if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+                const viewOp = document.getElementById('app-operador');
+                if (!viewOp || viewOp.classList.contains('hidden')) return;
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+                if (/^[0-9]$/.test(e.key)) {
+                    e.preventDefault();
+                    typeNum(e.key);
+                } else if (e.key === 'Backspace') {
+                    e.preventDefault();
+                    clearNum();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goNext();
+                }
+            });
         }
 
         // ==================== OBSERVAÇÕES POR ESCRITA ====================
@@ -3593,7 +3877,12 @@ DIRETRIZES OBRIGATÓRIAS:
             btnEnviar.disabled = true;
 
             const itemsAtuais = getChecklistItemsAtuais();
+            const isVeiculoSubmit = formData.categoria === 'veiculos' || formData.tipo_maquina === 'veiculo';
             const horimetroNum = parseFloat(formData.horimetro) || 0;
+            const horimetroAnteriorNum = parseFloat(formData.ultimo_horimetro) || 0;
+            const horasTrabalhadasRegistro = (horimetroAnteriorNum > 0 && horimetroNum >= horimetroAnteriorNum)
+                ? Math.round((horimetroNum - horimetroAnteriorNum) * 10) / 10
+                : null;
             const temProblema = itemsAtuais.some(item => formData[item.id] === 'NÃO CONFORME');
             const textoObsGeral = observacoesList.map(o => o.text).join(' | ');
 
@@ -3601,7 +3890,11 @@ DIRETRIZES OBRIGATÓRIAS:
             formData._client_id = clientId;
 
             const respostasCustomizadas = {
-                _client_id: clientId
+                _client_id: clientId,
+                _horimetro_registrado: horimetroNum,
+                _horimetro_anterior: horimetroAnteriorNum,
+                _ultimo_horimetro_data: formData.ultimo_horimetro_data || null,
+                _horas_trabalhadas_registro: horasTrabalhadasRegistro
             };
             itemsAtuais.forEach(it => {
                 if (formData[it.id]) respostasCustomizadas[it.id] = formData[it.id];
@@ -3664,17 +3957,23 @@ DIRETRIZES OBRIGATÓRIAS:
 
                 const checklistId = chkData.id;
 
-                // 2. Atualizar Horímetro e status na máquina
+                // 2. Atualizar Horímetro / KM e status na máquina (banco + cache local)
                 if (formData.empilhadeira) {
+                    const agoraIso = new Date().toISOString();
+                    const updateMaqPayload = {
+                        operador_atual: formData.operador,
+                        status_operacional: temProblema ? 'alerta' : 'operando',
+                        updated_at: agoraIso
+                    };
+                    if (isVeiculoSubmit) updateMaqPayload.km_atual = horimetroNum;
+                    else updateMaqPayload.horimetro_atual = horimetroNum;
+
+                    atualizarHorimetroLocalMaquina(formData.empilhadeira, horimetroNum, isVeiculoSubmit, agoraIso);
+
                     try {
                         await db
                             .from('maquinas')
-                            .update({ 
-                                horimetro_atual: horimetroNum,
-                                operador_atual: formData.operador,
-                                status_operacional: temProblema ? 'alerta' : 'operando',
-                                updated_at: new Date()
-                            })
+                            .update(updateMaqPayload)
                             .or(`codigo.eq.${formData.empilhadeira},nome.eq.${formData.empilhadeira}`);
                     } catch (_) {}
                 }
@@ -3751,7 +4050,7 @@ DIRETRIZES OBRIGATÓRIAS:
                 } else {
                     cacheGestor.checklists.unshift(chkData);
                 }
-                try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 100))); } catch (_) {}
+                try { localStorage.setItem('jp_checklists_cache', JSON.stringify(cacheGestor.checklists.slice(0, 150))); } catch (_) {}
 
                 // Remover da fila offline caso estivesse gravado lá
                 removerItemFilaOffline(clientId);
@@ -3769,7 +4068,7 @@ DIRETRIZES OBRIGATÓRIAS:
                             <div class="text-[10px] text-slate-600 font-bold uppercase mb-1">Resumo do Checklist</div>
                             <div class="text-sm font-bold text-slate-800">${formData.empilhadeira} (${formData.unidade || 'MATRIZ'})</div>
                             <div class="text-xs text-slate-600 mt-0.5">👤 ${formData.operador}</div>
-                            <div class="text-xs text-slate-600 mt-0.5">⏱️ ${horimetroNum} Horas</div>
+                            <div class="text-xs text-slate-600 mt-0.5">${isVeiculoSubmit ? '🛣️' : '⏱️'} ${horimetroNum} ${isVeiculoSubmit ? 'km' : 'Horas'}</div>
                             <div class="mt-2 text-xs font-bold ${temProblema ? 'text-red-600' : 'text-emerald-600'}">
                                 ${temProblema ? 'COM APONTAMENTOS DE MANUTENÇÃO' : '100% CONFORME'}
                             </div>
@@ -3794,6 +4093,9 @@ DIRETRIZES OBRIGATÓRIAS:
             } catch (err) {
                 console.warn("Falha de conexão com o Supabase. Salvando de forma segura no celular:", err);
                 await salvarFilaOfflineLocal(checklistPayload, observacoesList, clientId);
+                if (formData.empilhadeira) {
+                    atualizarHorimetroLocalMaquina(formData.empilhadeira, horimetroNum, isVeiculoSubmit, new Date().toISOString());
+                }
 
                 // Tela de Conclusão Offline com Sucesso (Sem botão de tentar novamente que gera duplicações)
                 appOperador.innerHTML = `
@@ -3813,7 +4115,7 @@ DIRETRIZES OBRIGATÓRIAS:
                             <div class="text-[10px] text-slate-600 font-bold uppercase mb-1">Resumo Guardado Offline</div>
                             <div class="text-sm font-bold text-slate-800">${formData.empilhadeira} (${formData.unidade || 'FILIAL'})</div>
                             <div class="text-xs text-slate-600 mt-0.5">👤 ${formData.operador}</div>
-                            <div class="text-xs text-slate-600 mt-0.5">⏱️ ${horimetroNum} Horas</div>
+                            <div class="text-xs text-slate-600 mt-0.5">${isVeiculoSubmit ? '🛣️' : '⏱️'} ${horimetroNum} ${isVeiculoSubmit ? 'km' : 'Horas'}</div>
                             <div class="mt-2 text-xs font-bold ${temProblema ? 'text-red-600' : 'text-emerald-600'}">
                                 ${temProblema ? 'COM APONTAMENTOS DE MANUTENÇÃO' : '100% CONFORME'}
                             </div>
@@ -3845,6 +4147,8 @@ DIRETRIZES OBRIGATÓRIAS:
                 empilhadeira: '',
                 maquina_id: null,
                 ultimo_horimetro: 0,
+                ultimo_horimetro_data: null,
+                horimetro_erro: null,
                 operador: '',
                 horimetro: '',
                 observacao_texto: ''
@@ -3995,15 +4299,23 @@ DIRETRIZES OBRIGATÓRIAS:
 
                         // 3. Atualizar máquina se aplicável
                         if (item.payload?.empilhadeira) {
+                            const isVeicSync = item.payload?.categoria === 'veiculos' || item.payload?.tipo_maquina === 'veiculo' || item.payload?.tipo_checklist === 'veiculo';
+                            const leituraSync = parseFloat(item.payload.horimetro ?? item.payload.respostas_customizadas?._horimetro_registrado) || 0;
+                            const agoraSyncIso = new Date().toISOString();
+                            const updateSyncPayload = {
+                                operador_atual: item.payload.operador,
+                                status_operacional: item.payload.tem_problema ? 'alerta' : 'operando',
+                                updated_at: agoraSyncIso
+                            };
+                            if (isVeicSync) updateSyncPayload.km_atual = leituraSync;
+                            else updateSyncPayload.horimetro_atual = leituraSync;
+
+                            atualizarHorimetroLocalMaquina(item.payload.empilhadeira, leituraSync, isVeicSync, agoraSyncIso);
+
                             try {
                                 await db
                                     .from('maquinas')
-                                    .update({
-                                        horimetro_atual: parseFloat(item.payload.horimetro) || 0,
-                                        operador_atual: item.payload.operador,
-                                        status_operacional: item.payload.tem_problema ? 'alerta' : 'operando',
-                                        updated_at: new Date()
-                                    })
+                                    .update(updateSyncPayload)
                                     .or(`codigo.eq.${item.payload.empilhadeira},nome.eq.${item.payload.empilhadeira}`);
                             } catch (_) {}
                         }
@@ -4344,7 +4656,7 @@ DIRETRIZES OBRIGATÓRIAS:
             try {
                 const [resMaq, resChk, resOS, resSOS, resOps] = await Promise.all([
                     db.from('maquinas').select('*, maquina_especificacoes(*)').order('unidade').order('codigo'),
-                    db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(100),
+                    db.from('checklists').select('*, checklist_observacoes(*)').order('created_at', { ascending: false }).limit(500),
                     db.from('ordens_manutencao').select('*').order('created_at', { ascending: false }),
                     db.from('chamados_emergencia').select('*').order('created_at', { ascending: false }).limit(20),
                     db.from('operadores').select('*').order('nome')
@@ -5258,7 +5570,11 @@ DIRETRIZES OBRIGATÓRIAS:
                                             </td>
                                             <td class="font-mono-num font-bold text-slate-900 whitespace-nowrap">${c.empilhadeira}</td>
                                             <td class="truncate max-w-[140px]" title="${c.operador}">${c.operador}</td>
-                                            <td class="text-right font-mono-num font-bold text-slate-600">${c.horimetro} h</td>
+                                            <td class="text-right font-mono-num font-bold text-slate-600">${(() => {
+                                                const hReg = c.horimetro ?? c.respostas_customizadas?._horimetro_registrado;
+                                                const un = (c.categoria === 'veiculos' || c.tipo_maquina === 'veiculo' || c.tipo_checklist === 'veiculo') ? 'km' : 'h';
+                                                return (hReg !== null && hReg !== undefined && hReg !== '') ? `${hReg} ${un}` : '—';
+                                            })()}</td>
                                             <td class="text-center">
                                                 ${(() => {
                                                     const reincs = calcularReincidenciasChecklist(c).filter(d => d.ehReincidente);
@@ -5310,7 +5626,7 @@ DIRETRIZES OBRIGATÓRIAS:
                                             </td>
                                             <td onclick="event.stopPropagation()">
                                                 ${primeiroAudio ? `
-                                                    <audio controls src="${primeiroAudio.audio_url}" class="h-6 w-28"></audio>
+                                                    <audio controls preload="none" src="${primeiroAudio.audio_url}" class="h-6 w-28"></audio>
                                                 ` : '<span class="text-[10px] text-slate-600">-</span>'}
                                             </td>
                                             <td class="text-center" onclick="event.stopPropagation()">
@@ -6986,6 +7302,8 @@ DIRETRIZES OBRIGATÓRIAS:
         window.periodoHistoricoFiltro = window.periodoHistoricoFiltro || '90d';
         window.chartHistoricoTimelineInstancia = null;
         window.chartHistoricoTiposInstancia = null;
+        window.chartHistoricoHorasDiaInstancia = null;
+        window.historicoChecklistsPorMaquina = window.historicoChecklistsPorMaquina || {};
 
         function setPeriodoHistorico(p) {
             window.periodoHistoricoFiltro = p;
@@ -7003,10 +7321,176 @@ DIRETRIZES OBRIGATÓRIAS:
                 try { window.chartHistoricoTiposInstancia.destroy(); } catch (e) {}
                 window.chartHistoricoTiposInstancia = null;
             }
+            if (window.chartHistoricoHorasDiaInstancia) {
+                try { window.chartHistoricoHorasDiaInstancia.destroy(); } catch (e) {}
+                window.chartHistoricoHorasDiaInstancia = null;
+            }
+        }
+
+        function calcularHorasTrabalhadasPorDia(checklistsMaq, dataCorte, isHoras) {
+            const toDiaKey = (dt) => {
+                const y = dt.getFullYear();
+                const m = String(dt.getMonth() + 1).padStart(2, '0');
+                const d = String(dt.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            };
+            const diaKeyToDate = (key) => {
+                const [y, m, d] = key.split('-').map(Number);
+                return new Date(y, m - 1, d, 12, 0, 0, 0);
+            };
+            const formatDiaLabel = (key) => {
+                const [, m, d] = key.split('-');
+                return `${d}/${m}`;
+            };
+
+            const leiturasBrutas = (checklistsMaq || [])
+                .map(chk => {
+                    const dt = new Date(chk.created_at || 0);
+                    const val = parseFloat(chk.horimetro ?? chk.respostas_customizadas?._horimetro_registrado);
+                    return {
+                        ts: dt.getTime(),
+                        diaKey: !isNaN(dt.getTime()) ? toDiaKey(dt) : null,
+                        valor: val
+                    };
+                })
+                .filter(r => r.diaKey && !isNaN(r.ts) && r.ts > 0 && !isNaN(r.valor) && r.valor > 0)
+                .sort((a, b) => a.ts - b.ts);
+
+            const corteTs = dataCorte ? dataCorte.getTime() : 0;
+            const maxPorDia = isHoras ? 24 : 1500;
+            const tolerancia = isHoras ? 2 : 100;
+
+            if (leiturasBrutas.length < 2) {
+                return {
+                    dias: [],
+                    totalHoras: 0,
+                    mediaDiaria: 0,
+                    ultimoDia: null,
+                    horasUltimoDia: 0,
+                    diasComRegistro: 0,
+                    leiturasIgnoradas: 0,
+                    leiturasTotal: leiturasBrutas.length
+                };
+            }
+
+            // Determinar âncora inicial (pula a primeira leitura se ela for outlier isolado em relação às duas seguintes)
+            let startIdx = 0;
+            if (leiturasBrutas.length >= 3) {
+                const r0 = leiturasBrutas[0];
+                const r1 = leiturasBrutas[1];
+                const r2 = leiturasBrutas[2];
+                const gap01 = Math.max(1, Math.round((diaKeyToDate(r1.diaKey) - diaKeyToDate(r0.diaKey)) / 86400000));
+                const gap12 = Math.max(1, Math.round((diaKeyToDate(r2.diaKey) - diaKeyToDate(r1.diaKey)) / 86400000));
+                const d01 = r1.valor - r0.valor;
+                const d12 = r2.valor - r1.valor;
+                const r0Invalido = d01 < 0 || d01 > (maxPorDia * gap01 + tolerancia);
+                const r1r2Valido = d12 >= 0 && d12 <= (maxPorDia * gap12 + tolerancia);
+                if (r0Invalido && r1r2Valido) {
+                    startIdx = 1;
+                }
+            }
+
+            let prevValid = leiturasBrutas[startIdx];
+            let leiturasIgnoradas = startIdx;
+            const horasPorDiaMap = {};
+
+            const registrarDia = (diaKey, horasAdd, leituraFim, rateado) => {
+                if (!horasPorDiaMap[diaKey]) {
+                    horasPorDiaMap[diaKey] = {
+                        diaKey,
+                        label: formatDiaLabel(diaKey),
+                        horas: 0,
+                        leituraFim: leituraFim,
+                        rateado: false,
+                        registros: 0
+                    };
+                }
+                horasPorDiaMap[diaKey].horas += horasAdd;
+                horasPorDiaMap[diaKey].leituraFim = leituraFim;
+                if (rateado) horasPorDiaMap[diaKey].rateado = true;
+                horasPorDiaMap[diaKey].registros += 1;
+            };
+
+            for (let i = startIdx + 1; i < leiturasBrutas.length; i++) {
+                const curr = leiturasBrutas[i];
+                const diasGap = Math.max(1, Math.round((diaKeyToDate(curr.diaKey) - diaKeyToDate(prevValid.diaKey)) / 86400000));
+                const delta = curr.valor - prevValid.valor;
+                const maxEsperado = maxPorDia * diasGap + tolerancia;
+
+                if (delta >= 0 && delta <= maxEsperado) {
+                    if (curr.ts >= corteTs) {
+                        if (diasGap === 1 || delta <= maxPorDia) {
+                            registrarDia(curr.diaKey, delta, curr.valor, false);
+                        } else {
+                            // Rateia entre dias sem registro para manter escala diária fiel (0..24h/dia)
+                            const porDia = delta / diasGap;
+                            const baseDate = diaKeyToDate(prevValid.diaKey);
+                            for (let g = 1; g <= diasGap; g++) {
+                                const dtPasso = new Date(baseDate.getTime() + g * 86400000);
+                                if (dtPasso.getTime() >= corteTs - 43200000) {
+                                    const kPasso = toDiaKey(dtPasso);
+                                    registrarDia(kPasso, porDia, g === diasGap ? curr.valor : prevValid.valor + porDia * g, true);
+                                }
+                            }
+                        }
+                    }
+                    prevValid = curr;
+                } else {
+                    // Lookahead de 1 passo: diferencia erro pontual (outlier) de troca permanente de escala do painel
+                    const next = leiturasBrutas[i + 1];
+                    let rebasado = false;
+                    if (next) {
+                        const gapPrevNext = Math.max(1, Math.round((diaKeyToDate(next.diaKey) - diaKeyToDate(prevValid.diaKey)) / 86400000));
+                        const gapCurrNext = Math.max(1, Math.round((diaKeyToDate(next.diaKey) - diaKeyToDate(curr.diaKey)) / 86400000));
+                        const deltaPrevNext = next.valor - prevValid.valor;
+                        const deltaCurrNext = next.valor - curr.valor;
+                        const alinhaComPrev = deltaPrevNext >= 0 && deltaPrevNext <= (maxPorDia * gapPrevNext + tolerancia);
+                        const alinhaComCurr = deltaCurrNext >= 0 && deltaCurrNext <= (maxPorDia * gapCurrNext + tolerancia);
+
+                        if (!alinhaComPrev && alinhaComCurr) {
+                            // Mudança permanente de dígitos no painel: reposiciona âncora sem plotar salto irreal
+                            prevValid = curr;
+                            rebasado = true;
+                        }
+                    }
+                    if (!rebasado) {
+                        leiturasIgnoradas++;
+                    }
+                }
+            }
+
+            const dias = Object.keys(horasPorDiaMap)
+                .sort()
+                .map(k => {
+                    const item = horasPorDiaMap[k];
+                    const hRounded = Math.round(item.horas * 10) / 10;
+                    return {
+                        ...item,
+                        horas: hRounded,
+                        leituraFim: Math.round(item.leituraFim * 10) / 10
+                    };
+                });
+
+            const totalHoras = Math.round(dias.reduce((acc, d) => acc + d.horas, 0) * 10) / 10;
+            const diasComRegistro = dias.length;
+            const mediaDiaria = diasComRegistro > 0 ? Math.round((totalHoras / diasComRegistro) * 10) / 10 : 0;
+            const ultimoDia = diasComRegistro > 0 ? dias[diasComRegistro - 1] : null;
+            const horasUltimoDia = ultimoDia ? ultimoDia.horas : 0;
+
+            return {
+                dias,
+                totalHoras,
+                mediaDiaria,
+                ultimoDia,
+                horasUltimoDia,
+                diasComRegistro,
+                leiturasIgnoradas,
+                leiturasTotal: leiturasBrutas.length
+            };
         }
 
         function coletarHistoricoEquipamento(m, periodo) {
-            if (!m) return { paradas: [], paradasCronologicas: [], kpis: {}, subsistemas: [], tiposOS: { corretiva: 0, preventiva: 0, troca_oleo: 0, emergencial: 0 } };
+            if (!m) return { paradas: [], paradasCronologicas: [], kpis: {}, usoDiario: { dias: [], totalHoras: 0, mediaDiaria: 0, ultimoDia: null, horasUltimoDia: 0, diasComRegistro: 0, leiturasIgnoradas: 0, leiturasTotal: 0 }, subsistemas: [], tiposOS: { corretiva: 0, preventiva: 0, troca_oleo: 0, emergencial: 0 } };
             
             const cod = String(m.codigo || '').trim().toLowerCase();
             const mod = String(m.modelo || m.nome || '').trim().toLowerCase();
@@ -7044,9 +7528,19 @@ DIRETRIZES OBRIGATÓRIAS:
                 return true;
             });
 
-            // Checklists
-            const checklists = (cacheGestor.checklists || []).filter(chk => {
-                if (!matchMaq(chk.empilhadeira)) return false;
+            // Checklists (mescla cache global + histórico dedicado da máquina sem duplicar)
+            const mapaChecklistsUnicos = new Map();
+            const extrasMaq = (m.codigo && window.historicoChecklistsPorMaquina?.[m.codigo]) || [];
+            [...(cacheGestor.checklists || []), ...extrasMaq].forEach(chk => {
+                if (!chk || !matchMaq(chk.empilhadeira)) return;
+                const chave = chk.id ? String(chk.id) : `${chk.respostas_customizadas?._client_id || ''}_${chk.created_at || ''}`;
+                if (!mapaChecklistsUnicos.has(chave)) {
+                    mapaChecklistsUnicos.set(chave, chk);
+                }
+            });
+            const todosChecklistsMaq = Array.from(mapaChecklistsUnicos.values());
+
+            const checklists = todosChecklistsMaq.filter(chk => {
                 if (dataCorte) {
                     const dt = new Date(chk.created_at || 0);
                     if (dt < dataCorte) return false;
@@ -7225,10 +7719,12 @@ DIRETRIZES OBRIGATÓRIAS:
             const horasDisponiveis = Math.max(1, horasTrabalhadasPeriodo + horasParadasTotal);
             const disponibilidadePercent = Math.min(100, Math.max(50, ((horasTrabalhadasPeriodo / horasDisponiveis) * 100))).toFixed(1);
             const subsistemasArray = Object.values(subsistemasMap).filter(s => s.total > 0).sort((a, b) => b.total - a.total);
+            const usoDiario = calcularHorasTrabalhadasPorDia(todosChecklistsMaq, dataCorte, isHoras);
 
             return {
                 paradas: [...paradas].reverse(),
                 paradasCronologicas: paradas,
+                usoDiario,
                 kpis: {
                     totalParadas: paradas.length,
                     corretivas: tiposOS.corretiva,
@@ -7242,7 +7738,12 @@ DIRETRIZES OBRIGATÓRIAS:
                     mttr,
                     disponibilidadePercent,
                     defeitosChecklistCount,
-                    totalChecklists: checklists.length
+                    totalChecklists: checklists.length,
+                    mediaHorasDia: usoDiario.mediaDiaria,
+                    horasUltimoDia: usoDiario.horasUltimoDia,
+                    totalHorasDiario: usoDiario.totalHoras,
+                    diasComRegistro: usoDiario.diasComRegistro,
+                    ultimoDiaLabel: usoDiario.ultimoDia ? usoDiario.ultimoDia.label : null
                 },
                 subsistemas: subsistemasArray,
                 tiposOS
@@ -7571,6 +8072,37 @@ DIRETRIZES OBRIGATÓRIAS:
                                         ` : ''}
                                     </div>
                                 </div>
+
+                                <!-- KPI 7: Novo KPI - Uso Diário Real (Horímetro por Dia) -->
+                                <div class="col-span-2 sm:col-span-3 bg-gradient-to-r from-orange-50/80 via-white to-slate-50 p-3.5 rounded-xl border border-orange-200/80 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
+                                            <i class="fa-solid fa-chart-column"></i>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-orange-800 block">${k.isHoras ? 'KPI Uso Diário (Horas / Dia)' : 'KPI Uso Diário (KM / Dia)'}</span>
+                                            <div class="text-lg sm:text-xl font-black font-mono-num text-slate-900">
+                                                ${(k.mediaHorasDia || 0).toLocaleString('pt-BR')} <span class="text-xs font-bold text-slate-600">${k.isHoras ? 'h/dia em média' : 'km/dia em média'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4 flex-wrap text-xs font-mono-num">
+                                        <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                            <span class="text-[9px] font-sans font-bold uppercase text-slate-500 block">Último Dia ${k.ultimoDiaLabel ? `(${k.ultimoDiaLabel})` : ''}</span>
+                                            <strong class="text-slate-900 font-black">${(k.horasUltimoDia || 0).toLocaleString('pt-BR')} ${k.isHoras ? 'h' : 'km'}</strong>
+                                        </div>
+                                        <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                            <span class="text-[9px] font-sans font-bold uppercase text-slate-500 block">Total Medido</span>
+                                            <strong class="text-orange-700 font-black">${(k.totalHorasDiario || 0).toLocaleString('pt-BR')} ${k.isHoras ? 'h' : 'km'}</strong>
+                                            <span class="text-[10px] font-sans text-slate-500">(${k.diasComRegistro || 0} dias)</span>
+                                        </div>
+                                        ${(dados.usoDiario?.leiturasIgnoradas || 0) > 0 ? `
+                                            <span class="text-[10px] font-sans font-semibold text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-1 rounded-md" title="Leituras antigas digitadas com erro de algarismo foram filtradas para não distorcer a média">
+                                                <i class="fa-solid fa-shield-halved mr-1"></i>${dados.usoDiario.leiturasIgnoradas} leitura(s) atípica(s) filtrada(s)
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -7630,6 +8162,40 @@ DIRETRIZES OBRIGATÓRIAS:
                             </div>
                         </div>
                     ` : ''}
+
+                    <!-- Seção Gráfica KPI Diário: Horas Trabalhadas por Dia (Checklist / Horímetro) -->
+                    <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-clock-rotate-left text-orange-600"></i>
+                                    ${k.isHoras ? 'Horas Trabalhadas por Dia (Horímetro Diário)' : 'Quilômetros Rodados por Dia (Odômetro Diário)'}
+                                </h4>
+                                <p class="text-slate-500 text-xs mt-0.5">
+                                    Medição diária calculada pela diferença entre os checklists salvos desta máquina no período selecionado.
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-[11px] font-semibold flex-wrap">
+                                <span class="px-2 py-0.5 rounded bg-orange-50 text-orange-800 border border-orange-200 font-mono-num">
+                                    Média: ${(k.mediaHorasDia || 0).toLocaleString('pt-BR')} ${k.isHoras ? 'h/dia' : 'km/dia'}
+                                </span>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono-num">
+                                    ${k.diasComRegistro || 0} dia(s) com medição
+                                </span>
+                            </div>
+                        </div>
+
+                        ${(dados.usoDiario?.dias && dados.usoDiario.dias.length > 0) ? `
+                            <div class="relative w-full h-56 sm:h-64 pt-2">
+                                <canvas id="chart-historico-horas-dia"></canvas>
+                            </div>
+                        ` : `
+                            <div class="py-10 text-center text-slate-500 bg-slate-50/70 rounded-xl border border-dashed border-slate-200 text-xs">
+                                <i class="fa-solid fa-chart-column text-2xl text-slate-300 mb-2 block"></i>
+                                Ainda são necessários pelo menos <strong>2 checklists</strong> com ${k.isHoras ? 'horímetro' : 'odômetro'} válido no período para traçar o gráfico diário.
+                            </div>
+                        `}
+                    </div>
 
                     <!-- Seção Gráfica: Linha do Tempo de Paradas & Intervalos Operados -->
                     <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
@@ -7846,6 +8412,93 @@ DIRETRIZES OBRIGATÓRIAS:
         function renderGraficosHistorico(dados, m) {
             destruirGraficosHistorico();
 
+            const canvasHorasDia = document.getElementById('chart-historico-horas-dia');
+            if (canvasHorasDia && typeof Chart !== 'undefined' && dados.usoDiario?.dias?.length > 0) {
+                const ctx0 = canvasHorasDia.getContext('2d');
+                const diasLista = dados.usoDiario.dias;
+                const isHorasGraf = m.tipo_controle !== 'km';
+                const unidGraf = isHorasGraf ? 'h' : 'km';
+                const mediaVal = dados.usoDiario.mediaDiaria || 0;
+
+                window.chartHistoricoHorasDiaInstancia = new Chart(ctx0, {
+                    type: 'bar',
+                    data: {
+                        labels: diasLista.map(d => d.label),
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: isHorasGraf ? 'Horas Trabalhadas no Dia (h)' : 'Quilômetros no Dia (km)',
+                                data: diasLista.map(d => d.horas),
+                                backgroundColor: diasLista.map(d => d.rateado ? 'rgba(234, 88, 12, 0.45)' : 'rgba(168, 70, 19, 0.85)'),
+                                borderColor: '#a84613',
+                                borderWidth: 1.5,
+                                borderRadius: 6,
+                                maxBarThickness: 38,
+                                order: 2
+                            },
+                            {
+                                type: 'line',
+                                label: `Média Diária (${mediaVal} ${unidGraf}/dia)`,
+                                data: diasLista.map(() => mediaVal),
+                                borderColor: '#243344',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                pointRadius: 0,
+                                fill: false,
+                                order: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: isHorasGraf ? 12 : undefined,
+                                title: {
+                                    display: true,
+                                    text: isHorasGraf ? 'Horas / Dia' : 'KM / Dia',
+                                    color: '#a84613',
+                                    font: { weight: 'bold', size: 10 }
+                                },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 12,
+                                    font: { size: 11, weight: 'bold' }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        const idx = context[0]?.dataIndex;
+                                        const d = (idx !== undefined) ? diasLista[idx] : null;
+                                        if (!d) return '';
+                                        const linhas = [`Leitura final do dia: ${d.leituraFim} ${unidGraf}`];
+                                        if (d.rateado) {
+                                            linhas.push('Obs.: Valor rateado entre dias sem checklist.');
+                                        }
+                                        return linhas.join('\n');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
             const canvasTimeline = document.getElementById('chart-historico-timeline');
             if (canvasTimeline && typeof Chart !== 'undefined') {
                 const ctx1 = canvasTimeline.getContext('2d');
@@ -8047,11 +8700,16 @@ DIRETRIZES OBRIGATÓRIAS:
                         <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #000; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px;">
                             1. PAINEL DE INDICADORES DE CONFIABILIDADE (PERÍODO: ${periodoLabel})
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center;">
+                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; text-align: center;">
                             <div style="border: 1px solid #ddd; padding: 6px; border-radius: 4px; background: #fafafa;">
                                 <span style="font-size: 8.5px; font-weight: bold; color: #555; text-transform: uppercase; display: block;">Total Paradas</span>
                                 <strong style="font-size: 16px; color: #000;">${k.totalParadas}</strong>
                                 <span style="font-size: 8.5px; color: #666; display: block;">${k.corretivas} corr. / ${k.preventivas} prev.</span>
+                            </div>
+                            <div style="border: 1px solid #ddd; padding: 6px; border-radius: 4px; background: #fafafa;">
+                                <span style="font-size: 8.5px; font-weight: bold; color: #555; text-transform: uppercase; display: block;">Uso Médio / Dia</span>
+                                <strong style="font-size: 16px; color: #b45309;">${k.mediaHorasDia || 0} ${k.isHoras ? 'h' : 'km'}</strong>
+                                <span style="font-size: 8.5px; color: #666; display: block;">${k.diasComRegistro || 0} dias medidos</span>
                             </div>
                             <div style="border: 1px solid #ddd; padding: 6px; border-radius: 4px; background: #fafafa;">
                                 <span style="font-size: 8.5px; font-weight: bold; color: #555; text-transform: uppercase; display: block;">MTBF Médio</span>
@@ -8163,6 +8821,23 @@ DIRETRIZES OBRIGATÓRIAS:
             subAbaPerfilAtual = 'historico';
             mudarSubAbaPerfil('historico');
             document.getElementById('modal-perfil-equipamento').classList.remove('hidden');
+
+            // Busca assíncrona do histórico completo de checklists/horímetros da máquina para KPI e gráfico diário fiéis
+            if (db && navigator.onLine && maq.codigo) {
+                db.from('checklists')
+                    .select('id, empilhadeira, maquina_id, horimetro, operador, tem_problema, created_at, respostas_customizadas')
+                    .eq('empilhadeira', maq.codigo)
+                    .order('created_at', { ascending: false })
+                    .limit(500)
+                    .then(({ data, error }) => {
+                        if (error || !Array.isArray(data)) return;
+                        window.historicoChecklistsPorMaquina[maq.codigo] = data;
+                        if (equipamentoSelecionado && equipamentoSelecionado.codigo === maq.codigo && subAbaPerfilAtual === 'historico') {
+                            renderSubAbaHistorico(equipamentoSelecionado);
+                        }
+                    })
+                    .catch(() => {});
+            }
         }
 
         function fecharModalPerfil() {
@@ -11327,7 +12002,8 @@ DIRETRIZES OBRIGATÓRIAS:
                     km_atual: tipoControle === 'km' ? leitura : 0,
                     operador_atual: operadorAtual || null,
                     status_operacional: statusOperacional,
-                    foto_url: fotoUrl || null
+                    foto_url: fotoUrl || null,
+                    updated_at: new Date().toISOString()
                 };
 
                 let savedEquip = null;
@@ -12789,10 +13465,31 @@ DIRETRIZES OBRIGATÓRIAS:
             }
 
             const dtHora = c.created_at ? new Date(c.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }) : '—';
-            document.getElementById('chk-modal-meta').textContent = `Operador: ${c.operador || 'Não informado'} • Data: ${dtHora} • Horímetro: ${c.horimetro || '—'} h`;
+            const isVeicDet = c.categoria === 'veiculos' || c.tipo_maquina === 'veiculo' || c.tipo_checklist === 'veiculo';
+            const unidDet = isVeicDet ? 'km' : 'h';
+            const horimetroDet = c.horimetro ?? c.respostas_customizadas?._horimetro_registrado;
+            const horimetroAntDet = c.respostas_customizadas?._horimetro_anterior;
+            const horasTrabDet = c.respostas_customizadas?._horas_trabalhadas_registro;
+            const horimetroDetFmt = (horimetroDet !== null && horimetroDet !== undefined && horimetroDet !== '') ? `${horimetroDet} ${unidDet}` : 'Não informado';
+            document.getElementById('chk-modal-meta').textContent = `Operador: ${c.operador || 'Não informado'} • Data: ${dtHora} • ${isVeicDet ? 'Odômetro' : 'Horímetro'}: ${horimetroDetFmt}`;
 
             const corpo = document.getElementById('chk-modal-corpo');
-            let corpoHtml = '';
+            let corpoHtml = `
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">${isVeicDet ? 'KM Registrado' : 'Horímetro Registrado'}</span>
+                        <span class="text-base font-black font-mono-num text-orange-700">${horimetroDetFmt}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Operador</span>
+                        <span class="text-xs sm:text-sm font-bold text-slate-800 block truncate">${escaparHTML(c.operador || 'Não informado')}</span>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">${horimetroAntDet ? 'Variação do Registro' : 'Data / Hora'}</span>
+                        <span class="text-xs font-mono-num font-bold text-slate-700">${horimetroAntDet ? `+${horasTrabDet ?? '—'} ${unidDet} (ant: ${horimetroAntDet} ${unidDet})` : dtHora}</span>
+                    </div>
+                </div>
+            `;
 
             if (defs.length > 0) {
                 corpoHtml += `

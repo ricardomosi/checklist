@@ -1,5 +1,5 @@
 // Service Worker para PWA WebAPK e funcionamento offline resiliente
-const CACHE_NAME = 'checklist-jpatricio-v12';
+const CACHE_NAME = 'checklist-jpatricio-v13';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
