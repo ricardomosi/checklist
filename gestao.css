@@ -338,6 +338,18 @@ button:disabled { cursor: not-allowed; opacity: .5; }
         min-height: 0 !important;
         gap: 8px !important;
     }
+    .manut-view-switch {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+        width: 100% !important;
+    }
+    .manut-view-switch button {
+        justify-content: center !important;
+        min-height: 36px !important;
+        font-size: 0.75rem !important;
+        padding: 6px 8px !important;
+    }
     .calendar-hint { display: none !important; }
     .filter-toolbar { display: flex !important; flex-direction: column !important; align-items: stretch !important; }
     .filter-toolbar > div:first-child { width: 100% !important; }
