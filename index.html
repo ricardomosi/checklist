@@ -675,6 +675,105 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL EDITAR HISTÓRICO DE ÓLEO / HORÍMETRO (PERFIL) ==================== -->
+    <div id="modal-editar-historico-perfil" class="fixed inset-0 bg-black/75 z-[70] hidden flex items-center justify-center p-3 sm:p-4" onclick="fecharModalEditarHistoricoPerfil()">
+        <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="edit-hist-titulo-modal" onclick="event.stopPropagation()">
+            <div class="p-4 px-5 border-b border-slate-200 flex justify-between items-center shrink-0 bg-slate-50 gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center text-base shrink-0 border border-orange-200">
+                        <i id="edit-hist-icone" class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 id="edit-hist-titulo-modal" class="text-sm sm:text-base font-bold text-slate-900 truncate">Editar Registro</h3>
+                        <p id="edit-hist-subtitulo" class="text-[11px] text-slate-600 truncate">Ajustar data, hora ou leitura</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalEditarHistoricoPerfil()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3 text-xs">
+                <input type="hidden" id="edit-hist-modo" value="horimetro">
+                <input type="hidden" id="edit-hist-id" value="">
+
+                <div id="edit-hist-info-box" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-[11px] text-slate-700 hidden"></div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label for="edit-hist-data" class="block text-[11px] font-bold text-slate-700 mb-1">Dia do Registro</label>
+                        <input type="date" id="edit-hist-data" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-mono-num focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label for="edit-hist-hora" class="block text-[11px] font-bold text-slate-700 mb-1">Hora</label>
+                        <input type="time" id="edit-hist-hora" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-mono-num focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="edit-hist-leitura" id="edit-hist-leitura-label" class="block text-[11px] font-bold text-slate-700 mb-1">Horímetro Registrado</label>
+                    <input type="number" step="0.1" min="0" id="edit-hist-leitura" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-mono-num font-bold focus:outline-none focus:border-orange-500">
+                </div>
+
+                <div id="edit-hist-chk-fields" class="space-y-2.5">
+                    <div>
+                        <label for="edit-hist-motivo" class="block text-[11px] font-bold text-slate-700 mb-1">Motivo do Ajuste <span class="text-slate-400 font-normal">(opcional)</span></label>
+                        <input type="text" id="edit-hist-motivo" placeholder="Ex: Correção de dígito a mais no painel" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <label class="flex items-start gap-2 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                        <input type="checkbox" id="edit-hist-sync-atual" checked class="mt-0.5 w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500">
+                        <span class="text-[11px] text-slate-700 leading-snug">
+                            <strong class="block text-slate-900">Sincronizar leitura atual da máquina</strong>
+                            Atualiza o horímetro/KM atual do painel se este for o registro mais recente.
+                        </span>
+                    </label>
+                </div>
+
+                <div id="edit-hist-oleo-fields" class="space-y-2.5 hidden">
+                    <div>
+                        <label for="edit-hist-titulo" class="block text-[11px] font-bold text-slate-700 mb-1">Descrição / Título da Troca</label>
+                        <input type="text" id="edit-hist-titulo" placeholder="Ex: Troca de óleo e filtros realizada" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label for="edit-hist-status" class="block text-[11px] font-bold text-slate-700 mb-1">Status</label>
+                            <select id="edit-hist-status" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-orange-500">
+                                <option value="concluido">Concluído</option>
+                                <option value="em_manutencao">Em Manutenção</option>
+                                <option value="analise_pecas">Análise de Peças</option>
+                                <option value="pendente">Pendente</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit-hist-mecanico" class="block text-[11px] font-bold text-slate-700 mb-1">Responsável / Mecânico</label>
+                            <input type="text" id="edit-hist-mecanico" placeholder="Equipe de Manutenção" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="edit-hist-obs" class="block text-[11px] font-bold text-slate-700 mb-1">Observações / Itens Trocados <span class="text-slate-400 font-normal">(opcional)</span></label>
+                        <textarea id="edit-hist-obs" rows="2" placeholder="Ex: Óleo 15W40 + filtro de óleo LF16015..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-orange-500"></textarea>
+                    </div>
+                    <label class="flex items-start gap-2 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                        <input type="checkbox" id="edit-hist-sync-ult-oleo" checked class="mt-0.5 w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500">
+                        <span class="text-[11px] text-slate-700 leading-snug">
+                            <strong class="block text-slate-900">Atualizar leitura da última troca no plano</strong>
+                            Ajusta o marcador de última preventiva se esta troca concluída for a mais recente.
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-3 px-5 border-t border-slate-200 bg-slate-50 flex justify-end items-center gap-2 shrink-0">
+                <button type="button" onclick="fecharModalEditarHistoricoPerfil()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition border border-slate-300 cursor-pointer">
+                    Cancelar
+                </button>
+                <button type="button" id="btn-salvar-edicao-hist-perfil" onclick="salvarEdicaoHistoricoPerfil()" class="btn-industrial px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar Alteração
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== MODAL DE DETALHES DO CHAMADO SOS ==================== -->
     <div id="modal-detalhes-sos" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white border border-slate-300 rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden" onclick="event.stopPropagation()">
@@ -889,7 +988,7 @@
                     <i class="fa-solid fa-list-check text-orange-600"></i> Checklist & Perguntas
                 </button>
                 <button onclick="mudarSubAbaPerfil('preventivas')" id="subaba-btn-preventivas" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-                    <i class="fa-solid fa-oil-can"></i> Troca de Óleo & Filtros
+                    <i class="fa-solid fa-oil-can"></i> Troca de Óleo & Horímetros
                 </button>
                 <button onclick="mudarSubAbaPerfil('insumos')" id="subaba-btn-insumos" class="py-3 border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                     <i class="fa-solid fa-filter"></i> Filtros & Óleo
@@ -10306,18 +10405,21 @@ DIRETRIZES OBRIGATÓRIAS:
             mudarSubAbaPerfil('historico');
             document.getElementById('modal-perfil-equipamento').classList.remove('hidden');
 
-            // Busca assíncrona do histórico completo de checklists/horímetros da máquina para KPI e gráfico diário fiéis
+            // Busca assíncrona do histórico completo de checklists/horímetros da máquina para KPI e lista fiel de horímetros
             if (db && navigator.onLine && maq.codigo) {
-                db.from('checklists')
-                    .select('id, empilhadeira, maquina_id, horimetro, operador, tem_problema, created_at, respostas_customizadas')
-                    .eq('empilhadeira', maq.codigo)
-                    .order('created_at', { ascending: false })
+                const isUuid = Boolean(maq.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maq.id)));
+                const codLimpo = String(maq.codigo).replace(/"/g, '');
+                let q = db.from('checklists')
+                    .select('id, empilhadeira, maquina_id, horimetro, operador, tem_problema, created_at, respostas_customizadas');
+                q = isUuid ? q.or(`empilhadeira.eq."${codLimpo}",maquina_id.eq.${maq.id}`) : q.eq('empilhadeira', maq.codigo);
+                q.order('created_at', { ascending: false })
                     .limit(500)
                     .then(({ data, error }) => {
                         if (error || !Array.isArray(data)) return;
                         window.historicoChecklistsPorMaquina[maq.codigo] = data;
-                        if (equipamentoSelecionado && equipamentoSelecionado.codigo === maq.codigo && subAbaPerfilAtual === 'historico') {
-                            renderSubAbaHistorico(equipamentoSelecionado);
+                        if (equipamentoSelecionado && equipamentoSelecionado.codigo === maq.codigo) {
+                            if (subAbaPerfilAtual === 'historico') renderSubAbaHistorico(equipamentoSelecionado);
+                            else if (subAbaPerfilAtual === 'preventivas') renderSubAbaPerfil();
                         }
                     })
                     .catch(() => {});
@@ -10370,57 +10472,7 @@ DIRETRIZES OBRIGATÓRIAS:
             const insumos = getInsumosEquipamento(m.codigo);
 
             if (subAbaPerfilAtual === 'preventivas') {
-                container.innerHTML = `
-                    <div class="space-y-4 text-xs">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                            <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-oil-can text-orange-700"></i> Plano de Troca de Óleo e Filtros
-                            </h4>
-                            <p class="text-slate-600">Configure se este equipamento é monitorado por Horas (Horímetro) ou Quilômetros (KM) e defina o ciclo de substituição:</p>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                                <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Tipo de Controle</label>
-                                    <select id="edit-tipo-controle" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 font-bold focus:outline-none">
-                                        <option value="horas" ${isHoras ? 'selected' : ''}>⏱️ Horas Trabalhadas (Horímetro)</option>
-                                        <option value="km" ${!isHoras ? 'selected' : ''}>🚗 Quilômetros Rodados (KM)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Intervalo entre Trocas</label>
-                                    <input type="number" id="edit-intervalo" value="${intervalo}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num font-bold">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Leitura na Última Troca Realizada</label>
-                                    <input type="number" id="edit-ult-leitura" value="${ultPreventiva}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Leitura Atual do Painel</label>
-                                    <input type="number" id="edit-atual-leitura" value="${atual}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num">
-                                </div>
-                            </div>
-
-                            <div class="p-3 rounded-lg ${faltam <= 0 ? 'bg-red-500/20 text-red-700 border border-red-500/40' : 'bg-white text-slate-600 border border-slate-200'} flex justify-between items-center">
-                                <span>Status da Revisão de Óleo:</span>
-                                <strong class="font-mono-num ${faltam <= 0 ? 'text-red-700 font-bold' : 'text-emerald-700 font-bold'}">
-                                    ${faltam <= 0 ? 'TROCA DE ÓLEO VENCIDA!' : 'Faltam ' + faltam + (isHoras ? ' horas' : ' km')}
-                                </strong>
-                            </div>
-
-                            <div class="flex gap-2 pt-1">
-                                <button onclick="salvarConfigPreventiva()" class="flex-1 btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg shadow-sm">
-                                    Salvar Configurações
-                                </button>
-                                <button onclick="registrarTrocaRealizadaAgora()" class="flex-1 btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg shadow-sm">
-                                    <i class="fa-solid fa-check-double mr-1"></i> Confirmar Troca Feita Hoje
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML = renderConteudoSubAbaTrocaOleoHorimetros(m, { isHoras, atual, ultPreventiva, intervalo, faltam });
             } else if (subAbaPerfilAtual === 'insumos') {
                 container.innerHTML = `
                     <div class="space-y-4 text-xs">
@@ -12316,17 +12368,843 @@ DIRETRIZES OBRIGATÓRIAS:
             }
         });
 
+        function formatarNumeroMetrica(valor) {
+            const n = Number(valor);
+            if (!Number.isFinite(n)) return '0';
+            return n.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+        }
+
+        function formatarPartesDataHoraLocal(valor) {
+            if (!valor) return { dataFmt: '—', horaFmt: '—', dataInput: '', horaInput: '12:00', ts: 0, temHora: false };
+            const s = String(valor).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+                const [ano, mes, dia] = s.split('-');
+                const ts = Date.parse(s + 'T12:00:00');
+                return { dataFmt: `${dia}/${mes}/${ano}`, horaFmt: '—', dataInput: s, horaInput: '12:00', ts: Number.isFinite(ts) ? ts : 0, temHora: false };
+            }
+            const dt = new Date(s);
+            if (isNaN(dt.getTime())) return { dataFmt: '—', horaFmt: '—', dataInput: '', horaInput: '12:00', ts: 0, temHora: false };
+            const ano = dt.getFullYear();
+            const mes = String(dt.getMonth() + 1).padStart(2, '0');
+            const dia = String(dt.getDate()).padStart(2, '0');
+            const hh = String(dt.getHours()).padStart(2, '0');
+            const mm = String(dt.getMinutes()).padStart(2, '0');
+            return {
+                dataFmt: `${dia}/${mes}/${ano}`,
+                horaFmt: `${hh}:${mm}`,
+                dataInput: `${ano}-${mes}-${dia}`,
+                horaInput: `${hh}:${mm}`,
+                ts: dt.getTime(),
+                temHora: true
+            };
+        }
+
+        function combinarDataHoraLocalParaIso(dataStr, horaStr) {
+            if (!dataStr) return new Date().toISOString();
+            const horaLimpa = /^\d{2}:\d{2}$/.test(String(horaStr || '').trim()) ? String(horaStr).trim() : '12:00';
+            const dt = new Date(`${dataStr}T${horaLimpa}:00`);
+            return isNaN(dt.getTime()) ? new Date().toISOString() : dt.toISOString();
+        }
+
+        function carregarAjustesHorimetroLocais() {
+            try {
+                const raw = localStorage.getItem('jp_ajuste_horimetro_real');
+                const parsed = raw ? JSON.parse(raw) : {};
+                return (parsed && typeof parsed === 'object') ? parsed : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function obterAjusteHorimetroReal(m) {
+            if (!m) return { horasExtras: 0, observacao: '', atualizadoEm: null };
+            const specs = Array.isArray(m.maquina_especificacoes) ? m.maquina_especificacoes : [];
+            const ajustesBanco = specs
+                .filter(e => e && e.categoria === 'ajuste_horimetro' && e.item_nome === 'horimetro_anterior')
+                .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            if (ajustesBanco.length > 0) {
+                const reg = ajustesBanco[0];
+                let meta = {};
+                if (reg.especificacao) {
+                    try { meta = JSON.parse(reg.especificacao); } catch (_) { meta = { observacao: String(reg.especificacao) }; }
+                }
+                return {
+                    horasExtras: Math.max(0, Number(reg.quantidade_por_troca) || 0),
+                    observacao: meta.observacao || '',
+                    atualizadoEm: meta.atualizado_em || reg.created_at || null
+                };
+            }
+
+            const localMap = carregarAjustesHorimetroLocais();
+            const localReg = m.codigo ? localMap[m.codigo] : null;
+            if (localReg && typeof localReg === 'object') {
+                return {
+                    horasExtras: Math.max(0, Number(localReg.horasExtras) || 0),
+                    observacao: localReg.observacao || '',
+                    atualizadoEm: localReg.atualizadoEm || null
+                };
+            }
+            return { horasExtras: 0, observacao: '', atualizadoEm: null };
+        }
+
+        function ehOrdemTrocaOleo(o) {
+            if (!o) return false;
+            if (o.tipo === 'troca_oleo' || o.origem === 'troca_oleo') return true;
+            const txt = `${o.titulo || ''} ${o.descricao || ''}`.toLowerCase();
+            return /troca\s*(?:de\s*)?(?:[oó]leo|filtros?)|[oó]leo\s*e\s*filtros|lubrifica[cç][aã]o|\b[oó]leo\s+do\s+motor\b/i.test(txt);
+        }
+
+        function extrairLeituraOS(o) {
+            if (!o) return null;
+            if (o.horimetro_na_os !== null && o.horimetro_na_os !== undefined && o.horimetro_na_os !== '') {
+                const n = Number(o.horimetro_na_os);
+                if (Number.isFinite(n)) return n;
+            }
+            const tentar = str => {
+                if (!str) return null;
+                const match = String(str).match(/(\d+(?:[.,]\d+)?)\s*(?:h|hs|horas|km)\b/i);
+                if (!match) return null;
+                const val = parseFloat(match[1].replace(',', '.'));
+                return Number.isFinite(val) ? val : null;
+            };
+            return tentar(o.titulo) ?? tentar(o.descricao);
+        }
+
+        function obterHistoricoTrocasOleoMaquina(m) {
+            if (!m) return [];
+            return (cacheGestor.ordens || [])
+                .filter(o => o && matchMaquinaReferencia(m, o.maquina_nome, o.maquina_id) && ehOrdemTrocaOleo(o))
+                .map(o => {
+                    const dataFonte = o.data_conclusao
+                        || (o.data_prevista && o.created_at && String(o.created_at).startsWith(o.data_prevista) ? o.created_at : (o.data_prevista || o.created_at));
+                    const partesData = formatarPartesDataHoraLocal(dataFonte);
+                    return {
+                        id: o.id,
+                        ordem: o,
+                        ts: partesData.ts || obterTimestampMs(o.created_at),
+                        partesData,
+                        leitura: extrairLeituraOS(o),
+                        titulo: o.titulo || 'Troca de óleo e filtros',
+                        status: o.status || 'pendente',
+                        responsavel: o.responsavel_mecanico || 'Mecânica',
+                        observacao: o.observacoes_finais || o.descricao || ''
+                    };
+                })
+                .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+        }
+
+        function obterRegistrosHorimetroMaquina(m) {
+            if (!m) return [];
+            const chks = obterChecklistsDaMaquina(m);
+            const lista = [];
+            chks.forEach(c => {
+                const raw = c.horimetro ?? c.respostas_customizadas?._horimetro_registrado;
+                if (raw === null || raw === undefined || raw === '') return;
+                const val = parseFloat(String(raw).replace(',', '.'));
+                if (!Number.isFinite(val)) return;
+                const partesData = formatarPartesDataHoraLocal(c.created_at);
+                lista.push({
+                    id: c.id,
+                    checklist: c,
+                    valor: val,
+                    operador: c.operador || 'Não informado',
+                    editado: Boolean(c.respostas_customizadas?._horimetro_editado_em),
+                    valorOriginal: c.respostas_customizadas?._horimetro_original ?? null,
+                    motivoAjuste: c.respostas_customizadas?._horimetro_motivo_ajuste || '',
+                    partesData,
+                    ts: partesData.ts
+                });
+            });
+            lista.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            return lista.map((item, idx) => {
+                const ant = lista[idx + 1];
+                let delta = null;
+                if (ant && item.valor >= ant.valor) {
+                    delta = Number((item.valor - ant.valor).toFixed(1));
+                } else if (item.checklist.respostas_customizadas?._horas_trabalhadas_registro !== undefined) {
+                    const regDelta = Number(item.checklist.respostas_customizadas._horas_trabalhadas_registro);
+                    if (Number.isFinite(regDelta) && regDelta >= 0) delta = regDelta;
+                }
+                return { ...item, deltaHoras: delta };
+            });
+        }
+
+        window.estadoHistoricoHorimetroPerfil = window.estadoHistoricoHorimetroPerfil || {
+            codigo: '',
+            mostrarTodosHorimetros: false,
+            buscaHorimetro: '',
+            feedbackAjuste: ''
+        };
+
+        function obterRegistrosHorimetroFiltradosPerfil(m) {
+            const todos = obterRegistrosHorimetroMaquina(m);
+            const q = normalizarBusca(window.estadoHistoricoHorimetroPerfil?.buscaHorimetro || '');
+            if (!q) return todos;
+            return todos.filter(r =>
+                normalizarBusca(r.operador).includes(q) ||
+                normalizarBusca(r.partesData.dataFmt).includes(q) ||
+                String(r.valor).includes(q)
+            );
+        }
+
+        function renderLinhasHorimetrosPerfilHtml(m) {
+            if (!m) return '';
+            const unid = m.tipo_controle === 'km' ? 'km' : 'h';
+            const filtrados = obterRegistrosHorimetroFiltradosPerfil(m);
+            const limite = window.estadoHistoricoHorimetroPerfil?.mostrarTodosHorimetros ? filtrados.length : 30;
+            const visiveis = filtrados.slice(0, limite);
+            const jsArg = v => escaparHTML(String(v || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+
+            if (visiveis.length === 0) {
+                return `
+                    <div class="p-6 text-center text-slate-500 text-xs">
+                        <i class="fa-regular fa-clock text-slate-300 text-xl mb-1.5 block"></i>
+                        Nenhum registro de ${m.tipo_controle === 'km' ? 'odômetro' : 'horímetro'} encontrado.
+                    </div>
+                `;
+            }
+
+            const rowsHtml = visiveis.map((r, idx) => `
+                <div class="p-2.5 sm:px-3.5 hover:bg-slate-50 transition flex items-center justify-between gap-2">
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-mono-num font-black text-xs sm:text-sm text-slate-900 tabular-nums">${formatarNumeroMetrica(r.valor)} ${unid}</span>
+                            ${r.deltaHoras !== null && r.deltaHoras > 0 ? `<span class="text-[10px] font-mono-num font-semibold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200">+${formatarNumeroMetrica(r.deltaHoras)} ${unid}</span>` : ''}
+                            ${idx === 0 && !window.estadoHistoricoHorimetroPerfil?.buscaHorimetro ? `<span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded bg-orange-50 text-orange-800 border border-orange-200">Atual</span>` : ''}
+                            ${r.editado ? `<span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200" title="${escaparHTML(r.motivoAjuste || 'Ajustado manualmente')}">Ajustado</span>` : ''}
+                        </div>
+                        <div class="text-[11px] text-slate-600 flex items-center gap-x-2.5 gap-y-0.5 flex-wrap">
+                            <span class="font-mono-num font-semibold text-slate-700"><i class="fa-regular fa-calendar text-slate-400 mr-1"></i>${r.partesData.dataFmt} • ${r.partesData.horaFmt}</span>
+                            <span class="truncate"><i class="fa-solid fa-user text-slate-400 mr-1 text-[10px]"></i>${escaparHTML(r.operador)}</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="abrirModalEditarHorimetroPerfil('${jsArg(r.id)}')" class="btn-compacto shrink-0 px-2.5 py-1.5 bg-white hover:bg-orange-50 text-slate-800 hover:text-orange-800 border border-slate-300 hover:border-orange-300 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Editar dia, hora ou horímetro deste registro">
+                        <i class="fa-solid fa-pen-to-square text-orange-600 text-[10px]"></i> Editar
+                    </button>
+                </div>
+            `).join('');
+
+            const footerHtml = filtrados.length > limite ? `
+                <div class="p-2.5 text-center border-t border-slate-200 bg-slate-50">
+                    <button type="button" onclick="toggleMostrarTodosHorimetrosPerfil()" class="btn-compacto px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                        Mostrar todos (${filtrados.length} registros)
+                    </button>
+                </div>
+            ` : (window.estadoHistoricoHorimetroPerfil?.mostrarTodosHorimetros && filtrados.length > 30 ? `
+                <div class="p-2.5 text-center border-t border-slate-200 bg-slate-50">
+                    <button type="button" onclick="toggleMostrarTodosHorimetrosPerfil()" class="btn-compacto px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                        Recolher para últimos 30
+                    </button>
+                </div>
+            ` : '');
+
+            return rowsHtml + footerHtml;
+        }
+
+        function filtrarListaHorimetrosPerfil(valor) {
+            if (!window.estadoHistoricoHorimetroPerfil) window.estadoHistoricoHorimetroPerfil = {};
+            window.estadoHistoricoHorimetroPerfil.buscaHorimetro = valor || '';
+            const listaEl = document.getElementById('lista-registros-horimetro-perfil');
+            if (listaEl && equipamentoSelecionado) {
+                listaEl.innerHTML = renderLinhasHorimetrosPerfilHtml(equipamentoSelecionado);
+            }
+            const countEl = document.getElementById('count-registros-horimetro-perfil');
+            if (countEl && equipamentoSelecionado) {
+                countEl.textContent = `${obterRegistrosHorimetroFiltradosPerfil(equipamentoSelecionado).length} registro(s)`;
+            }
+        }
+
+        function toggleMostrarTodosHorimetrosPerfil() {
+            if (!window.estadoHistoricoHorimetroPerfil) window.estadoHistoricoHorimetroPerfil = {};
+            window.estadoHistoricoHorimetroPerfil.mostrarTodosHorimetros = !window.estadoHistoricoHorimetroPerfil.mostrarTodosHorimetros;
+            const listaEl = document.getElementById('lista-registros-horimetro-perfil');
+            if (listaEl && equipamentoSelecionado) {
+                listaEl.innerHTML = renderLinhasHorimetrosPerfilHtml(equipamentoSelecionado);
+            }
+        }
+
+        function renderConteudoSubAbaTrocaOleoHorimetros(m, { isHoras, atual, ultPreventiva, intervalo, faltam }) {
+            if (window.estadoHistoricoHorimetroPerfil?.codigo !== m.codigo) {
+                window.estadoHistoricoHorimetroPerfil = { codigo: m.codigo, mostrarTodosHorimetros: false, buscaHorimetro: '', feedbackAjuste: '' };
+            }
+            const unid = isHoras ? 'h' : 'km';
+            const ajuste = obterAjusteHorimetroReal(m);
+            const horasExtras = ajuste.horasExtras || 0;
+            const totalReal = Number(((Number(atual) || 0) + horasExtras).toFixed(1));
+            const trocasOleo = obterHistoricoTrocasOleoMaquina(m);
+            const totalHorimetros = obterRegistrosHorimetroMaquina(m).length;
+            const jsArg = v => escaparHTML(String(v || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+            const feedbackTxt = window.estadoHistoricoHorimetroPerfil.feedbackAjuste || '';
+
+            const statusMap = {
+                concluido: { txt: 'Concluído', cls: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+                em_manutencao: { txt: 'Em Manutenção', cls: 'bg-blue-50 text-blue-800 border-blue-200' },
+                analise_pecas: { txt: 'Peças', cls: 'bg-orange-50 text-orange-800 border-orange-200' },
+                pendente: { txt: 'Pendente', cls: 'bg-amber-50 text-amber-800 border-amber-200' }
+            };
+
+            return `
+                <div class="space-y-4 text-xs">
+                    <!-- BLOCO SUPERIOR: PLANO DE TROCA DE ÓLEO + HORÍMETRO REAL (ZERAÇÃO) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                        <!-- Plano de Troca de Óleo e Filtros -->
+                        <div class="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-2xs">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-oil-can text-orange-700"></i> Plano de Troca de Óleo e Filtros
+                                </h4>
+                                <span class="text-[11px] font-mono-num font-bold px-2 py-0.5 rounded border ${faltam <= 0 ? 'bg-red-50 text-red-800 border-red-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}">
+                                    ${faltam <= 0 ? 'TROCA VENCIDA' : 'Faltam ' + formatarNumeroMetrica(faltam) + ' ' + unid}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="edit-tipo-controle" class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Tipo de Controle</label>
+                                    <select id="edit-tipo-controle" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-900 font-bold focus:outline-none focus:border-orange-500">
+                                        <option value="horas" ${isHoras ? 'selected' : ''}>Horas Trabalhadas (Horímetro)</option>
+                                        <option value="km" ${!isHoras ? 'selected' : ''}>Quilômetros Rodados (KM)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="edit-intervalo" class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Intervalo entre Trocas (${unid})</label>
+                                    <input type="number" id="edit-intervalo" value="${intervalo}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num font-bold focus:outline-none focus:border-orange-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="edit-ult-leitura" class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Leitura na Última Troca Realizada</label>
+                                    <input type="number" step="0.1" id="edit-ult-leitura" value="${ultPreventiva}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num focus:outline-none focus:border-orange-500">
+                                </div>
+                                <div>
+                                    <label for="edit-atual-leitura" class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Leitura Atual do Painel (Operadores)</label>
+                                    <input type="number" step="0.1" id="edit-atual-leitura" value="${atual}" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num focus:outline-none focus:border-orange-500">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                <button type="button" onclick="salvarConfigPreventiva()" class="flex-1 min-w-[160px] btn-industrial bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-3 rounded-lg shadow-xs cursor-pointer">
+                                    Salvar Configurações
+                                </button>
+                                <button type="button" onclick="registrarTrocaRealizadaAgora()" class="flex-1 min-w-[180px] btn-industrial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-lg shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-check-double mr-1"></i> Confirmar Troca Feita Hoje
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Horímetro Real da Máquina (Horas anteriores antes do painel zerar) -->
+                        <div class="lg:col-span-5 bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-2xs">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-clock-rotate-left text-orange-700"></i> Ajuste de ${isHoras ? 'Horímetro' : 'Odômetro'} Real
+                                    </h4>
+                                    <p class="text-[11px] text-slate-600 mt-0.5">Para painel zerado/trocado. Visível apenas aqui na gestão, sem alterar os checklists dos operadores.</p>
+                                </div>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 shrink-0">Só Gestão</span>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2">
+                                    <span class="text-[10px] font-semibold text-slate-500 block truncate">Painel Atual</span>
+                                    <strong class="font-mono-num text-xs sm:text-sm font-black text-slate-900 tabular-nums">${formatarNumeroMetrica(atual)} ${unid}</strong>
+                                </div>
+                                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2">
+                                    <span class="text-[10px] font-semibold text-slate-500 block truncate">Horas Antes Zerar</span>
+                                    <strong class="font-mono-num text-xs sm:text-sm font-black text-orange-700 tabular-nums">+${formatarNumeroMetrica(horasExtras)} ${unid}</strong>
+                                </div>
+                                <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                                    <span class="text-[10px] font-bold text-emerald-800 block truncate">Real Total</span>
+                                    <strong id="valor-horimetro-real-total" class="font-mono-num text-xs sm:text-sm font-black text-emerald-900 tabular-nums">${formatarNumeroMetrica(totalReal)} ${unid}</strong>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <label for="ajuste-horimetro-extras" class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Horas a mais (antes de zerar)</label>
+                                        <input type="number" step="0.1" min="0" id="ajuste-horimetro-extras" value="${horasExtras}" oninput="atualizarPreviewHorimetroRealTotal(${Number(atual) || 0}, '${unid}')" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono-num font-bold focus:outline-none focus:border-orange-500">
+                                    </div>
+                                    <div>
+                                        <label for="ajuste-horimetro-obs" class="block text-[10px] uppercase font-bold text-slate-600 mb-1">Observação <span class="text-slate-400 font-normal">(opcional)</span></label>
+                                        <input type="text" id="ajuste-horimetro-obs" value="${escaparHTML(ajuste.observacao)}" placeholder="Ex: Zerou em 05/2026" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 text-xs focus:outline-none focus:border-orange-500">
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2 pt-0.5 flex-wrap">
+                                    <span id="ajuste-horimetro-feedback" class="text-[11px] font-semibold text-emerald-700">${escaparHTML(feedbackTxt)}</span>
+                                    <button type="button" onclick="salvarAjusteHorimetroRealPerfil()" class="btn-industrial px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                        <i class="fa-solid fa-floppy-disk"></i> Salvar Horímetro Real
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOCO INFERIOR: LISTAS EDITÁVEIS DE TROCAS DE ÓLEO E REGISTROS DE HORÍMETROS -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                        <!-- Lista 1: Histórico de Trocas de Óleo -->
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs flex flex-col">
+                            <div class="p-3 sm:px-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-2 flex-wrap">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-list-check text-orange-700"></i> Histórico de Trocas de Óleo
+                                    </h4>
+                                    <span class="text-[11px] text-slate-500 font-mono-num">${trocasOleo.length} troca(s) registrada(s)</span>
+                                </div>
+                                <button type="button" onclick="abrirModalNovaTrocaOleoPerfil()" class="btn-compacto px-2.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-[11px] transition flex items-center gap-1 cursor-pointer shadow-2xs">
+                                    <i class="fa-solid fa-plus"></i> Registrar Troca
+                                </button>
+                            </div>
+
+                            <div class="divide-y divide-slate-200 max-h-[380px] overflow-y-auto">
+                                ${trocasOleo.length === 0 ? `
+                                    <div class="p-6 text-center text-slate-500 text-xs">
+                                        <i class="fa-solid fa-oil-can text-slate-300 text-xl mb-1.5 block"></i>
+                                        Nenhuma troca de óleo registrada para ${escaparHTML(m.codigo)} ainda.
+                                    </div>
+                                ` : trocasOleo.map(t => {
+                                    const st = statusMap[t.status] || { txt: t.status || 'Registrada', cls: 'bg-slate-100 text-slate-700 border-slate-200' };
+                                    return `
+                                    <div class="p-2.5 sm:px-3.5 hover:bg-slate-50 transition flex items-start justify-between gap-2">
+                                        <div class="min-w-0 flex-1 space-y-1">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-mono-num font-bold text-xs text-slate-900 tabular-nums">${t.partesData.dataFmt}${t.partesData.horaFmt !== '—' ? ' • ' + t.partesData.horaFmt : ''}</span>
+                                                ${t.leitura !== null ? `<span class="font-mono-num font-bold text-[11px] px-1.5 py-0.2 rounded bg-orange-50 text-orange-800 border border-orange-200 tabular-nums">${formatarNumeroMetrica(t.leitura)} ${unid}</span>` : ''}
+                                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded border ${st.cls}">${st.txt}</span>
+                                            </div>
+                                            <p class="font-semibold text-slate-800 text-xs leading-snug break-words">${escaparHTML(t.titulo)}</p>
+                                            <div class="text-[11px] text-slate-500 flex items-center gap-2 flex-wrap">
+                                                <span><i class="fa-solid fa-user-gear text-slate-400 mr-1 text-[10px]"></i>${escaparHTML(t.responsavel)}</span>
+                                                ${t.ordem.numero_os ? `<span class="font-mono-num font-semibold text-slate-600">O.S. #${t.ordem.numero_os}</span>` : ''}
+                                            </div>
+                                        </div>
+                                        <button type="button" onclick="abrirModalEditarTrocaOleoPerfil('${jsArg(t.id)}')" class="btn-compacto shrink-0 px-2.5 py-1.5 bg-white hover:bg-orange-50 text-slate-800 hover:text-orange-800 border border-slate-300 hover:border-orange-300 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs" title="Editar troca de óleo">
+                                            <i class="fa-solid fa-pen-to-square text-orange-600 text-[10px]"></i> Editar
+                                        </button>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Lista 2: Registros de Horímetros / KM dos Operadores -->
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs flex flex-col">
+                            <div class="p-3 sm:px-4 border-b border-slate-200 bg-slate-50 space-y-2">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <div>
+                                        <h4 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-gauge-high text-orange-700"></i> Registros de ${isHoras ? 'Horímetros' : 'Odômetros (KM)'}
+                                        </h4>
+                                        <span id="count-registros-horimetro-perfil" class="text-[11px] text-slate-500 font-mono-num">${totalHorimetros} registro(s)</span>
+                                    </div>
+                                    <div class="relative min-w-[150px] flex-1 sm:flex-initial sm:w-48">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-[11px] text-slate-400"></i>
+                                        <input type="text" id="filtro-horimetro-perfil" value="${escaparHTML(window.estadoHistoricoHorimetroPerfil.buscaHorimetro || '')}" oninput="filtrarListaHorimetrosPerfil(this.value)" placeholder="Filtrar operador, dia ou ${unid}..." aria-label="Filtrar registros de horímetro" class="w-full bg-white border border-slate-300 rounded-lg pl-7 pr-2 py-1 text-xs text-slate-900 focus:outline-none focus:border-orange-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="lista-registros-horimetro-perfil" class="divide-y divide-slate-200 max-h-[380px] overflow-y-auto">
+                                ${renderLinhasHorimetrosPerfilHtml(m)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function atualizarPreviewHorimetroRealTotal(atualPainel, unid) {
+            const input = document.getElementById('ajuste-horimetro-extras');
+            const el = document.getElementById('valor-horimetro-real-total');
+            if (!input || !el) return;
+            const extras = Math.max(0, parseFloat(String(input.value || '0').replace(',', '.')) || 0);
+            el.textContent = `${formatarNumeroMetrica((Number(atualPainel) || 0) + extras)} ${unid}`;
+        }
+
+        async function salvarAjusteHorimetroRealPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const inputExtras = document.getElementById('ajuste-horimetro-extras');
+            const inputObs = document.getElementById('ajuste-horimetro-obs');
+            const valRaw = String(inputExtras?.value ?? '0').trim().replace(',', '.');
+            const horasExtras = valRaw === '' ? 0 : parseFloat(valRaw);
+
+            if (isNaN(horasExtras) || horasExtras < 0) {
+                alert('Informe um valor válido maior ou igual a zero para as horas anteriores.');
+                inputExtras?.focus();
+                return;
+            }
+
+            const observacao = inputObs ? inputObs.value.trim() : '';
+            const agoraIso = new Date().toISOString();
+            const unid = m.tipo_controle === 'km' ? 'km' : 'h';
+
+            const mapaLocal = carregarAjustesHorimetroLocais();
+            if (m.codigo) {
+                mapaLocal[m.codigo] = { horasExtras, observacao, atualizadoEm: agoraIso };
+                try { localStorage.setItem('jp_ajuste_horimetro_real', JSON.stringify(mapaLocal)); } catch (_) {}
+            }
+
+            const maquinaId = await obterIdRealMaquina(m);
+            const isUuid = Boolean(maquinaId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maquinaId)));
+            let registroSalvo = {
+                maquina_id: isUuid ? maquinaId : null,
+                categoria: 'ajuste_horimetro',
+                item_nome: 'horimetro_anterior',
+                codigo_fabricante: m.codigo || '',
+                especificacao: JSON.stringify({ observacao, atualizado_em: agoraIso }),
+                quantidade_por_troca: horasExtras,
+                unidade: unid,
+                fornecedor_preferencial: 'gestao',
+                created_at: agoraIso
+            };
+
+            if (db && navigator.onLine && isUuid) {
+                try {
+                    await db.from('maquina_especificacoes').delete()
+                        .eq('maquina_id', maquinaId)
+                        .eq('categoria', 'ajuste_horimetro');
+                    const { data, error } = await db.from('maquina_especificacoes').insert([registroSalvo]).select();
+                    if (error) throw error;
+                    if (Array.isArray(data) && data[0]) registroSalvo = data[0];
+                } catch (e) {
+                    console.error('Erro ao salvar ajuste de horímetro real:', e);
+                    alert('Erro ao salvar no banco: ' + (e.message || 'Tente novamente.'));
+                    return;
+                }
+            }
+
+            if (!Array.isArray(m.maquina_especificacoes)) m.maquina_especificacoes = [];
+            m.maquina_especificacoes = m.maquina_especificacoes.filter(s => s && s.categoria !== 'ajuste_horimetro');
+            m.maquina_especificacoes.push(registroSalvo);
+            sincronizarCacheMaquinaLocal(m);
+
+            window.estadoHistoricoHorimetroPerfil = {
+                ...(window.estadoHistoricoHorimetroPerfil || {}),
+                codigo: m.codigo,
+                feedbackAjuste: `Ajuste salvo (+${formatarNumeroMetrica(horasExtras)} ${unid}).`
+            };
+            renderSubAbaPerfil();
+        }
+
+        function abrirModalEditarHorimetroPerfil(chkId) {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const registros = obterRegistrosHorimetroMaquina(m);
+            const reg = registros.find(r => String(r.id) === String(chkId));
+            if (!reg) {
+                alert('Registro de horímetro não encontrado.');
+                return;
+            }
+            const modal = document.getElementById('modal-editar-historico-perfil');
+            if (!modal) return;
+
+            const unid = m.tipo_controle === 'km' ? 'km' : 'h';
+            document.getElementById('edit-hist-modo').value = 'horimetro';
+            document.getElementById('edit-hist-id').value = reg.id;
+            document.getElementById('edit-hist-icone').className = 'fa-solid fa-gauge-high';
+            document.getElementById('edit-hist-titulo-modal').textContent = `Editar Registro (${m.codigo})`;
+            document.getElementById('edit-hist-subtitulo').textContent = `Operador: ${reg.operador}`;
+            document.getElementById('edit-hist-leitura-label').textContent = m.tipo_controle === 'km' ? 'Odômetro Registrado (KM)' : 'Horímetro Registrado (h)';
+            document.getElementById('edit-hist-data').value = reg.partesData.dataInput || new Date().toISOString().split('T')[0];
+            document.getElementById('edit-hist-hora').value = reg.partesData.horaInput !== '—' ? reg.partesData.horaInput : '12:00';
+            document.getElementById('edit-hist-leitura').value = reg.valor;
+            document.getElementById('edit-hist-motivo').value = reg.motivoAjuste || '';
+
+            const infoBox = document.getElementById('edit-hist-info-box');
+            if (infoBox) {
+                infoBox.innerHTML = reg.valorOriginal !== null
+                    ? `<i class="fa-solid fa-clock-rotate-left text-orange-600 mr-1"></i> Valor original digitado antes da edição: <strong class="font-mono-num">${formatarNumeroMetrica(reg.valorOriginal)} ${unid}</strong>`
+                    : `<i class="fa-solid fa-user text-orange-600 mr-1"></i> Lançamento registrado por <strong>${escaparHTML(reg.operador)}</strong> em <span class="font-mono-num">${reg.partesData.dataFmt} às ${reg.partesData.horaFmt}</span>.`;
+                infoBox.classList.remove('hidden');
+            }
+
+            const chkMaisRecente = String(registros[0]?.id) === String(reg.id);
+            const syncChk = document.getElementById('edit-hist-sync-atual');
+            if (syncChk) syncChk.checked = chkMaisRecente;
+
+            document.getElementById('edit-hist-chk-fields').classList.remove('hidden');
+            document.getElementById('edit-hist-oleo-fields').classList.add('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        function abrirModalEditarTrocaOleoPerfil(osId) {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const trocas = obterHistoricoTrocasOleoMaquina(m);
+            const reg = trocas.find(t => String(t.id) === String(osId));
+            if (!reg) {
+                alert('Registro de troca de óleo não encontrado.');
+                return;
+            }
+            const modal = document.getElementById('modal-editar-historico-perfil');
+            if (!modal) return;
+
+            const isHoras = m.tipo_controle !== 'km';
+            document.getElementById('edit-hist-modo').value = 'troca_oleo';
+            document.getElementById('edit-hist-id').value = reg.id;
+            document.getElementById('edit-hist-icone').className = 'fa-solid fa-oil-can';
+            document.getElementById('edit-hist-titulo-modal').textContent = `Editar Troca de Óleo (${m.codigo})`;
+            document.getElementById('edit-hist-subtitulo').textContent = reg.ordem.numero_os ? `O.S. #${reg.ordem.numero_os}` : 'Registro de troca preventiva';
+            document.getElementById('edit-hist-leitura-label').textContent = isHoras ? 'Horímetro na Troca (h)' : 'KM na Troca';
+            document.getElementById('edit-hist-data').value = reg.partesData.dataInput || new Date().toISOString().split('T')[0];
+            document.getElementById('edit-hist-hora').value = (reg.partesData.horaFmt && reg.partesData.horaFmt !== '—') ? reg.partesData.horaInput : '12:00';
+            document.getElementById('edit-hist-leitura').value = reg.leitura !== null ? reg.leitura : '';
+            document.getElementById('edit-hist-titulo').value = reg.titulo || 'Troca de óleo e filtros';
+            document.getElementById('edit-hist-status').value = ['concluido', 'em_manutencao', 'analise_pecas', 'pendente'].includes(reg.status) ? reg.status : 'concluido';
+            document.getElementById('edit-hist-mecanico').value = reg.ordem.responsavel_mecanico || '';
+            document.getElementById('edit-hist-obs').value = reg.ordem.observacoes_finais || reg.ordem.descricao || '';
+
+            const syncUlt = document.getElementById('edit-hist-sync-ult-oleo');
+            if (syncUlt) syncUlt.checked = true;
+
+            const infoBox = document.getElementById('edit-hist-info-box');
+            if (infoBox) infoBox.classList.add('hidden');
+            document.getElementById('edit-hist-chk-fields').classList.add('hidden');
+            document.getElementById('edit-hist-oleo-fields').classList.remove('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        function abrirModalNovaTrocaOleoPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const modal = document.getElementById('modal-editar-historico-perfil');
+            if (!modal) return;
+
+            const isHoras = m.tipo_controle !== 'km';
+            const atual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
+            const agoraPartes = formatarPartesDataHoraLocal(new Date().toISOString());
+
+            document.getElementById('edit-hist-modo').value = 'nova_troca_oleo';
+            document.getElementById('edit-hist-id').value = '';
+            document.getElementById('edit-hist-icone').className = 'fa-solid fa-oil-can';
+            document.getElementById('edit-hist-titulo-modal').textContent = `Registrar Troca de Óleo (${m.codigo})`;
+            document.getElementById('edit-hist-subtitulo').textContent = 'Novo lançamento no histórico de lubrificação';
+            document.getElementById('edit-hist-leitura-label').textContent = isHoras ? 'Horímetro na Troca (h)' : 'KM na Troca';
+            document.getElementById('edit-hist-data').value = agoraPartes.dataInput;
+            document.getElementById('edit-hist-hora').value = agoraPartes.horaInput;
+            document.getElementById('edit-hist-leitura').value = atual;
+            document.getElementById('edit-hist-titulo').value = `Troca de óleo e filtros realizada (${formatarNumeroMetrica(atual)} ${isHoras ? 'h' : 'km'})`;
+            document.getElementById('edit-hist-status').value = 'concluido';
+            document.getElementById('edit-hist-mecanico').value = 'Equipe de Manutenção';
+            document.getElementById('edit-hist-obs').value = 'Substituição periódica de óleo e filtros.';
+
+            const syncUlt = document.getElementById('edit-hist-sync-ult-oleo');
+            if (syncUlt) syncUlt.checked = true;
+
+            const infoBox = document.getElementById('edit-hist-info-box');
+            if (infoBox) infoBox.classList.add('hidden');
+            document.getElementById('edit-hist-chk-fields').classList.add('hidden');
+            document.getElementById('edit-hist-oleo-fields').classList.remove('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalEditarHistoricoPerfil() {
+            const modal = document.getElementById('modal-editar-historico-perfil');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function salvarEdicaoHistoricoPerfil() {
+            const m = equipamentoSelecionado;
+            if (!m) return;
+            const modo = document.getElementById('edit-hist-modo')?.value || 'horimetro';
+            const id = document.getElementById('edit-hist-id')?.value || '';
+            const dataStr = document.getElementById('edit-hist-data')?.value;
+            const horaStr = document.getElementById('edit-hist-hora')?.value || '12:00';
+            const leituraRaw = String(document.getElementById('edit-hist-leitura')?.value ?? '').trim().replace(',', '.');
+            const leitura = leituraRaw === '' ? NaN : parseFloat(leituraRaw);
+
+            if (!dataStr) {
+                alert('Informe o dia do registro.');
+                return;
+            }
+            if (isNaN(leitura) || leitura < 0) {
+                alert('Informe uma leitura numérica válida maior ou igual a zero.');
+                return;
+            }
+
+            const isoTimestamp = combinarDataHoraLocalParaIso(dataStr, horaStr);
+            const btn = document.getElementById('btn-salvar-edicao-hist-perfil');
+            const btnTxt = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+            }
+
+            try {
+                const isHoras = m.tipo_controle !== 'km';
+                if (modo === 'horimetro') {
+                    const chk = obterChecklistsDaMaquina(m).find(c => String(c.id) === String(id));
+                    if (!chk) throw new Error('Checklist não localizado.');
+
+                    const motivo = document.getElementById('edit-hist-motivo')?.value.trim() || '';
+                    const syncAtual = Boolean(document.getElementById('edit-hist-sync-atual')?.checked);
+                    const respCustom = { ...(chk.respostas_customizadas || {}) };
+                    if (respCustom._horimetro_original === undefined) {
+                        respCustom._horimetro_original = chk.horimetro ?? chk.respostas_customizadas?._horimetro_registrado ?? null;
+                    }
+                    respCustom._horimetro_registrado = leitura;
+                    respCustom._horimetro_editado_em = new Date().toISOString();
+                    if (motivo) respCustom._horimetro_motivo_ajuste = motivo;
+                    else delete respCustom._horimetro_motivo_ajuste;
+
+                    if (respCustom._horimetro_anterior !== undefined && respCustom._horimetro_anterior !== null) {
+                        const antNum = parseFloat(respCustom._horimetro_anterior);
+                        if (!isNaN(antNum) && leitura >= antNum) {
+                            respCustom._horas_trabalhadas_registro = Number((leitura - antNum).toFixed(1));
+                        }
+                    }
+
+                    const payloadChk = {
+                        horimetro: leitura,
+                        created_at: isoTimestamp,
+                        respostas_customizadas: respCustom
+                    };
+
+                    if (db && navigator.onLine && chk.id && !String(chk.id).startsWith('local_')) {
+                        const { error } = await db.from('checklists').update(payloadChk).eq('id', chk.id);
+                        if (error) throw error;
+                    }
+
+                    const atualizarItemCache = item => {
+                        if (!item || String(item.id) !== String(chk.id)) return;
+                        item.horimetro = leitura;
+                        item.created_at = isoTimestamp;
+                        item.respostas_customizadas = { ...respCustom };
+                    };
+                    (cacheGestor.checklists || []).forEach(atualizarItemCache);
+                    if (m.codigo && Array.isArray(window.historicoChecklistsPorMaquina?.[m.codigo])) {
+                        window.historicoChecklistsPorMaquina[m.codigo].forEach(atualizarItemCache);
+                    }
+                    try { localStorage.setItem('jp_checklists_cache', JSON.stringify((cacheGestor.checklists || []).slice(0, 100))); } catch (_) {}
+
+                    const registrosAtualizados = obterRegistrosHorimetroMaquina(m);
+                    if (syncAtual && registrosAtualizados.length > 0 && String(registrosAtualizados[0].id) === String(chk.id)) {
+                        const campoLeitura = isHoras ? 'horimetro_atual' : 'km_atual';
+                        const agoraIso = new Date().toISOString();
+                        m[campoLeitura] = leitura;
+                        m.updated_at = agoraIso;
+                        sincronizarCacheMaquinaLocal(m);
+                        if (db && navigator.onLine) {
+                            const idReal = await obterIdRealMaquina(m);
+                            const isUuid = Boolean(idReal && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(idReal)));
+                            const upPayload = { [campoLeitura]: leitura, updated_at: agoraIso };
+                            if (isUuid) await db.from('maquinas').update(upPayload).eq('id', idReal);
+                            else if (m.codigo) await db.from('maquinas').update(upPayload).eq('codigo', m.codigo);
+                        }
+                    }
+                } else {
+                    const titulo = document.getElementById('edit-hist-titulo')?.value.trim() || `Troca de óleo e filtros (${formatarNumeroMetrica(leitura)} ${isHoras ? 'h' : 'km'})`;
+                    const status = document.getElementById('edit-hist-status')?.value || 'concluido';
+                    const responsavel = document.getElementById('edit-hist-mecanico')?.value.trim() || 'Equipe de Manutenção';
+                    const obs = document.getElementById('edit-hist-obs')?.value.trim() || '';
+                    const syncUltOleo = Boolean(document.getElementById('edit-hist-sync-ult-oleo')?.checked);
+                    const agoraIso = new Date().toISOString();
+
+                    if (modo === 'nova_troca_oleo') {
+                        const maqId = await obterIdRealMaquina(m);
+                        const isUuid = Boolean(maqId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maqId)));
+                        const insertPayload = {
+                            maquina_id: isUuid ? maqId : null,
+                            maquina_nome: m.codigo,
+                            tipo: 'preventiva',
+                            origem: 'troca_oleo',
+                            titulo,
+                            descricao: obs || 'Substituição periódica de óleo e filtros.',
+                            observacoes_finais: status === 'concluido' ? obs : null,
+                            horimetro_na_os: leitura,
+                            prioridade: 'baixa',
+                            status,
+                            responsavel_mecanico: responsavel,
+                            data_prevista: dataStr,
+                            data_conclusao: status === 'concluido' ? isoTimestamp : null,
+                            created_at: isoTimestamp,
+                            updated_at: agoraIso
+                        };
+                        let criada = insertPayload;
+                        if (db && navigator.onLine) {
+                            const { data, error } = await db.from('ordens_manutencao').insert([insertPayload]).select();
+                            if (error) throw error;
+                            if (Array.isArray(data) && data[0]) criada = data[0];
+                        } else {
+                            criada.id = 'temp_oleo_' + Date.now();
+                        }
+                        if (!Array.isArray(cacheGestor.ordens)) cacheGestor.ordens = [];
+                        cacheGestor.ordens.unshift(criada);
+                    } else {
+                        const ordemExistente = (cacheGestor.ordens || []).find(o => String(o.id) === String(id));
+                        if (!ordemExistente) throw new Error('Registro de troca não encontrado.');
+
+                        const upOs = {
+                            titulo,
+                            status,
+                            responsavel_mecanico: responsavel,
+                            horimetro_na_os: leitura,
+                            data_prevista: dataStr,
+                            created_at: isoTimestamp,
+                            data_conclusao: status === 'concluido' ? isoTimestamp : null,
+                            updated_at: agoraIso
+                        };
+                        if (obs) {
+                            upOs.observacoes_finais = obs;
+                            if (!ordemExistente.descricao) upOs.descricao = obs;
+                        }
+
+                        if (db && navigator.onLine && ordemExistente.id && !String(ordemExistente.id).startsWith('temp_')) {
+                            const { error } = await db.from('ordens_manutencao').update(upOs).eq('id', ordemExistente.id);
+                            if (error) throw error;
+                        }
+                        Object.assign(ordemExistente, upOs);
+                    }
+
+                    if (syncUltOleo && status === 'concluido') {
+                        const maisRecenteConcluida = obterHistoricoTrocasOleoMaquina(m).find(t => t.status === 'concluido' && t.leitura !== null);
+                        if (maisRecenteConcluida) {
+                            const campoUlt = isHoras ? 'horimetro_ultima_preventiva' : 'km_ultima_preventiva';
+                            m[campoUlt] = maisRecenteConcluida.leitura;
+                            m.updated_at = agoraIso;
+                            sincronizarCacheMaquinaLocal(m);
+                            if (db && navigator.onLine) {
+                                const idReal = await obterIdRealMaquina(m);
+                                const isUuid = Boolean(idReal && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(idReal)));
+                                if (isUuid) await db.from('maquinas').update({ [campoUlt]: maisRecenteConcluida.leitura, updated_at: agoraIso }).eq('id', idReal);
+                                else if (m.codigo) await db.from('maquinas').update({ [campoUlt]: maisRecenteConcluida.leitura, updated_at: agoraIso }).eq('codigo', m.codigo);
+                            }
+                        }
+                    }
+
+                    const elCount = document.getElementById('count-os');
+                    if (elCount) elCount.innerText = (cacheGestor.ordens || []).filter(o => o.status !== 'concluido').length;
+                }
+
+                fecharModalEditarHistoricoPerfil();
+                atualizarHeaderPerfil(m);
+                renderSubAbaPerfil();
+                renderizarAbaAtualGestor();
+            } catch (err) {
+                console.error('Erro ao salvar edição no histórico:', err);
+                alert('Erro ao salvar alteração: ' + (err.message || 'Tente novamente.'));
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = btnTxt;
+                }
+            }
+        }
+
         async function salvarConfigPreventiva() {
             const m = equipamentoSelecionado;
-            if (!m || !db) return;
+            if (!m) return;
             const tipoControle = document.getElementById('edit-tipo-controle').value;
             const intervalo = parseFloat(document.getElementById('edit-intervalo').value) || 250;
             const ultLeitura = parseFloat(document.getElementById('edit-ult-leitura').value) || 0;
             const atualLeitura = parseFloat(document.getElementById('edit-atual-leitura').value) || 0;
+            const agoraIso = new Date().toISOString();
 
             const updatePayload = {
                 tipo_controle: tipoControle,
-                updated_at: new Date()
+                updated_at: agoraIso
             };
 
             if (tipoControle === 'horas') {
@@ -12340,10 +13218,16 @@ DIRETRIZES OBRIGATÓRIAS:
             }
 
             try {
-                await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
+                if (db && navigator.onLine) {
+                    const { error } = await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
+                    if (error) throw error;
+                }
+                Object.assign(m, updatePayload);
+                sincronizarCacheMaquinaLocal(m);
+                atualizarHeaderPerfil(m);
+                renderSubAbaPerfil();
+                renderizarAbaAtualGestor();
                 alert("Configuração de troca preventiva de óleo/filtros salva com sucesso!");
-                fecharModalPerfil();
-                carregarDadosGestor();
             } catch (e) {
                 alert("Erro ao salvar dados.");
             }
@@ -12351,35 +13235,62 @@ DIRETRIZES OBRIGATÓRIAS:
 
         async function registrarTrocaRealizadaAgora() {
             const m = equipamentoSelecionado;
-            if (!m || !db) return;
+            if (!m) return;
             const isHoras = m.tipo_controle !== 'km';
-            const leituraAtual = isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0);
+            const inputAtual = document.getElementById('edit-atual-leitura');
+            const leituraInput = inputAtual ? parseFloat(inputAtual.value) : NaN;
+            const leituraAtual = !isNaN(leituraInput) ? leituraInput : (isHoras ? (m.horimetro_atual || 0) : (m.km_atual || 0));
 
-            if (!confirm(`Confirmar registro de troca de óleo e filtros realizada agora para ${m.codigo}?`)) return;
+            if (!confirm(`Confirmar registro de troca de óleo e filtros realizada agora para ${m.codigo} (${formatarNumeroMetrica(leituraAtual)} ${isHoras ? 'h' : 'km'})?`)) return;
 
-            const updatePayload = { updated_at: new Date() };
+            const agoraIso = new Date().toISOString();
+            const updatePayload = { updated_at: agoraIso };
             if (isHoras) {
                 updatePayload.horimetro_ultima_preventiva = leituraAtual;
             } else {
                 updatePayload.km_ultima_preventiva = leituraAtual;
             }
 
+            const maqId = await obterIdRealMaquina(m);
+            const isUuid = Boolean(maqId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(maqId)));
+            const osPayload = {
+                maquina_id: isUuid ? maqId : null,
+                maquina_nome: m.codigo,
+                tipo: 'preventiva',
+                origem: 'troca_oleo',
+                titulo: `Troca de óleo e filtros realizada (${formatarNumeroMetrica(leituraAtual)} ${isHoras ? 'h' : 'km'})`,
+                descricao: `Substituição periódica de consumíveis executada com sucesso.`,
+                horimetro_na_os: leituraAtual,
+                responsavel_mecanico: 'Equipe de Manutenção',
+                prioridade: 'baixa',
+                status: 'concluido',
+                data_prevista: agoraIso.split('T')[0],
+                data_conclusao: agoraIso,
+                created_at: agoraIso,
+                updated_at: agoraIso
+            };
+
             try {
-                await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
-                await db.from('ordens_manutencao').insert([{
-                    maquina_nome: m.codigo,
-                    tipo: 'preventiva',
-                    origem: 'preventiva_agendada',
-                    titulo: `Troca de óleo e filtros realizada (${leituraAtual} ${isHoras ? 'h' : 'km'})`,
-                    descricao: `Registro de substituição periódica de consumíveis executada com sucesso.`,
-                    prioridade: 'baixa',
-                    status: 'concluido',
-                    data_prevista: new Date().toISOString().split('T')[0],
-                    data_conclusao: new Date()
-                }]);
+                let novaOs = osPayload;
+                if (db && navigator.onLine) {
+                    const { error: eMaq } = await db.from('maquinas').update(updatePayload).eq('codigo', m.codigo);
+                    if (eMaq) throw eMaq;
+                    const { data, error: eOs } = await db.from('ordens_manutencao').insert([osPayload]).select();
+                    if (eOs) throw eOs;
+                    if (Array.isArray(data) && data[0]) novaOs = data[0];
+                } else {
+                    novaOs.id = 'temp_oleo_' + Date.now();
+                }
+
+                Object.assign(m, updatePayload);
+                sincronizarCacheMaquinaLocal(m);
+                if (!Array.isArray(cacheGestor.ordens)) cacheGestor.ordens = [];
+                cacheGestor.ordens.unshift(novaOs);
+
+                atualizarHeaderPerfil(m);
+                renderSubAbaPerfil();
+                renderizarAbaAtualGestor();
                 alert("Troca de óleo e filtros registrada e concluída no sistema!");
-                fecharModalPerfil();
-                carregarDadosGestor();
             } catch (e) {
                 alert("Erro ao registrar troca.");
             }
